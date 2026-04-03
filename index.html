@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Player Logger">
+    <title>Player Logger</title>
+    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiUGxheWVyIExvZ2dlciIsInNob3J0X25hbWUiOiJQbGF5ZXJMb2ciLCJzdGFydF91cmwiOiIuLyIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiYmFja2dyb3VuZF9jb2xvciI6IiNmNWY1ZjUiLCJ0aGVtZV9jb2xvciI6IiMyMTk2RjMiLCJpY29ucyI6W119">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f5f5f5;
+            padding: 10px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+
+        .section {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .section h2 {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .button-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .button-grid button {
+            flex: 0 1 calc(20% - 8px);
+            min-width: 55px;
+            padding: 15px 5px;
+            font-size: 14px;
+            font-weight: bold;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            background: white;
+        }
+
+        .category-btn.selected {
+            background: #2196F3;
+            color: white;
+        }
+
+        .descriptor-btn {
+            background: #fff3e0;
+            border-color: #ff9800;
+        }
+
+        .descriptor-btn:disabled {
+            opacity: 0.3;
+        }
+
+        .descriptor-btn.selected {
+            background: #ff9800;
+            color: white;
+        }
+
+        .period-btn {
+            flex: 1 1 calc(50% - 8px);
+            padding: 12px;
+            font-size: 13px;
+            font-weight: bold;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            background: white;
+        }
+
+        .period-btn.active {
+            background: #4CAF50;
+            color: white;
+        }
+
+        #status {
+            text-align: center;
+            padding: 10px;
+            background: #e3f2fd;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            font-size: 13px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .control-btn {
+            flex: 1;
+            padding: 10px;
+            font-size: 14px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .control-btn.primary {
+            background: #4CAF50;
+        }
+
+        .control-btn.danger {
+            background: #f44336;
+        }
+
+        .stats {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .stat-box {
+            flex: 1;
+            background: white;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2196F3;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #666;
+        }
+
+        #eventLog {
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 12px;
+        }
+
+        .log-entry {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+        }
+
+        /* Matrix styles */
+        .matrix-container {
+            overflow: auto;
+            margin-top: 15px;
+            max-height: 400px;
+        }
+
+        .matrix-table {
+            border-collapse: collapse;
+            width: 100%;
+            font-size: 11px;
+        }
+
+        .matrix-table th,
+        .matrix-table td {
+            border: 1px solid #ddd;
+            padding: 6px;
+            text-align: center;
+            min-width: 50px;
+        }
+
+        .matrix-table th {
+            background-color: #2196F3;
+            color: white;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .matrix-table th.category-header {
+            background-color: #1976D2;
+            text-align: left;
+            position: sticky;
+            left: 0;
+            z-index: 11;
+        }
+
+        .matrix-table th.descriptor-header {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            padding: 10px 6px;
+            height: 80px;
+            font-size: 10px;
+        }
+
+        .matrix-table td.category-cell {
+            background-color: #f5f5f5;
+            font-weight: bold;
+            text-align: left;
+            position: sticky;
+            left: 0;
+            z-index: 5;
+            font-size: 11px;
+        }
+
+        .matrix-table td.count-cell {
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .matrix-table td.count-cell:hover {
+            background-color: #e3f2fd;
+        }
+
+        .matrix-table td.count-cell.has-events {
+            background-color: #c8e6c9;
+            font-weight: bold;
+            color: #2e7d32;
+        }
+
+        .matrix-table tr.opp-row td.category-cell {
+            background-color: #fff3e0;
+        }
+
+        .sort-btn {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 2px;
+            margin: 0;
+            font-size: 10px;
+            display: block;
+            width: 100%;
+        }
+
+        .sort-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .sort-btn.active-asc::after {
+            content: ' ▲';
+        }
+
+        .sort-btn.active-desc::after {
+            content: ' ▼';
+        }
+    </style>
+</head>
+<body>
+    <h1>Player Logger</h1>
+
+    <div id="status">Ready - Select a category</div>
+
+    <div class="stats">
+        <div class="stat-box">
+            <div class="stat-value" id="ckScore">0:0</div>
+            <div class="stat-label">Castleknock</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value" id="gameClock">00:00</div>
+            <div class="stat-label">Game Clock</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value" id="oppScore">0:0</div>
+            <div class="stat-label">Opposition</div>
+        </div>
+    </div>
+    <div class="stats">
+        <div class="stat-box">
+            <div class="stat-value" id="currentPeriod">Not Started</div>
+            <div class="stat-label">Period</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value" id="eventCount">0</div>
+            <div class="stat-label">Events</div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button class="control-btn primary" onclick="saveCurrentEvent()">Save Event</button>
+        <button class="control-btn primary" onclick="downloadCSV()">Download CSV</button>
+        <button class="control-btn danger" onclick="clearData()">Clear All</button>
+    </div>
+
+    <div class="section">
+        <h2>Game Period</h2>
+        <div class="button-grid">
+            <button class="period-btn" onclick="setPeriod(this, '1st Half Started')">Start 1st Half</button>
+            <button class="period-btn" onclick="setPeriod(this, '1st Half Ended')">End 1st Half</button>
+            <button class="period-btn" onclick="setPeriod(this, '2nd Half Started')">Start 2nd Half</button>
+            <button class="period-btn" onclick="setPeriod(this, '2nd Half Ended')">End 2nd Half</button>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Castleknock Players</h2>
+        <div class="button-grid" id="ckGrid"></div>
+    </div>
+
+    <div class="section">
+        <h2>Match Events</h2>
+        <div class="button-grid" id="descGrid"></div>
+    </div>
+
+    <div class="section">
+        <h2>Opposition Players</h2>
+        <div class="button-grid" id="oppGrid"></div>
+    </div>
+
+    <div class="section">
+        <h2>Castleknock Event Matrix</h2>
+        <p style="font-size: 12px; color: #666; margin-bottom: 10px;">
+            Count of events for each Castleknock player-event combination
+        </p>
+        <div class="matrix-container">
+            <table class="matrix-table" id="ckMatrix">
+                <thead>
+                    <tr>
+                        <th class="category-header">CK</th>
+                    </tr>
+                </thead>
+                <tbody id="ckMatrixBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Opposition Event Matrix</h2>
+        <p style="font-size: 12px; color: #666; margin-bottom: 10px;">
+            Count of events for each Opposition player-event combination
+        </p>
+        <div class="matrix-container">
+            <table class="matrix-table" id="oppMatrix">
+                <thead>
+                    <tr>
+                        <th class="category-header">OPP</th>
+                    </tr>
+                </thead>
+                <tbody id="oppMatrixBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Event Log</h2>
+        <div id="eventLog">
+            <div style="text-align: center; color: #999;">No events logged</div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const categories = ['CK 1', 'CK 2', 'CK 3', 'CK 4', 'CK 5', 'CK 6', 'CK 7', 'CK 8', 'CK 9', 'CK 10', 'CK 11', 'CK 12', 'CK 13', 'CK 14', 'CK 15', 'CK 16', 'CK 17', 'CK 18', 'CK 19', 'CK 20', 'CK 21', 'CK 22', 'CK 23', 'CK 24', 'CK 25', 'CK 26'];
+        const opponents = ['OPP 1', 'OPP 2', 'OPP 3', 'OPP 4', 'OPP 5', 'OPP 6', 'OPP 7', 'OPP 8', 'OPP 9', 'OPP 10', 'OPP 11', 'OPP 12', 'OPP 13', 'OPP 14', 'OPP 15', 'OPP 16', 'OPP 17', 'OPP 18', 'OPP 19', 'OPP 20', 'OPP 21', 'OPP 22', 'OPP 23', 'OPP 24', 'OPP 25', 'OPP 26'];
+        const descriptors = ['Shot', 'Goal', '2 Pointer', 'Point', 'T/O Won', 'T/O Lost', 'K/O Won'];
+        const allDescriptors = ['Touch', ...descriptors];
+
+        // State
+        let currentType = null;
+        let currentCategory = null;
+        let currentPeriod = 'Not Started';
+        let selectedDescriptors = [];
+        let events = [];
+        let sessionStart = Date.now();
+        let ckSort = { descriptor: 'Touch', order: 'desc' };
+        let oppSort = { descriptor: 'Touch', order: 'desc' };
+        let timerInterval = null;
+        let timerSeconds = 0;
+
+        // Initialize
+        function init() {
+            createButtons();
+            buildMatrix();
+            loadEvents();
+        }
+
+        function createButtons() {
+            // CK buttons
+            const ckGrid = document.getElementById('ckGrid');
+            categories.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = 'category-btn';
+                btn.textContent = cat;
+                btn.onclick = () => selectCat(btn, 'CK', cat);
+                ckGrid.appendChild(btn);
+            });
+
+            // OPP buttons
+            const oppGrid = document.getElementById('oppGrid');
+            opponents.forEach(opp => {
+                const btn = document.createElement('button');
+                btn.className = 'category-btn';
+                btn.textContent = opp;
+                btn.onclick = () => selectCat(btn, 'OPP', opp);
+                oppGrid.appendChild(btn);
+            });
+
+            // Descriptor buttons
+            const descGrid = document.getElementById('descGrid');
+            descriptors.forEach(desc => {
+                const btn = document.createElement('button');
+                btn.className = 'descriptor-btn';
+                btn.textContent = desc;
+                btn.disabled = true;
+                btn.onclick = () => toggleDesc(btn, desc);
+                descGrid.appendChild(btn);
+            });
+        }
+
+        function buildMatrix() {
+            buildCKMatrix();
+            buildOPPMatrix();
+        }
+
+        function buildCKMatrix() {
+            const table = document.getElementById('ckMatrix');
+            const thead = table.querySelector('thead tr');
+            const tbody = document.getElementById('ckMatrixBody');
+
+            // Build header with sort buttons
+            allDescriptors.forEach(desc => {
+                const th = document.createElement('th');
+                th.className = 'descriptor-header';
+
+                const sortBtn = document.createElement('button');
+                sortBtn.className = 'sort-btn';
+                sortBtn.textContent = desc;
+                sortBtn.onclick = () => sortCKMatrix(desc, sortBtn);
+
+                if (desc === ckSort.descriptor) {
+                    sortBtn.classList.add('active-' + ckSort.order);
+                }
+
+                th.appendChild(sortBtn);
+                thead.appendChild(th);
+            });
+
+            // Build CK rows
+            categories.forEach(cat => {
+                const row = document.createElement('tr');
+                const catCell = document.createElement('td');
+                catCell.className = 'category-cell';
+                catCell.textContent = cat;
+                row.appendChild(catCell);
+
+                allDescriptors.forEach(desc => {
+                    const cell = document.createElement('td');
+                    cell.className = 'count-cell';
+                    cell.dataset.category = cat;
+                    cell.dataset.type = 'CK';
+                    cell.dataset.descriptor = desc;
+                    cell.textContent = '0';
+                    row.appendChild(cell);
+                });
+
+                tbody.appendChild(row);
+            });
+        }
+
+        function buildOPPMatrix() {
+            const table = document.getElementById('oppMatrix');
+            const thead = table.querySelector('thead tr');
+            const tbody = document.getElementById('oppMatrixBody');
+
+            // Build header with sort buttons
+            allDescriptors.forEach(desc => {
+                const th = document.createElement('th');
+                th.className = 'descriptor-header';
+
+                const sortBtn = document.createElement('button');
+                sortBtn.className = 'sort-btn';
+                sortBtn.textContent = desc;
+                sortBtn.onclick = () => sortOPPMatrix(desc, sortBtn);
+
+                if (desc === oppSort.descriptor) {
+                    sortBtn.classList.add('active-' + oppSort.order);
+                }
+
+                th.appendChild(sortBtn);
+                thead.appendChild(th);
+            });
+
+            // Build OPP rows
+            opponents.forEach(opp => {
+                const row = document.createElement('tr');
+                row.className = 'opp-row';
+                const catCell = document.createElement('td');
+                catCell.className = 'category-cell';
+                catCell.textContent = opp;
+                row.appendChild(catCell);
+
+                allDescriptors.forEach(desc => {
+                    const cell = document.createElement('td');
+                    cell.className = 'count-cell';
+                    cell.dataset.category = opp;
+                    cell.dataset.type = 'OPP';
+                    cell.dataset.descriptor = desc;
+                    cell.textContent = '0';
+                    row.appendChild(cell);
+                });
+
+                tbody.appendChild(row);
+            });
+        }
+
+        function sortCKMatrix(descriptor, btn) {
+            // Toggle sort order if clicking same descriptor
+            if (ckSort.descriptor === descriptor) {
+                ckSort.order = ckSort.order === 'asc' ? 'desc' : 'asc';
+            } else {
+                ckSort.descriptor = descriptor;
+                ckSort.order = 'desc';
+            }
+
+            // Update button states
+            document.querySelectorAll('#ckMatrix .sort-btn').forEach(b => {
+                b.classList.remove('active-asc', 'active-desc');
+            });
+            btn.classList.add('active-' + ckSort.order);
+
+            // Sort CK rows
+            applyCKSorting();
+        }
+
+        function sortOPPMatrix(descriptor, btn) {
+            // Toggle sort order if clicking same descriptor
+            if (oppSort.descriptor === descriptor) {
+                oppSort.order = oppSort.order === 'asc' ? 'desc' : 'asc';
+            } else {
+                oppSort.descriptor = descriptor;
+                oppSort.order = 'desc';
+            }
+
+            // Update button states
+            document.querySelectorAll('#oppMatrix .sort-btn').forEach(b => {
+                b.classList.remove('active-asc', 'active-desc');
+            });
+            btn.classList.add('active-' + oppSort.order);
+
+            // Sort OPP rows
+            applyOPPSorting();
+        }
+
+        function applyCKSorting() {
+            const tbody = document.getElementById('ckMatrixBody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+
+            // Get column index for current descriptor
+            const colIndex = allDescriptors.indexOf(ckSort.descriptor) + 1; // +1 for category column
+
+            // Sort rows
+            rows.sort((a, b) => {
+                const aVal = parseInt(a.cells[colIndex].textContent) || 0;
+                const bVal = parseInt(b.cells[colIndex].textContent) || 0;
+
+                if (ckSort.order === 'asc') {
+                    return aVal - bVal;
+                } else {
+                    return bVal - aVal;
+                }
+            });
+
+            // Re-append sorted rows
+            rows.forEach(row => tbody.appendChild(row));
+        }
+
+        function applyOPPSorting() {
+            const tbody = document.getElementById('oppMatrixBody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+
+            // Get column index for current descriptor
+            const colIndex = allDescriptors.indexOf(oppSort.descriptor) + 1; // +1 for category column
+
+            // Sort rows
+            rows.sort((a, b) => {
+                const aVal = parseInt(a.cells[colIndex].textContent) || 0;
+                const bVal = parseInt(b.cells[colIndex].textContent) || 0;
+
+                if (oppSort.order === 'asc') {
+                    return aVal - bVal;
+                } else {
+                    return bVal - aVal;
+                }
+            });
+
+            // Re-append sorted rows
+            rows.forEach(row => tbody.appendChild(row));
+        }
+
+        function updateScoreboard() {
+            let ckGoals = 0;
+            let ckPoints = 0;
+            let oppGoals = 0;
+            let oppPoints = 0;
+
+            events.forEach(event => {
+                const descriptorList = event.descriptors.split(', ').map(d => d.trim());
+
+                if (event.type === 'CK') {
+                    if (descriptorList.includes('Goal')) {
+                        ckGoals++;
+                    }
+                    if (descriptorList.includes('Point')) {
+                        ckPoints += 1;
+                    }
+                    if (descriptorList.includes('2 Pointer')) {
+                        ckPoints += 2;
+                    }
+                } else if (event.type === 'OPP') {
+                    if (descriptorList.includes('Goal')) {
+                        oppGoals++;
+                    }
+                    if (descriptorList.includes('Point')) {
+                        oppPoints += 1;
+                    }
+                    if (descriptorList.includes('2 Pointer')) {
+                        oppPoints += 2;
+                    }
+                }
+            });
+
+            document.getElementById('ckScore').textContent = ckGoals + ':' + ckPoints;
+            document.getElementById('oppScore').textContent = oppGoals + ':' + oppPoints;
+        }
+
+        function updateMatrix() {
+            // Reset
+            document.querySelectorAll('.count-cell').forEach(cell => {
+                cell.textContent = '0';
+                cell.classList.remove('has-events');
+            });
+
+            // Count
+            const counts = {};
+            events.forEach(event => {
+                const descriptorList = event.descriptors.split(', ');
+                descriptorList.forEach(desc => {
+                    const key = `${event.type}|${event.category}|${desc.trim()}`;
+                    counts[key] = (counts[key] || 0) + 1;
+                });
+            });
+
+            // Update cells
+            Object.keys(counts).forEach(key => {
+                const [type, category, descriptor] = key.split('|');
+                const cell = document.querySelector(
+                    `.count-cell[data-type="${type}"][data-category="${category}"][data-descriptor="${descriptor}"]`
+                );
+                if (cell) {
+                    cell.textContent = counts[key];
+                    cell.classList.add('has-events');
+                }
+            });
+
+            // Apply current sorting to both matrices
+            applyCKSorting();
+            applyOPPSorting();
+
+            // Update scoreboard
+            updateScoreboard();
+        }
+
+        function loadEvents() {
+            try {
+                const saved = localStorage.getItem('categoryEvents');
+                if (saved) {
+                    events = JSON.parse(saved);
+                    if (events.length > 0) {
+                        document.getElementById('eventLog').innerHTML = '';
+                        events.forEach(e => {
+                            addLogEntry(e);
+                        });
+                        document.getElementById('eventCount').textContent = events.length;
+                        updateMatrix();
+                    }
+                }
+            } catch (e) {
+                console.log('No saved events');
+            }
+        }
+
+        function saveToStorage() {
+            try {
+                localStorage.setItem('categoryEvents', JSON.stringify(events));
+            } catch (e) {
+                console.log('Could not save');
+            }
+        }
+
+        function setPeriod(btn, period) {
+            currentPeriod = period;
+            document.getElementById('currentPeriod').textContent = period;
+            document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            // Handle timer based on period
+            if (period === '1st Half Started') {
+                startTimer(0);
+            } else if (period === '1st Half Ended') {
+                stopTimer();
+                // Save any pending event when ending 1st half
+                if (currentType && currentCategory && selectedDescriptors.length > 0) {
+                    saveEvent();
+                    currentType = null;
+                    currentCategory = null;
+                    selectedDescriptors = [];
+                    document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
+                    document.querySelectorAll('.descriptor-btn').forEach(b => {
+                        b.disabled = true;
+                        b.classList.remove('selected');
+                    });
+                    document.getElementById('status').textContent = 'Ready - Select a category';
+                }
+            } else if (period === '2nd Half Started') {
+                startTimer(1800); // 30:00 in seconds
+            } else if (period === '2nd Half Ended') {
+                stopTimer();
+                // Save any pending event when ending 2nd half
+                if (currentType && currentCategory && selectedDescriptors.length > 0) {
+                    saveEvent();
+                    currentType = null;
+                    currentCategory = null;
+                    selectedDescriptors = [];
+                    document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
+                    document.querySelectorAll('.descriptor-btn').forEach(b => {
+                        b.disabled = true;
+                        b.classList.remove('selected');
+                    });
+                    document.getElementById('status').textContent = 'Ready - Select a category';
+                }
+            }
+        }
+
+        function startTimer(startSeconds) {
+            stopTimer(); // Clear any existing timer
+            timerSeconds = startSeconds;
+            updateClockDisplay();
+
+            timerInterval = setInterval(() => {
+                timerSeconds++;
+                updateClockDisplay();
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+
+        function updateClockDisplay() {
+            const minutes = Math.floor(timerSeconds / 60);
+            const seconds = timerSeconds % 60;
+            const display = String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
+            document.getElementById('gameClock').textContent = display;
+        }
+
+        function selectCat(btn, type, category) {
+            if (currentType && currentCategory && selectedDescriptors.length > 0) {
+                saveEvent();
+            }
+
+            currentType = type;
+            currentCategory = category;
+            selectedDescriptors = ['Touch'];
+
+            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+
+            document.querySelectorAll('.descriptor-btn').forEach(b => {
+                b.disabled = false;
+                b.classList.remove('selected');
+            });
+
+            document.getElementById('status').textContent = type + ': ' + category + ' | Touch';
+        }
+
+        function toggleDesc(btn, desc) {
+            if (!currentType) return;
+
+            if (btn.classList.contains('selected')) {
+                btn.classList.remove('selected');
+                let idx = selectedDescriptors.indexOf(desc);
+                if (idx > -1) selectedDescriptors.splice(idx, 1);
+            } else {
+                btn.classList.add('selected');
+                selectedDescriptors.push(desc);
+            }
+
+            document.getElementById('status').textContent =
+                currentType + ': ' + currentCategory + ' | ' + selectedDescriptors.join(', ');
+        }
+
+        function saveEvent() {
+            const minutes = Math.floor(timerSeconds / 60);
+            const seconds = timerSeconds % 60;
+            const gameTime = String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
+
+            let event = {
+                timestamp: new Date().toISOString(),
+                time: gameTime,
+                period: currentPeriod,
+                type: currentType,
+                category: currentCategory,
+                descriptors: selectedDescriptors.join(', ')
+            };
+
+            events.push(event);
+            addLogEntry(event);
+            saveToStorage();
+            updateMatrix();
+
+            document.getElementById('eventCount').textContent = events.length;
+        }
+
+        function addLogEntry(event) {
+            let log = document.getElementById('eventLog');
+            if (events.length === 1) log.innerHTML = '';
+
+            let entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.innerHTML = '#' + events.length + ' [' + event.time + '] ' +
+                event.type + ' ' + event.category + ' | ' + event.descriptors + ' | ' + event.period;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function saveCurrentEvent() {
+            if (!currentType) {
+                alert('Select a category first!');
+                return;
+            }
+
+            saveEvent();
+
+            currentType = null;
+            currentCategory = null;
+            selectedDescriptors = [];
+
+            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
+            document.querySelectorAll('.descriptor-btn').forEach(b => {
+                b.disabled = true;
+                b.classList.remove('selected');
+            });
+
+            document.getElementById('status').textContent = 'Ready - Select a category';
+        }
+
+        function clearData() {
+            if (!confirm('Clear ' + events.length + ' events?')) return;
+
+            events = [];
+            currentType = null;
+            currentCategory = null;
+            currentPeriod = 'Not Started';
+            selectedDescriptors = [];
+
+            stopTimer();
+            timerSeconds = 0;
+            updateClockDisplay();
+
+            localStorage.removeItem('categoryEvents');
+
+            document.getElementById('eventLog').innerHTML = '<div style="text-align: center; color: #999;">No events logged</div>';
+            document.getElementById('eventCount').textContent = '0';
+            document.getElementById('currentPeriod').textContent = 'Not Started';
+            document.getElementById('status').textContent = 'Ready - Select a category';
+            document.getElementById('ckScore').textContent = '0:0';
+            document.getElementById('oppScore').textContent = '0:0';
+
+            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
+            document.querySelectorAll('.descriptor-btn').forEach(b => {
+                b.disabled = true;
+                b.classList.remove('selected');
+            });
+            document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+            updateMatrix();
+        }
+
+        function downloadCSV() {
+            if (events.length === 0) {
+                alert('No data to download!');
+                return;
+            }
+
+            let csv = 'Event#,Timestamp,Game Time,Period,Type,Category,Descriptors\n';
+            events.forEach((e, i) => {
+                csv += (i + 1) + ',' + e.timestamp + ',' + e.time + ',' + e.period + ',' +
+                       e.type + ',' + e.category + ',"' + e.descriptors + '"\n';
+            });
+
+            let blob = new Blob([csv], { type: 'text/csv' });
+            let url = URL.createObjectURL(blob);
+            let a = document.createElement('a');
+            a.href = url;
+            a.download = 'event_log_' + Date.now() + '.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // TEST FUNCTION - Simulate heavy usage
+        // Open browser console and run: testLoad(500) to simulate 500 events
+        window.testLoad = function(numEvents) {
+            console.log('Starting load test with ' + numEvents + ' events...');
+            const startTime = Date.now();
+
+            const testCategories = [...categories, ...opponents];
+            const testTypes = ['CK', 'OPP'];
+            const testDescriptors = allDescriptors;
+            const testPeriods = ['1st Half Started', '1st Half Ended', '2nd Half Started', '2nd Half Ended'];
+
+            for (let i = 0; i < numEvents; i++) {
+                const type = testTypes[Math.floor(Math.random() * testTypes.length)];
+                const category = type === 'CK' ?
+                    categories[Math.floor(Math.random() * categories.length)] :
+                    opponents[Math.floor(Math.random() * opponents.length)];
+                const period = testPeriods[Math.floor(Math.random() * testPeriods.length)];
+
+                // Random 1-3 descriptors
+                const numDesc = Math.floor(Math.random() * 3) + 1;
+                const descSet = new Set(['Touch']);
+                while (descSet.size < numDesc) {
+                    descSet.add(testDescriptors[Math.floor(Math.random() * testDescriptors.length)]);
+                }
+
+                const testSeconds = Math.floor(Math.random() * 3600); // Random time up to 60:00
+                const testMinutes = Math.floor(testSeconds / 60);
+                const testSecs = testSeconds % 60;
+                const testTime = String(testMinutes).padStart(2, '0') + ':' + String(testSecs).padStart(2, '0');
+
+                const event = {
+                    timestamp: new Date(Date.now() - (numEvents - i) * 1000).toISOString(),
+                    time: testTime,
+                    period: period,
+                    type: type,
+                    category: category,
+                    descriptors: Array.from(descSet).join(', ')
+                };
+
+                events.push(event);
+            }
+
+            console.log('Events created. Updating UI...');
+
+            // Update UI
+            document.getElementById('eventLog').innerHTML = '';
+            events.forEach(e => addLogEntry(e));
+            document.getElementById('eventCount').textContent = events.length;
+
+            console.log('Updating matrix...');
+            updateMatrix();
+
+            console.log('Saving to localStorage...');
+            saveToStorage();
+
+            const endTime = Date.now();
+            const storageSize = new Blob([JSON.stringify(events)]).size;
+
+            console.log('✓ Test complete!');
+            console.log('  - Events: ' + events.length);
+            console.log('  - Time: ' + ((endTime - startTime) / 1000).toFixed(2) + 's');
+            console.log('  - Data size: ' + (storageSize / 1024).toFixed(2) + ' KB');
+            console.log('  - localStorage limit: ~5-10 MB (you are using ' + ((storageSize / 1024 / 1024) * 100).toFixed(2) + '% of 1MB)');
+
+            alert('Test complete!\n' + events.length + ' events loaded\nData size: ' + (storageSize / 1024).toFixed(2) + ' KB\nCheck console for details');
+        };
+
+        // Initialize
+        init();
+    </script>
+</body>
+</html>
