@@ -146,7 +146,7 @@
         }
 
         .stat-label {
-            font-size: 11px;
+            font-size: 20px;
             color: #666;
         }
 
@@ -269,7 +269,7 @@
     <div class="stats">
         <div class="stat-box">
             <div class="stat-value" id="ckScore">0:0</div>
-            <div class="stat-label">Castleknock</div>
+            <div class="stat-label">Us</div>
         </div>
         <div class="stat-box">
             <div class="stat-value" id="gameClock">00:00</div>
@@ -308,7 +308,7 @@
     </div>
 
     <div class="section">
-        <h2>Castleknock Players</h2>
+        <h2>Our Players</h2>
         <div class="button-grid" id="ckGrid"></div>
     </div>
 
@@ -323,15 +323,15 @@
     </div>
 
     <div class="section">
-        <h2>Castleknock Event Matrix</h2>
+        <h2>Our Event Matrix</h2>
         <p style="font-size: 12px; color: #666; margin-bottom: 10px;">
-            Count of events for each Castleknock player-event combination
+            Count of events for each Our player-event combination
         </p>
         <div class="matrix-container">
             <table class="matrix-table" id="ckMatrix">
                 <thead>
                     <tr>
-                        <th class="category-header">CK</th>
+                        <th class="category-header">OUR</th>
                     </tr>
                 </thead>
                 <tbody id="ckMatrixBody">
@@ -367,7 +367,7 @@
 
     <script>
         // Configuration
-        const categories = ['CK 1', 'CK 2', 'CK 3', 'CK 4', 'CK 5', 'CK 6', 'CK 7', 'CK 8', 'CK 9', 'CK 10', 'CK 11', 'CK 12', 'CK 13', 'CK 14', 'CK 15', 'CK 16', 'CK 17', 'CK 18', 'CK 19', 'CK 20', 'CK 21', 'CK 22', 'CK 23', 'CK 24', 'CK 25', 'CK 26'];
+        const categories = ['OUR 1', 'OUR 2', 'OUR 3', 'OUR 4', 'OUR 5', 'OUR 6', 'OUR 7', 'OUR 8', 'OUR 9', 'OUR 10', 'OUR 11', 'OUR 12', 'OUR 13', 'OUR 14', 'OUR 15', 'OUR 16', 'OUR 17', 'OUR 18', 'OUR 19', 'OUR 20', 'OUR 21', 'OUR 22', 'OUR 23', 'OUR 24', 'OUR 25', 'OUR 26'];
         const opponents = ['OPP 1', 'OPP 2', 'OPP 3', 'OPP 4', 'OPP 5', 'OPP 6', 'OPP 7', 'OPP 8', 'OPP 9', 'OPP 10', 'OPP 11', 'OPP 12', 'OPP 13', 'OPP 14', 'OPP 15', 'OPP 16', 'OPP 17', 'OPP 18', 'OPP 19', 'OPP 20', 'OPP 21', 'OPP 22', 'OPP 23', 'OPP 24', 'OPP 25', 'OPP 26'];
         const descriptors = ['Shot', 'Goal', '2 Pointer', 'Point', 'T/O Won', 'T/O Lost', 'K/O Won'];
         const allDescriptors = ['Touch', ...descriptors];
@@ -392,13 +392,13 @@
         }
 
         function createButtons() {
-            // CK buttons
+            // OUR buttons
             const ckGrid = document.getElementById('ckGrid');
             categories.forEach(cat => {
                 const btn = document.createElement('button');
                 btn.className = 'category-btn';
                 btn.textContent = cat;
-                btn.onclick = () => selectCat(btn, 'CK', cat);
+                btn.onclick = () => selectCat(btn, 'OUR', cat);
                 ckGrid.appendChild(btn);
             });
 
@@ -452,7 +452,7 @@
                 thead.appendChild(th);
             });
 
-            // Build CK rows
+            // Build OUR rows
             categories.forEach(cat => {
                 const row = document.createElement('tr');
                 const catCell = document.createElement('td');
@@ -464,7 +464,7 @@
                     const cell = document.createElement('td');
                     cell.className = 'count-cell';
                     cell.dataset.category = cat;
-                    cell.dataset.type = 'CK';
+                    cell.dataset.type = 'OUR';
                     cell.dataset.descriptor = desc;
                     cell.textContent = '0';
                     row.appendChild(cell);
@@ -535,7 +535,7 @@
             });
             btn.classList.add('active-' + ckSort.order);
 
-            // Sort CK rows
+            // Sort OUR rows
             applyCKSorting();
         }
 
@@ -613,7 +613,7 @@
             events.forEach(event => {
                 const descriptorList = event.descriptors.split(', ').map(d => d.trim());
 
-                if (event.type === 'CK') {
+                if (event.type === 'OUR') {
                     if (descriptorList.includes('Goal')) {
                         ckGoals++;
                     }
@@ -923,13 +923,13 @@
             const startTime = Date.now();
 
             const testCategories = [...categories, ...opponents];
-            const testTypes = ['CK', 'OPP'];
+            const testTypes = ['OUR', 'OPP'];
             const testDescriptors = allDescriptors;
             const testPeriods = ['1st Half Started', '1st Half Ended', '2nd Half Started', '2nd Half Ended'];
 
             for (let i = 0; i < numEvents; i++) {
                 const type = testTypes[Math.floor(Math.random() * testTypes.length)];
-                const category = type === 'CK' ?
+                const category = type === 'OUR' ?
                     categories[Math.floor(Math.random() * categories.length)] :
                     opponents[Math.floor(Math.random() * opponents.length)];
                 const period = testPeriods[Math.floor(Math.random() * testPeriods.length)];
