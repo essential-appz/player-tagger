@@ -348,6 +348,65 @@
         .modal-btn.secondary {
             background: #999;
         }
+
+        .saved-games-list {
+            max-height: 150px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            background: #f5f5f5;
+            border-radius: 6px;
+            padding: 10px;
+        }
+
+        .saved-game-item {
+            padding: 8px;
+            background: white;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+        }
+
+        .saved-game-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .saved-game-info {
+            flex: 1;
+        }
+
+        .save-actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        .load-save-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .delete-save-btn {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .no-saves {
+            text-align: center;
+            color: #999;
+            font-size: 12px;
+        }
     </style>
 </head>
 <body>
@@ -381,9 +440,10 @@
     </div>
 
     <div class="controls">
-        <button class="control-btn primary" onclick="openNewGameModal()">New Game</button>
+        <button class="control-btn primary" onclick="openNewGameModal()">Game Settings</button>
         <button class="control-btn primary" onclick="saveCurrentEvent()">Save Event</button>
         <button class="control-btn warning" onclick="undoLastEvent()">Undo Last Event</button>
+        <button class="control-btn primary" onclick="saveProgress()">Save Progress</button>
         <button class="control-btn primary" onclick="downloadCSV()">Download CSV</button>
         <button class="control-btn danger" onclick="clearData()">Clear All</button>
     </div>
@@ -459,7 +519,7 @@
     <!-- New Game Modal -->
     <div id="newGameModal" class="modal">
         <div class="modal-content">
-            <h2>New Game Settings</h2>
+            <h2>Game Settings</h2>
             <div class="form-group">
                 <label for="team1Name">Team 1 Name:</label>
                 <input type="text" id="team1Name" placeholder="Enter team 1 name" oninput="updateGameName()">
@@ -471,9 +531,16 @@
             <div class="game-name-display" id="gameNameDisplay">
                 Game Name
             </div>
+            <div class="form-group">
+                <label>Saved Progress:</label>
+                <div class="saved-games-list" id="savedGamesList">
+                    <div class="no-saves">No saved progress</div>
+                </div>
+            </div>
             <div class="modal-buttons">
-                <button class="modal-btn secondary" onclick="closeNewGameModal()">Cancel</button>
-                <button class="modal-btn primary" onclick="startNewGame()">Start Game</button>
+                <button class="modal-btn secondary" onclick="closeNewGameModal()">Close</button>
+                <button class="modal-btn primary" onclick="startNewGame()">New Game</button>
+                <button class="modal-btn secondary" style="background: #f44336;" onclick="endGame()">End Game</button>
             </div>
         </div>
     </div>
@@ -513,6 +580,7 @@
             document.getElementById('team1Name').value = team1Name;
             document.getElementById('team2Name').value = team2Name;
             updateGameName();
+            loadSavedGamesList();
         }
 
         function closeNewGameModal() {
@@ -533,8 +601,17 @@
         }
 
         function startNewGame() {
+            if (events.length > 0) {
+                if (!confirm('Starting a new game will clear current data. Continue?')) {
+                    return;
+                }
+            }
+
             team1Name = document.getElementById('team1Name').value || 'Team 1';
             team2Name = document.getElementById('team2Name').value || 'Team 2';
+
+            // Clear current game
+            clearData(true);
 
             // Update UI labels
             document.querySelectorAll('.stat-label')[0].textContent = team1Name;
@@ -543,6 +620,122 @@
             // Update page title
             document.querySelector('h1').textContent = gameName;
 
+            closeNewGameModal();
+        }
+
+        function saveProgress() {
+            if (events.length === 0) {
+                alert('No events to save!');
+                return;
+            }
+
+            const saveData = {
+                gameName: gameName,
+                team1Name: team1Name,
+                team2Name: team2Name,
+                events: events,
+                timestamp: new Date().toISOString(),
+                eventCount: events.length
+            };
+
+            const saves = JSON.parse(localStorage.getItem('gameSaves') || '[]');
+            saves.push(saveData);
+            localStorage.setItem('gameSaves', JSON.stringify(saves));
+
+            alert('Progress saved! (' + events.length + ' events)');
+        }
+
+        function loadSavedGamesList() {
+            const saves = JSON.parse(localStorage.getItem('gameSaves') || '[]');
+            const list = document.getElementById('savedGamesList');
+
+            if (saves.length === 0) {
+                list.innerHTML = '<div class="no-saves">No saved progress</div>';
+                return;
+            }
+
+            list.innerHTML = '';
+            saves.forEach((save, index) => {
+                const item = document.createElement('div');
+                item.className = 'saved-game-item';
+
+                const date = new Date(save.timestamp);
+                const timeStr = date.toLocaleString();
+
+                item.innerHTML = `
+                    <div class="saved-game-info">
+                        <strong>${save.gameName || 'Game'}</strong><br>
+                        ${timeStr} (${save.eventCount} events)
+                    </div>
+                    <div class="save-actions">
+                        <button class="load-save-btn" onclick="loadSave(${index})">Load</button>
+                        <button class="delete-save-btn" onclick="deleteSave(${index})">Delete</button>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function loadSave(index) {
+            if (!confirm('Loading this save will replace all current game data. Continue?')) {
+                return;
+            }
+
+            const saves = JSON.parse(localStorage.getItem('gameSaves') || '[]');
+            const save = saves[index];
+
+            if (!save) {
+                alert('Save not found!');
+                return;
+            }
+
+            // Restore game data
+            gameName = save.gameName || '';
+            team1Name = save.team1Name || 'Us';
+            team2Name = save.team2Name || 'Opposition';
+            events = save.events || [];
+
+            // Update UI labels
+            document.querySelectorAll('.stat-label')[0].textContent = team1Name;
+            document.querySelectorAll('.stat-label')[2].textContent = team2Name;
+            document.querySelector('h1').textContent = gameName;
+
+            // Rebuild event log
+            let log = document.getElementById('eventLog');
+            if (events.length === 0) {
+                log.innerHTML = '<div style="text-align: center; color: #999;">No events logged</div>';
+            } else {
+                log.innerHTML = '';
+                events.forEach(e => addLogEntry(e));
+            }
+
+            document.getElementById('eventCount').textContent = events.length;
+            saveToStorage();
+            updateMatrix();
+
+            closeNewGameModal();
+            alert('Game loaded successfully! (' + events.length + ' events)');
+        }
+
+        function deleteSave(index) {
+            if (!confirm('Delete this saved progress?')) return;
+
+            const saves = JSON.parse(localStorage.getItem('gameSaves') || '[]');
+            saves.splice(index, 1);
+            localStorage.setItem('gameSaves', JSON.stringify(saves));
+            loadSavedGamesList();
+        }
+
+        function endGame() {
+            if (!confirm('End game and clear all temporary saves? You can still download the final CSV.')) {
+                return;
+            }
+
+            // Clear all temporary saves
+            localStorage.removeItem('gameSaves');
+
+            alert('Game ended. Temporary saves cleared. You can still download the final CSV.');
+            loadSavedGamesList();
             closeNewGameModal();
         }
 
@@ -1043,8 +1236,8 @@
             updateMatrix();
         }
 
-        function clearData() {
-            if (!confirm('Clear ' + events.length + ' events?')) return;
+        function clearData(skipConfirm = false) {
+            if (!skipConfirm && !confirm('Clear ' + events.length + ' events?')) return;
 
             events = [];
             currentType = null;
