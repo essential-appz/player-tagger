@@ -124,6 +124,10 @@
             background: #f44336;
         }
 
+        .control-btn.warning {
+            background: #ff9800;
+        }
+
         .stats {
             display: flex;
             gap: 8px;
@@ -146,7 +150,7 @@
         }
 
         .stat-label {
-            font-size: 11px;
+            font-size: 20px;
             color: #666;
         }
 
@@ -259,6 +263,150 @@
         .sort-btn.active-desc::after {
             content: ' ▼';
         }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+
+        .modal-content h2 {
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .game-name-display {
+            background: #e3f2fd;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 10px;
+            font-size: 14px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+        }
+
+        .modal-btn.primary {
+            background: #4CAF50;
+        }
+
+        .modal-btn.secondary {
+            background: #999;
+        }
+
+        .saved-games-list {
+            max-height: 150px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            background: #f5f5f5;
+            border-radius: 6px;
+            padding: 10px;
+        }
+
+        .saved-game-item {
+            padding: 8px;
+            background: white;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+        }
+
+        .saved-game-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .saved-game-info {
+            flex: 1;
+        }
+
+        .save-actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        .load-save-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .delete-save-btn {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .no-saves {
+            text-align: center;
+            color: #999;
+            font-size: 12px;
+        }
     </style>
 </head>
 <body>
@@ -269,7 +417,7 @@
     <div class="stats">
         <div class="stat-box">
             <div class="stat-value" id="ckScore">0:0</div>
-            <div class="stat-label">Castleknock</div>
+            <div class="stat-label">Us</div>
         </div>
         <div class="stat-box">
             <div class="stat-value" id="gameClock">00:00</div>
@@ -292,7 +440,10 @@
     </div>
 
     <div class="controls">
+        <button class="control-btn primary" onclick="openNewGameModal()">Game Settings</button>
         <button class="control-btn primary" onclick="saveCurrentEvent()">Save Event</button>
+        <button class="control-btn warning" onclick="undoLastEvent()">Undo Last Event</button>
+        <button class="control-btn primary" onclick="saveProgress()">Save Progress</button>
         <button class="control-btn primary" onclick="downloadCSV()">Download CSV</button>
         <button class="control-btn danger" onclick="clearData()">Clear All</button>
     </div>
@@ -308,7 +459,7 @@
     </div>
 
     <div class="section">
-        <h2>Castleknock Players</h2>
+        <h2>Our Players</h2>
         <div class="button-grid" id="ckGrid"></div>
     </div>
 
@@ -323,15 +474,15 @@
     </div>
 
     <div class="section">
-        <h2>Castleknock Event Matrix</h2>
+        <h2>Our Event Matrix</h2>
         <p style="font-size: 12px; color: #666; margin-bottom: 10px;">
-            Count of events for each Castleknock player-event combination
+            Count of events for each Our player-event combination
         </p>
         <div class="matrix-container">
             <table class="matrix-table" id="ckMatrix">
                 <thead>
                     <tr>
-                        <th class="category-header">CK</th>
+                        <th class="category-header">OUR</th>
                     </tr>
                 </thead>
                 <tbody id="ckMatrixBody">
@@ -365,9 +516,38 @@
         </div>
     </div>
 
+    <!-- New Game Modal -->
+    <div id="newGameModal" class="modal">
+        <div class="modal-content">
+            <h2>Game Settings</h2>
+            <div class="form-group">
+                <label for="team1Name">Team 1 Name:</label>
+                <input type="text" id="team1Name" placeholder="Enter team 1 name" oninput="updateGameName()">
+            </div>
+            <div class="form-group">
+                <label for="team2Name">Team 2 Name:</label>
+                <input type="text" id="team2Name" placeholder="Enter team 2 name" oninput="updateGameName()">
+            </div>
+            <div class="game-name-display" id="gameNameDisplay">
+                Game Name
+            </div>
+            <div class="form-group">
+                <label>Saved Progress:</label>
+                <div class="saved-games-list" id="savedGamesList">
+                    <div class="no-saves">No saved progress</div>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn secondary" onclick="closeNewGameModal()">Close</button>
+                <button class="modal-btn primary" onclick="startNewGame()">New Game</button>
+                <button class="modal-btn secondary" style="background: #f44336;" onclick="endGame()">End Game</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Configuration
-        const categories = ['CK 1', 'CK 2', 'CK 3', 'CK 4', 'CK 5', 'CK 6', 'CK 7', 'CK 8', 'CK 9', 'CK 10', 'CK 11', 'CK 12', 'CK 13', 'CK 14', 'CK 15', 'CK 16', 'CK 17', 'CK 18', 'CK 19', 'CK 20', 'CK 21', 'CK 22', 'CK 23', 'CK 24', 'CK 25', 'CK 26'];
+        const categories = ['OUR 1', 'OUR 2', 'OUR 3', 'OUR 4', 'OUR 5', 'OUR 6', 'OUR 7', 'OUR 8', 'OUR 9', 'OUR 10', 'OUR 11', 'OUR 12', 'OUR 13', 'OUR 14', 'OUR 15', 'OUR 16', 'OUR 17', 'OUR 18', 'OUR 19', 'OUR 20', 'OUR 21', 'OUR 22', 'OUR 23', 'OUR 24', 'OUR 25', 'OUR 26'];
         const opponents = ['OPP 1', 'OPP 2', 'OPP 3', 'OPP 4', 'OPP 5', 'OPP 6', 'OPP 7', 'OPP 8', 'OPP 9', 'OPP 10', 'OPP 11', 'OPP 12', 'OPP 13', 'OPP 14', 'OPP 15', 'OPP 16', 'OPP 17', 'OPP 18', 'OPP 19', 'OPP 20', 'OPP 21', 'OPP 22', 'OPP 23', 'OPP 24', 'OPP 25', 'OPP 26'];
         const descriptors = ['Shot', 'Goal', '2 Pointer', 'Point', 'T/O Won', 'T/O Lost', 'K/O Won'];
         const allDescriptors = ['Touch', ...descriptors];
@@ -383,22 +563,205 @@
         let oppSort = { descriptor: 'Touch', order: 'desc' };
         let timerInterval = null;
         let timerSeconds = 0;
+        let gameName = '';
+        let team1Name = 'Us';
+        let team2Name = 'Opposition';
 
         // Initialize
         function init() {
             createButtons();
             buildMatrix();
             loadEvents();
+            updateGameName();
+        }
+
+        function openNewGameModal() {
+            document.getElementById('newGameModal').classList.add('active');
+            document.getElementById('team1Name').value = team1Name;
+            document.getElementById('team2Name').value = team2Name;
+            updateGameName();
+            loadSavedGamesList();
+        }
+
+        function closeNewGameModal() {
+            document.getElementById('newGameModal').classList.remove('active');
+        }
+
+        function updateGameName() {
+            const t1 = document.getElementById('team1Name').value || 'Team 1';
+            const t2 = document.getElementById('team2Name').value || 'Team 2';
+            const today = new Date();
+            const day = String(today.getDate()).padStart(2, '0');
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const year = today.getFullYear();
+            const dateStr = day + '/' + month + '/' + year;
+
+            gameName = t1 + ' v ' + t2 + ' - ' + dateStr;
+            document.getElementById('gameNameDisplay').textContent = gameName;
+        }
+
+        function startNewGame() {
+            if (events.length > 0) {
+                if (!confirm('Starting a new game will clear current data. Continue?')) {
+                    return;
+                }
+            }
+
+            team1Name = document.getElementById('team1Name').value || 'Team 1';
+            team2Name = document.getElementById('team2Name').value || 'Team 2';
+
+            // Clear current game
+            clearData(true);
+
+            // Update UI labels
+            document.querySelectorAll('.stat-label')[0].textContent = team1Name;
+            document.querySelectorAll('.stat-label')[2].textContent = team2Name;
+
+            // Update page title
+            document.querySelector('h1').textContent = gameName;
+
+            closeNewGameModal();
+        }
+
+        function saveProgress(isFinalGame = false) {
+            if (events.length === 0) {
+                alert('No events to save!');
+                return;
+            }
+
+            const saveData = {
+                gameName: gameName,
+                team1Name: team1Name,
+                team2Name: team2Name,
+                events: events,
+                timestamp: new Date().toISOString(),
+                eventCount: events.length,
+                isFinalGame: isFinalGame
+            };
+
+            const saves = JSON.parse(localStorage.getItem('gameSaves') || '[]');
+            saves.push(saveData);
+            localStorage.setItem('gameSaves', JSON.stringify(saves));
+
+            if (!isFinalGame) {
+                alert('Progress saved! (' + events.length + ' events)');
+            }
+        }
+
+        function loadSavedGamesList() {
+            const saves = JSON.parse(localStorage.getItem('gameSaves') || '[]');
+            const list = document.getElementById('savedGamesList');
+
+            if (saves.length === 0) {
+                list.innerHTML = '<div class="no-saves">No saved progress</div>';
+                return;
+            }
+
+            list.innerHTML = '';
+            saves.forEach((save, index) => {
+                const item = document.createElement('div');
+                item.className = 'saved-game-item';
+
+                const date = new Date(save.timestamp);
+                const timeStr = date.toLocaleString();
+                const saveType = save.isFinalGame ? 'full game' : 'in-progress game';
+
+                item.innerHTML = `
+                    <div class="saved-game-info">
+                        <strong>${save.gameName || 'Game'}</strong> <span style="color: #666;">[${saveType}]</span><br>
+                        ${timeStr} (${save.eventCount} events)
+                    </div>
+                    <div class="save-actions">
+                        <button class="load-save-btn" onclick="loadSave(${index})">Load</button>
+                        <button class="delete-save-btn" onclick="deleteSave(${index})">Delete</button>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function loadSave(index) {
+            if (!confirm('Loading this save will replace all current game data. Continue?')) {
+                return;
+            }
+
+            const saves = JSON.parse(localStorage.getItem('gameSaves') || '[]');
+            const save = saves[index];
+
+            if (!save) {
+                alert('Save not found!');
+                return;
+            }
+
+            // Restore game data
+            gameName = save.gameName || '';
+            team1Name = save.team1Name || 'Us';
+            team2Name = save.team2Name || 'Opposition';
+            events = save.events || [];
+
+            // Update UI labels
+            document.querySelectorAll('.stat-label')[0].textContent = team1Name;
+            document.querySelectorAll('.stat-label')[2].textContent = team2Name;
+            document.querySelector('h1').textContent = gameName;
+
+            // Rebuild event log
+            let log = document.getElementById('eventLog');
+            if (events.length === 0) {
+                log.innerHTML = '<div style="text-align: center; color: #999;">No events logged</div>';
+            } else {
+                log.innerHTML = '';
+                events.forEach(e => addLogEntry(e));
+            }
+
+            document.getElementById('eventCount').textContent = events.length;
+            saveToStorage();
+            updateMatrix();
+
+            closeNewGameModal();
+            alert('Game loaded successfully! (' + events.length + ' events)');
+        }
+
+        function deleteSave(index) {
+            if (!confirm('Delete this saved progress?')) return;
+
+            const saves = JSON.parse(localStorage.getItem('gameSaves') || '[]');
+            saves.splice(index, 1);
+            localStorage.setItem('gameSaves', JSON.stringify(saves));
+            loadSavedGamesList();
+        }
+
+        function endGame() {
+            if (events.length === 0) {
+                alert('No game data to save!');
+                return;
+            }
+
+            if (!confirm('End game and save final data? This will clear in-progress saves.')) {
+                return;
+            }
+
+            // Save current game as final
+            saveProgress(true);
+
+            // Clear all in-progress saves, keep only final games
+            const saves = JSON.parse(localStorage.getItem('gameSaves') || '[]');
+            const finalGames = saves.filter(save => save.isFinalGame);
+            localStorage.setItem('gameSaves', JSON.stringify(finalGames));
+
+            alert('Game saved as complete! (' + events.length + ' events)\nIn-progress saves cleared.\n\nUse "Clear All" to reset for a new game, or download CSV to export data.');
+
+            loadSavedGamesList();
+            closeNewGameModal();
         }
 
         function createButtons() {
-            // CK buttons
+            // OUR buttons
             const ckGrid = document.getElementById('ckGrid');
             categories.forEach(cat => {
                 const btn = document.createElement('button');
                 btn.className = 'category-btn';
                 btn.textContent = cat;
-                btn.onclick = () => selectCat(btn, 'CK', cat);
+                btn.onclick = () => selectCat(btn, 'OUR', cat);
                 ckGrid.appendChild(btn);
             });
 
@@ -452,7 +815,7 @@
                 thead.appendChild(th);
             });
 
-            // Build CK rows
+            // Build OUR rows
             categories.forEach(cat => {
                 const row = document.createElement('tr');
                 const catCell = document.createElement('td');
@@ -464,7 +827,7 @@
                     const cell = document.createElement('td');
                     cell.className = 'count-cell';
                     cell.dataset.category = cat;
-                    cell.dataset.type = 'CK';
+                    cell.dataset.type = 'OUR';
                     cell.dataset.descriptor = desc;
                     cell.textContent = '0';
                     row.appendChild(cell);
@@ -535,7 +898,7 @@
             });
             btn.classList.add('active-' + ckSort.order);
 
-            // Sort CK rows
+            // Sort OUR rows
             applyCKSorting();
         }
 
@@ -613,7 +976,7 @@
             events.forEach(event => {
                 const descriptorList = event.descriptors.split(', ').map(d => d.trim());
 
-                if (event.type === 'CK') {
+                if (event.type === 'OUR') {
                     if (descriptorList.includes('Goal')) {
                         ckGoals++;
                     }
@@ -745,6 +1108,8 @@
                     });
                     document.getElementById('status').textContent = 'Ready - Select a category';
                 }
+                // Open settings modal to end game
+                openNewGameModal();
             }
         }
 
@@ -774,6 +1139,12 @@
         }
 
         function selectCat(btn, type, category) {
+            // Check if a half has been started
+            if (!currentPeriod.includes('Started')) {
+                alert('Please start 1st Half or 2nd Half before selecting a category!');
+                return;
+            }
+
             if (currentType && currentCategory && selectedDescriptors.length > 0) {
                 saveEvent();
             }
@@ -864,8 +1235,32 @@
             document.getElementById('status').textContent = 'Ready - Select a category';
         }
 
-        function clearData() {
-            if (!confirm('Clear ' + events.length + ' events?')) return;
+        function undoLastEvent() {
+            if (events.length === 0) {
+                alert('No events to undo!');
+                return;
+            }
+
+            if (!confirm('Undo last event?')) return;
+
+            events.pop();
+
+            // Rebuild event log
+            let log = document.getElementById('eventLog');
+            if (events.length === 0) {
+                log.innerHTML = '<div style="text-align: center; color: #999;">No events logged</div>';
+            } else {
+                log.innerHTML = '';
+                events.forEach(e => addLogEntry(e));
+            }
+
+            document.getElementById('eventCount').textContent = events.length;
+            saveToStorage();
+            updateMatrix();
+        }
+
+        function clearData(skipConfirm = false) {
+            if (!skipConfirm && !confirm('Clear ' + events.length + ' events?')) return;
 
             events = [];
             currentType = null;
@@ -923,13 +1318,13 @@
             const startTime = Date.now();
 
             const testCategories = [...categories, ...opponents];
-            const testTypes = ['CK', 'OPP'];
+            const testTypes = ['OUR', 'OPP'];
             const testDescriptors = allDescriptors;
             const testPeriods = ['1st Half Started', '1st Half Ended', '2nd Half Started', '2nd Half Ended'];
 
             for (let i = 0; i < numEvents; i++) {
                 const type = testTypes[Math.floor(Math.random() * testTypes.length)];
-                const category = type === 'CK' ?
+                const category = type === 'OUR' ?
                     categories[Math.floor(Math.random() * categories.length)] :
                     opponents[Math.floor(Math.random() * opponents.length)];
                 const period = testPeriods[Math.floor(Math.random() * testPeriods.length)];
