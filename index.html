@@ -623,7 +623,7 @@
             closeNewGameModal();
         }
 
-        function saveProgress() {
+        function saveProgress(isFinalGame = false) {
             if (events.length === 0) {
                 alert('No events to save!');
                 return;
@@ -635,14 +635,17 @@
                 team2Name: team2Name,
                 events: events,
                 timestamp: new Date().toISOString(),
-                eventCount: events.length
+                eventCount: events.length,
+                isFinalGame: isFinalGame
             };
 
             const saves = JSON.parse(localStorage.getItem('gameSaves') || '[]');
             saves.push(saveData);
             localStorage.setItem('gameSaves', JSON.stringify(saves));
 
-            alert('Progress saved! (' + events.length + ' events)');
+            if (!isFinalGame) {
+                alert('Progress saved! (' + events.length + ' events)');
+            }
         }
 
         function loadSavedGamesList() {
@@ -661,10 +664,11 @@
 
                 const date = new Date(save.timestamp);
                 const timeStr = date.toLocaleString();
+                const saveType = save.isFinalGame ? 'full game' : 'in-progress game';
 
                 item.innerHTML = `
                     <div class="saved-game-info">
-                        <strong>${save.gameName || 'Game'}</strong><br>
+                        <strong>${save.gameName || 'Game'}</strong> <span style="color: #666;">[${saveType}]</span><br>
                         ${timeStr} (${save.eventCount} events)
                     </div>
                     <div class="save-actions">
@@ -727,14 +731,25 @@
         }
 
         function endGame() {
-            if (!confirm('End game and clear all temporary saves? You can still download the final CSV.')) {
+            if (events.length === 0) {
+                alert('No game data to save!');
                 return;
             }
 
-            // Clear all temporary saves
-            localStorage.removeItem('gameSaves');
+            if (!confirm('End game and save final data? This will clear in-progress saves.')) {
+                return;
+            }
 
-            alert('Game ended. Temporary saves cleared. You can still download the final CSV.');
+            // Save current game as final
+            saveProgress(true);
+
+            // Clear all in-progress saves, keep only final games
+            const saves = JSON.parse(localStorage.getItem('gameSaves') || '[]');
+            const finalGames = saves.filter(save => save.isFinalGame);
+            localStorage.setItem('gameSaves', JSON.stringify(finalGames));
+
+            alert('Game saved as complete! (' + events.length + ' events)\nIn-progress saves cleared.\n\nUse "Clear All" to reset for a new game, or download CSV to export data.');
+
             loadSavedGamesList();
             closeNewGameModal();
         }
@@ -1093,6 +1108,8 @@
                     });
                     document.getElementById('status').textContent = 'Ready - Select a category';
                 }
+                // Open settings modal to end game
+                openNewGameModal();
             }
         }
 
@@ -1122,6 +1139,12 @@
         }
 
         function selectCat(btn, type, category) {
+            // Check if a half has been started
+            if (!currentPeriod.includes('Started')) {
+                alert('Please start 1st Half or 2nd Half before selecting a category!');
+                return;
+            }
+
             if (currentType && currentCategory && selectedDescriptors.length > 0) {
                 saveEvent();
             }
