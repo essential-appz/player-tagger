@@ -57,6 +57,81 @@
             background: white;
         }
 
+        /* Team panels side by side */
+        .teams-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .team-panel {
+            flex: 1;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .team-panel h2 {
+            font-size: 16px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        /* GAA Formation styles */
+        .formation-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .formation-row {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .formation-row button {
+            flex: 0 0 60px;
+            padding: 15px 5px;
+            font-size: 18px;
+            font-weight: bold;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            background: white;
+        }
+
+        .subs-container {
+            border-top: 2px solid #ddd;
+            padding-top: 8px;
+        }
+
+        .subs-label {
+            text-align: center;
+            font-size: 12px;
+            font-weight: bold;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .subs-row {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin-bottom: 6px;
+        }
+
+        .subs-row button {
+            flex: 0 0 50px;
+            padding: 12px 4px;
+            font-size: 16px;
+            font-weight: bold;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            background: white;
+        }
+
         .category-btn.selected {
             background: #2196F3;
             color: white;
@@ -458,19 +533,21 @@
         </div>
     </div>
 
-    <div class="section">
-        <h2>Our Players</h2>
-        <div class="button-grid" id="ckGrid"></div>
+    <div class="teams-container">
+        <div class="team-panel">
+            <h2>Our Players</h2>
+            <div id="ckGrid"></div>
+        </div>
+
+        <div class="team-panel">
+            <h2>Opposition Players</h2>
+            <div id="oppGrid"></div>
+        </div>
     </div>
 
     <div class="section">
         <h2>Match Events</h2>
         <div class="button-grid" id="descGrid"></div>
-    </div>
-
-    <div class="section">
-        <h2>Opposition Players</h2>
-        <div class="button-grid" id="oppGrid"></div>
     </div>
 
     <div class="section">
@@ -755,25 +832,128 @@
         }
 
         function createButtons() {
-            // OUR buttons
+            // GAA Formation: [goalkeeper, fullbacks, halfbacks, midfield, halfforwards, fullforwards]
+            const formation = [
+                [1],           // Goalkeeper
+                [2, 3, 4],     // Full backs
+                [5, 6, 7],     // Half backs
+                [8, 9],        // Midfield
+                [10, 11, 12],  // Half forwards
+                [13, 14, 15]   // Full forwards
+            ];
+            const subs = [16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26]; // 11 substitutes
+
+            // OUR buttons in formation
             const ckGrid = document.getElementById('ckGrid');
-            categories.forEach(cat => {
-                const btn = document.createElement('button');
-                btn.className = 'category-btn';
-                btn.textContent = cat;
-                btn.onclick = () => selectCat(btn, 'OUR', cat);
-                ckGrid.appendChild(btn);
+            const ckFormation = document.createElement('div');
+            ckFormation.className = 'formation-container';
+
+            formation.forEach(row => {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'formation-row';
+                row.forEach(num => {
+                    const cat = 'OUR ' + num;
+                    const btn = document.createElement('button');
+                    btn.className = 'category-btn';
+                    btn.textContent = num;
+                    btn.onclick = () => selectCat(btn, 'OUR', cat);
+                    rowDiv.appendChild(btn);
+                });
+                ckFormation.appendChild(rowDiv);
             });
 
-            // OPP buttons
-            const oppGrid = document.getElementById('oppGrid');
-            opponents.forEach(opp => {
+            // Add substitutes in two rows
+            const subsContainer = document.createElement('div');
+            subsContainer.className = 'subs-container';
+            const subsLabel = document.createElement('div');
+            subsLabel.className = 'subs-label';
+            subsLabel.textContent = 'Substitutes';
+            subsContainer.appendChild(subsLabel);
+
+            // First row of subs (16-21)
+            const subsRow1 = document.createElement('div');
+            subsRow1.className = 'subs-row';
+            subs.slice(0, 6).forEach(num => {
+                const cat = 'OUR ' + num;
                 const btn = document.createElement('button');
                 btn.className = 'category-btn';
-                btn.textContent = opp;
-                btn.onclick = () => selectCat(btn, 'OPP', opp);
-                oppGrid.appendChild(btn);
+                btn.textContent = num;
+                btn.onclick = () => selectCat(btn, 'OUR', cat);
+                subsRow1.appendChild(btn);
             });
+            subsContainer.appendChild(subsRow1);
+
+            // Second row of subs (22-26)
+            const subsRow2 = document.createElement('div');
+            subsRow2.className = 'subs-row';
+            subs.slice(6).forEach(num => {
+                const cat = 'OUR ' + num;
+                const btn = document.createElement('button');
+                btn.className = 'category-btn';
+                btn.textContent = num;
+                btn.onclick = () => selectCat(btn, 'OUR', cat);
+                subsRow2.appendChild(btn);
+            });
+            subsContainer.appendChild(subsRow2);
+
+            ckFormation.appendChild(subsContainer);
+            ckGrid.appendChild(ckFormation);
+
+            // OPP buttons in formation
+            const oppGrid = document.getElementById('oppGrid');
+            const oppFormation = document.createElement('div');
+            oppFormation.className = 'formation-container';
+
+            formation.forEach(row => {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'formation-row';
+                row.forEach(num => {
+                    const opp = 'OPP ' + num;
+                    const btn = document.createElement('button');
+                    btn.className = 'category-btn';
+                    btn.textContent = num;
+                    btn.onclick = () => selectCat(btn, 'OPP', opp);
+                    rowDiv.appendChild(btn);
+                });
+                oppFormation.appendChild(rowDiv);
+            });
+
+            // Add substitutes for opposition
+            const oppSubsContainer = document.createElement('div');
+            oppSubsContainer.className = 'subs-container';
+            const oppSubsLabel = document.createElement('div');
+            oppSubsLabel.className = 'subs-label';
+            oppSubsLabel.textContent = 'Substitutes';
+            oppSubsContainer.appendChild(oppSubsLabel);
+
+            // First row of subs (16-21)
+            const oppSubsRow1 = document.createElement('div');
+            oppSubsRow1.className = 'subs-row';
+            subs.slice(0, 6).forEach(num => {
+                const opp = 'OPP ' + num;
+                const btn = document.createElement('button');
+                btn.className = 'category-btn';
+                btn.textContent = num;
+                btn.onclick = () => selectCat(btn, 'OPP', opp);
+                oppSubsRow1.appendChild(btn);
+            });
+            oppSubsContainer.appendChild(oppSubsRow1);
+
+            // Second row of subs (22-26)
+            const oppSubsRow2 = document.createElement('div');
+            oppSubsRow2.className = 'subs-row';
+            subs.slice(6).forEach(num => {
+                const opp = 'OPP ' + num;
+                const btn = document.createElement('button');
+                btn.className = 'category-btn';
+                btn.textContent = num;
+                btn.onclick = () => selectCat(btn, 'OPP', opp);
+                oppSubsRow2.appendChild(btn);
+            });
+            oppSubsContainer.appendChild(oppSubsRow2);
+
+            oppFormation.appendChild(oppSubsContainer);
+            oppGrid.appendChild(oppFormation);
 
             // Descriptor buttons
             const descGrid = document.getElementById('descGrid');
