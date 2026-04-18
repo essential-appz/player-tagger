@@ -38,10 +38,9 @@
             font-weight: normal;
         }
 
-        .help-link {
+        .header-btn {
             position: absolute;
             top: 0;
-            right: 0;
             background: #2196F3;
             color: white;
             text-decoration: none;
@@ -52,10 +51,20 @@
             display: inline-flex;
             align-items: center;
             gap: 4px;
+            border: none;
+            cursor: pointer;
         }
 
-        .help-link:hover {
+        .header-btn:hover {
             background: #1976D2;
+        }
+
+        .header-btn.left {
+            left: 0;
+        }
+
+        .header-btn.right {
+            right: 0;
         }
 
         .section {
@@ -637,8 +646,11 @@
 </head>
 <body>
     <div class="header">
+        <button onclick="openNewGameModal()" class="header-btn left">
+            ⚙️ New Game
+        </button>
         <h1>Player Logger <span class="version">v0.1</span></h1>
-        <a href="https://github.com/essential-appz/player-tagger/blob/release-1.0/README.md" target="_blank" class="help-link">
+        <a href="https://github.com/essential-appz/player-tagger/blob/release-1.0/README.md" target="_blank" class="header-btn right">
             ❓ Help
         </a>
     </div>
