@@ -361,8 +361,10 @@
             background: white;
             padding: 20px;
             border-radius: 8px;
-            max-width: 400px;
+            max-width: 450px;
             width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
             box-shadow: 0 4px 6px rgba(0,0,0,0.2);
         }
 
@@ -481,6 +483,114 @@
             text-align: center;
             color: #999;
             font-size: 12px;
+        }
+
+        .descriptors-manager {
+            background: #f5f5f5;
+            border-radius: 6px;
+            padding: 10px;
+        }
+
+        .descriptors-list {
+            max-height: 120px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+        }
+
+        .descriptor-item {
+            background: white;
+            padding: 8px;
+            margin-bottom: 6px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+        }
+
+        .descriptor-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .descriptor-lock-message {
+            background: #fff3e0;
+            color: #e65100;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .delete-descriptor-btn {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .delete-descriptor-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .add-descriptor-row {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+
+        .add-descriptor-row input {
+            flex: 1;
+            padding: 8px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .add-descriptor-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .add-descriptor-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .reset-descriptors-btn {
+            width: 100%;
+            background: #ff9800;
+            color: white;
+            border: none;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .reset-descriptors-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .add-descriptor-row input:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #f5f5f5;
         }
     </style>
 </head>
@@ -614,6 +724,17 @@
                     <div class="no-saves">No saved progress</div>
                 </div>
             </div>
+            <div class="form-group">
+                <label>Custom Event Descriptors:</label>
+                <div class="descriptors-manager">
+                    <div class="descriptors-list" id="descriptorsList"></div>
+                    <div class="add-descriptor-row">
+                        <input type="text" id="newDescriptorInput" placeholder="New descriptor name" maxlength="20" onkeypress="if(event.key==='Enter')addCustomDescriptor()">
+                        <button class="add-descriptor-btn" onclick="addCustomDescriptor()">Add</button>
+                    </div>
+                    <button class="reset-descriptors-btn" onclick="resetDescriptors()">Reset to Defaults</button>
+                </div>
+            </div>
             <div class="modal-buttons">
                 <button class="modal-btn secondary" onclick="closeNewGameModal()">Close</button>
                 <button class="modal-btn primary" onclick="startNewGame()">New Game</button>
@@ -626,8 +747,9 @@
         // Configuration
         const categories = ['OUR 1', 'OUR 2', 'OUR 3', 'OUR 4', 'OUR 5', 'OUR 6', 'OUR 7', 'OUR 8', 'OUR 9', 'OUR 10', 'OUR 11', 'OUR 12', 'OUR 13', 'OUR 14', 'OUR 15', 'OUR 16', 'OUR 17', 'OUR 18', 'OUR 19', 'OUR 20', 'OUR 21', 'OUR 22', 'OUR 23', 'OUR 24', 'OUR 25', 'OUR 26'];
         const opponents = ['OPP 1', 'OPP 2', 'OPP 3', 'OPP 4', 'OPP 5', 'OPP 6', 'OPP 7', 'OPP 8', 'OPP 9', 'OPP 10', 'OPP 11', 'OPP 12', 'OPP 13', 'OPP 14', 'OPP 15', 'OPP 16', 'OPP 17', 'OPP 18', 'OPP 19', 'OPP 20', 'OPP 21', 'OPP 22', 'OPP 23', 'OPP 24', 'OPP 25', 'OPP 26'];
-        const descriptors = ['Shot', 'Goal', '2 Pointer', 'Point', 'T/O Won', 'T/O Lost', 'K/O Won'];
-        const allDescriptors = ['Touch', ...descriptors];
+        const defaultDescriptors = ['Shot', 'Goal', '2 Pointer', 'Point', 'T/O Won', 'T/O Lost', 'K/O Won'];
+        let descriptors = [];
+        let allDescriptors = [];
 
         // State
         let currentType = null;
@@ -646,10 +768,191 @@
 
         // Initialize
         function init() {
+            loadCustomDescriptors();
             createButtons();
             buildMatrix();
             loadEvents();
             updateGameName();
+        }
+
+        function loadCustomDescriptors() {
+            try {
+                const saved = localStorage.getItem('customDescriptors');
+                if (saved) {
+                    descriptors = JSON.parse(saved);
+                } else {
+                    descriptors = [...defaultDescriptors];
+                }
+            } catch (e) {
+                descriptors = [...defaultDescriptors];
+            }
+            allDescriptors = ['Touch', ...descriptors];
+        }
+
+        function saveCustomDescriptors() {
+            try {
+                localStorage.setItem('customDescriptors', JSON.stringify(descriptors));
+            } catch (e) {
+                console.log('Could not save custom descriptors');
+            }
+        }
+
+        function canModifyDescriptors() {
+            // Can modify if no game in progress OR if 2nd half has ended
+            if (events.length === 0) return true;
+            if (currentPeriod === '2nd Half Ended') return true;
+            return false;
+        }
+
+        function addCustomDescriptor() {
+            if (!canModifyDescriptors()) {
+                alert('Cannot modify descriptors while game is in progress! End 2nd Half first.');
+                return;
+            }
+
+            const input = document.getElementById('newDescriptorInput');
+            const newDesc = input.value.trim();
+
+            if (!newDesc) {
+                alert('Please enter a descriptor name!');
+                return;
+            }
+
+            if (newDesc === 'Touch') {
+                alert('"Touch" is a reserved descriptor and cannot be added!');
+                return;
+            }
+
+            if (descriptors.includes(newDesc)) {
+                alert('This descriptor already exists!');
+                return;
+            }
+
+            descriptors.push(newDesc);
+            allDescriptors = ['Touch', ...descriptors];
+            saveCustomDescriptors();
+
+            input.value = '';
+            updateDescriptorsList();
+            rebuildDescriptorButtons();
+            rebuildMatrices();
+        }
+
+        function deleteCustomDescriptor(desc) {
+            if (!canModifyDescriptors()) {
+                alert('Cannot modify descriptors while game is in progress! End 2nd Half first.');
+                return;
+            }
+
+            if (!confirm('Delete "' + desc + '"? This will not remove it from existing events.')) {
+                return;
+            }
+
+            const index = descriptors.indexOf(desc);
+            if (index > -1) {
+                descriptors.splice(index, 1);
+                allDescriptors = ['Touch', ...descriptors];
+                saveCustomDescriptors();
+                updateDescriptorsList();
+                rebuildDescriptorButtons();
+                rebuildMatrices();
+            }
+        }
+
+        function resetDescriptors() {
+            if (!canModifyDescriptors()) {
+                alert('Cannot modify descriptors while game is in progress! End 2nd Half first.');
+                return;
+            }
+
+            if (!confirm('Reset to default descriptors?\n\nThis will restore:\n• Shot\n• Goal\n• 2 Pointer\n• Point\n• T/O Won\n• T/O Lost\n• K/O Won\n\nCustom descriptors will be removed.')) {
+                return;
+            }
+
+            descriptors = [...defaultDescriptors];
+            allDescriptors = ['Touch', ...descriptors];
+            saveCustomDescriptors();
+            updateDescriptorsList();
+            rebuildDescriptorButtons();
+            rebuildMatrices();
+            alert('Descriptors reset to defaults!');
+        }
+
+        function updateDescriptorsList() {
+            const list = document.getElementById('descriptorsList');
+            const input = document.getElementById('newDescriptorInput');
+            const addBtn = document.querySelector('.add-descriptor-btn');
+            const resetBtn = document.querySelector('.reset-descriptors-btn');
+            const canModify = canModifyDescriptors();
+
+            list.innerHTML = '';
+
+            // Show lock message if game in progress
+            if (!canModify && events.length > 0) {
+                const lockMsg = document.createElement('div');
+                lockMsg.className = 'descriptor-lock-message';
+                lockMsg.textContent = '🔒 Locked during game - End 2nd Half to modify';
+                list.appendChild(lockMsg);
+            }
+
+            descriptors.forEach(desc => {
+                const item = document.createElement('div');
+                item.className = 'descriptor-item';
+
+                const span = document.createElement('span');
+                span.textContent = desc;
+
+                const btn = document.createElement('button');
+                btn.className = 'delete-descriptor-btn';
+                btn.textContent = '×';
+                btn.disabled = !canModify;
+                btn.onclick = () => deleteCustomDescriptor(desc);
+
+                item.appendChild(span);
+                item.appendChild(btn);
+                list.appendChild(item);
+            });
+
+            // Enable/disable input and buttons
+            input.disabled = !canModify;
+            addBtn.disabled = !canModify;
+            resetBtn.disabled = !canModify;
+        }
+
+        function rebuildDescriptorButtons() {
+            const descGrid = document.getElementById('descGrid');
+            descGrid.innerHTML = '';
+
+            descriptors.forEach(desc => {
+                const btn = document.createElement('button');
+                btn.className = 'descriptor-btn';
+                btn.textContent = desc;
+                btn.disabled = true;
+                btn.onclick = () => toggleDesc(btn, desc);
+                descGrid.appendChild(btn);
+            });
+
+            // Re-enable buttons if category is selected
+            if (currentType && currentCategory) {
+                document.querySelectorAll('.descriptor-btn').forEach(b => {
+                    b.disabled = false;
+                    if (selectedDescriptors.includes(b.textContent)) {
+                        b.classList.add('selected');
+                    }
+                });
+            }
+        }
+
+        function rebuildMatrices() {
+            // Clear existing matrices
+            document.getElementById('ckMatrix').querySelector('thead tr').innerHTML = '<th class="category-header">OUR</th>';
+            document.getElementById('ckMatrixBody').innerHTML = '';
+            document.getElementById('oppMatrix').querySelector('thead tr').innerHTML = '<th class="category-header">OPP</th>';
+            document.getElementById('oppMatrixBody').innerHTML = '';
+
+            // Rebuild
+            buildMatrix();
+            updateMatrix();
         }
 
         function openNewGameModal() {
@@ -658,6 +961,7 @@
             document.getElementById('team2Name').value = team2Name;
             updateGameName();
             loadSavedGamesList();
+            updateDescriptorsList();
         }
 
         function closeNewGameModal() {
@@ -956,15 +1260,7 @@
             oppGrid.appendChild(oppFormation);
 
             // Descriptor buttons
-            const descGrid = document.getElementById('descGrid');
-            descriptors.forEach(desc => {
-                const btn = document.createElement('button');
-                btn.className = 'descriptor-btn';
-                btn.textContent = desc;
-                btn.disabled = true;
-                btn.onclick = () => toggleDesc(btn, desc);
-                descGrid.appendChild(btn);
-            });
+            rebuildDescriptorButtons();
         }
 
         function buildMatrix() {
