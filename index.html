@@ -21,9 +21,14 @@
             padding: 10px;
         }
 
+        .header {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
         h1 {
             text-align: center;
-            margin-bottom: 15px;
+            margin: 0;
             font-size: 20px;
         }
 
@@ -31,6 +36,26 @@
             font-size: 12px;
             color: #999;
             font-weight: normal;
+        }
+
+        .help-link {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: #2196F3;
+            color: white;
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .help-link:hover {
+            background: #1976D2;
         }
 
         .section {
@@ -611,7 +636,12 @@
     </style>
 </head>
 <body>
-    <h1>Player Logger <span class="version">v0.1</span></h1>
+    <div class="header">
+        <h1>Player Logger <span class="version">v0.1</span></h1>
+        <a href="https://github.com/essential-appz/player-tagger/blob/release-1.0/README.md" target="_blank" class="help-link">
+            ❓ Help
+        </a>
+    </div>
 
     <div id="status">Ready - Select a category</div>
 
