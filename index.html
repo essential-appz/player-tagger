@@ -626,8 +626,6 @@
 
     <div class="controls">
         <button class="control-btn primary" onclick="openNewGameModal()">Game Settings</button>
-        <button class="control-btn primary" onclick="saveCurrentEvent()">Save Player Action</button>
-        <button class="control-btn warning" onclick="undoLastEvent()">Undo Last Event</button>
         <button class="control-btn primary" onclick="saveProgress()">Save Game Progress</button>
         <button class="control-btn primary" onclick="downloadCSV()">Download CSV</button>
         <button class="control-btn danger" onclick="clearData()">Clear All</button>
@@ -931,6 +929,28 @@
                 btn.onclick = () => toggleDesc(btn, desc);
                 descGrid.appendChild(btn);
             });
+
+            // Add Manual Save Event button
+            const saveBtn = document.createElement('button');
+            saveBtn.className = 'descriptor-btn';
+            saveBtn.textContent = 'Manual Save Event';
+            saveBtn.style.background = '#ff9800';
+            saveBtn.style.color = 'white';
+            saveBtn.style.borderColor = '#ff9800';
+            saveBtn.disabled = true;
+            saveBtn.onclick = () => saveCurrentEvent();
+            descGrid.appendChild(saveBtn);
+
+            // Add Undo Last Event button
+            const undoBtn = document.createElement('button');
+            undoBtn.className = 'descriptor-btn';
+            undoBtn.textContent = 'Undo Last Event';
+            undoBtn.style.background = '#f44336';
+            undoBtn.style.color = 'white';
+            undoBtn.style.borderColor = '#f44336';
+            undoBtn.disabled = true;
+            undoBtn.onclick = () => undoLastEvent();
+            descGrid.appendChild(undoBtn);
 
             // Re-enable buttons if category is selected
             if (currentType && currentCategory) {
