@@ -469,6 +469,16 @@
             cursor: pointer;
         }
 
+        .download-save-btn {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
         .delete-save-btn {
             background: #f44336;
             color: white;
@@ -628,8 +638,11 @@
         <button class="control-btn primary" onclick="openNewGameModal()">Game Settings</button>
         <button class="control-btn primary" onclick="saveProgress()">Save Game Progress</button>
         <button class="control-btn primary" onclick="downloadCSV()">Download CSV</button>
+        <button class="control-btn primary" onclick="document.getElementById('csvImport').click()">Import CSV</button>
         <button class="control-btn danger" onclick="clearData()">Clear All</button>
     </div>
+
+    <input type="file" id="csvImport" accept=".csv" style="display: none;" onchange="importCSV(event)">
 
     <div class="section">
         <h2>Game Period</h2>
@@ -1074,6 +1087,7 @@
                     </div>
                     <div class="save-actions">
                         <button class="load-save-btn" onclick="loadSave(${index})">Load</button>
+                        <button class="download-save-btn" onclick="downloadSavedGame(${index})">Download</button>
                         <button class="delete-save-btn" onclick="deleteSave(${index})">Delete</button>
                     </div>
                 `;
@@ -1129,6 +1143,36 @@
             saves.splice(index, 1);
             localStorage.setItem('gameSaves', JSON.stringify(saves));
             loadSavedGamesList();
+        }
+
+        function downloadSavedGame(index) {
+            const saves = JSON.parse(localStorage.getItem('gameSaves') || '[]');
+            const save = saves[index];
+
+            if (!save || !save.events || save.events.length === 0) {
+                alert('No events to download!');
+                return;
+            }
+
+            // Generate CSV from saved game events
+            let csv = 'Event#,Timestamp,Game Time,Period,Type,Category,Descriptors\n';
+            save.events.forEach((e, i) => {
+                csv += (i + 1) + ',' + e.timestamp + ',' + e.time + ',' + e.period + ',' +
+                       e.type + ',' + e.category + ',"' + e.descriptors + '"\n';
+            });
+
+            // Create download
+            let blob = new Blob([csv], { type: 'text/csv' });
+            let url = URL.createObjectURL(blob);
+            let a = document.createElement('a');
+            a.href = url;
+
+            // Use game name for filename
+            const safeName = (save.gameName || 'game').replace(/[^a-z0-9]/gi, '_').toLowerCase();
+            a.download = safeName + '_' + Date.now() + '.csv';
+
+            a.click();
+            URL.revokeObjectURL(url);
         }
 
         function endGame() {
@@ -1805,6 +1849,159 @@
             a.download = 'event_log_' + Date.now() + '.csv';
             a.click();
             URL.revokeObjectURL(url);
+        }
+
+        function importCSV(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Warn if current game has data
+            if (events.length > 0) {
+                if (!confirm('Importing a CSV will replace all current game data. Continue?')) {
+                    event.target.value = ''; // Reset file input
+                    return;
+                }
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const csv = e.target.result;
+                    const lines = csv.split('\n');
+
+                    // Validate header
+                    const header = lines[0].trim();
+                    if (!header.includes('Event#') || !header.includes('Timestamp') || !header.includes('Type') || !header.includes('Category')) {
+                        alert('Invalid CSV format! Expected headers: Event#, Timestamp, Game Time, Period, Type, Category, Descriptors');
+                        event.target.value = '';
+                        return;
+                    }
+
+                    // Parse events
+                    const importedEvents = [];
+                    for (let i = 1; i < lines.length; i++) {
+                        const line = lines[i].trim();
+                        if (!line) continue; // Skip empty lines
+
+                        // Parse CSV line (handle quoted descriptors)
+                        const parts = [];
+                        let current = '';
+                        let inQuotes = false;
+
+                        for (let j = 0; j < line.length; j++) {
+                            const char = line[j];
+                            if (char === '"') {
+                                inQuotes = !inQuotes;
+                            } else if (char === ',' && !inQuotes) {
+                                parts.push(current);
+                                current = '';
+                            } else {
+                                current += char;
+                            }
+                        }
+                        parts.push(current); // Add last part
+
+                        // Validate we have enough parts
+                        if (parts.length < 7) {
+                            console.warn('Skipping invalid line:', line);
+                            continue;
+                        }
+
+                        const event = {
+                            timestamp: parts[1].trim(),
+                            time: parts[2].trim(),
+                            period: parts[3].trim(),
+                            type: parts[4].trim(),
+                            category: parts[5].trim(),
+                            descriptors: parts[6].trim()
+                        };
+
+                        // Validate event data
+                        if (!event.type || !event.category || !event.descriptors) {
+                            console.warn('Skipping incomplete event:', event);
+                            continue;
+                        }
+
+                        importedEvents.push(event);
+                    }
+
+                    if (importedEvents.length === 0) {
+                        alert('No valid events found in CSV file!');
+                        event.target.value = '';
+                        return;
+                    }
+
+                    // Clear current game
+                    clearData(true);
+
+                    // Load imported events
+                    events = importedEvents;
+
+                    // Detect and add any new descriptors from imported events
+                    const newDescriptors = [];
+                    events.forEach(event => {
+                        const eventDescs = event.descriptors.split(',').map(d => d.trim());
+                        eventDescs.forEach(desc => {
+                            if (desc !== 'Touch' && !descriptors.includes(desc) && !newDescriptors.includes(desc)) {
+                                newDescriptors.push(desc);
+                            }
+                        });
+                    });
+
+                    if (newDescriptors.length > 0) {
+                        descriptors.push(...newDescriptors);
+                        allDescriptors = ['Touch', ...descriptors];
+                        saveCustomDescriptors();
+                        rebuildDescriptorButtons();
+                    }
+
+                    // Rebuild event log
+                    let log = document.getElementById('eventLog');
+                    log.innerHTML = '';
+                    events.forEach(e => addLogEntry(e));
+
+                    // Set period based on last event
+                    if (events.length > 0) {
+                        const lastEvent = events[events.length - 1];
+                        currentPeriod = lastEvent.period;
+                        document.getElementById('currentPeriod').textContent = currentPeriod;
+
+                        // Update period button states
+                        document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+                        const periodText = currentPeriod.replace('Started', '').replace('Ended', '').trim();
+                        document.querySelectorAll('.period-btn').forEach(b => {
+                            if (b.textContent.includes(periodText)) {
+                                b.classList.add('active');
+                            }
+                        });
+                    }
+
+                    // Update displays
+                    document.getElementById('eventCount').textContent = events.length;
+                    saveToStorage();
+                    rebuildMatrices();
+
+                    let message = 'CSV imported successfully!\n' + events.length + ' events loaded.';
+                    if (newDescriptors.length > 0) {
+                        message += '\n\nNew descriptors added:\n• ' + newDescriptors.join('\n• ');
+                    }
+                    alert(message);
+
+                } catch (error) {
+                    console.error('Import error:', error);
+                    alert('Error importing CSV file: ' + error.message);
+                }
+
+                // Reset file input
+                event.target.value = '';
+            };
+
+            reader.onerror = function() {
+                alert('Error reading file!');
+                event.target.value = '';
+            };
+
+            reader.readAsText(file);
         }
 
         // TEST FUNCTION - Simulate heavy usage
