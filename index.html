@@ -1147,7 +1147,13 @@
             html += '</div>';
 
             // Top 3 Scorers - OUR
-            const ourScorers = getPlayerStats('OUR').filter(p => p.goals > 0 || p.points > 0 || p.twoPointers > 0);
+            const ourScorers = getPlayerStats('OUR')
+                .filter(p => p.goals > 0 || p.points > 0 || p.twoPointers > 0)
+                .sort((a, b) => {
+                    const aScore = (a.goals * 3) + (a.twoPointers * 2) + a.points;
+                    const bScore = (b.goals * 3) + (b.twoPointers * 2) + b.points;
+                    return bScore - aScore;
+                });
             html += '<div class="report-section">';
             html += '<h3>' + team1Name + ' - Top 3 Scorers</h3>';
             html += '<table class="report-table">';
@@ -1176,7 +1182,13 @@
             html += '</div>';
 
             // Top 3 Scorers - OPP
-            const oppScorers = getPlayerStats('OPP').filter(p => p.goals > 0 || p.points > 0 || p.twoPointers > 0);
+            const oppScorers = getPlayerStats('OPP')
+                .filter(p => p.goals > 0 || p.points > 0 || p.twoPointers > 0)
+                .sort((a, b) => {
+                    const aScore = (a.goals * 3) + (a.twoPointers * 2) + a.points;
+                    const bScore = (b.goals * 3) + (b.twoPointers * 2) + b.points;
+                    return bScore - aScore;
+                });
             html += '<div class="report-section">';
             html += '<h3>' + team2Name + ' - Top 3 Scorers</h3>';
             html += '<table class="report-table">';
