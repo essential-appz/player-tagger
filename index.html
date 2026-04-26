@@ -206,6 +206,11 @@
             color: white;
         }
 
+        .period-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
         #status {
             text-align: center;
             padding: 10px;
@@ -642,6 +647,54 @@
             cursor: not-allowed;
             background: #f5f5f5;
         }
+
+        .report-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 6px;
+        }
+
+        .report-section h3 {
+            margin: 0 0 10px 0;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            background: white;
+        }
+
+        .report-table th,
+        .report-table td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            font-size: 13px;
+        }
+
+        .report-table th {
+            background: #2196F3;
+            color: white;
+            font-weight: bold;
+        }
+
+        .report-stat {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            background: white;
+            margin-bottom: 6px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .report-stat strong {
+            color: #2196F3;
+        }
     </style>
 </head>
 <body>
@@ -699,6 +752,7 @@
             <button class="period-btn" onclick="setPeriod(this, '1st Half Ended')">End 1st Half</button>
             <button class="period-btn" onclick="setPeriod(this, '2nd Half Started')">Start 2nd Half</button>
             <button class="period-btn" onclick="setPeriod(this, '2nd Half Ended')">End 2nd Half</button>
+            <button class="period-btn" style="background: #ff9800; color: white;" onclick="openReportsModal()">Reports</button>
         </div>
     </div>
 
@@ -759,6 +813,17 @@
         <h2>Event Log</h2>
         <div id="eventLog">
             <div style="text-align: center; color: #999;">No events logged</div>
+        </div>
+    </div>
+
+    <!-- Reports Modal -->
+    <div id="reportsModal" class="modal">
+        <div class="modal-content">
+            <h2>Game Reports</h2>
+            <div id="reportsContent"></div>
+            <div class="modal-buttons">
+                <button class="modal-btn secondary" onclick="closeReportsModal()">Close</button>
+            </div>
         </div>
     </div>
 
@@ -832,6 +897,7 @@
             buildMatrix();
             loadEvents();
             updateGameName();
+            updatePeriodButtons();
         }
 
         function loadCustomDescriptors() {
@@ -1047,6 +1113,148 @@
 
         function closeNewGameModal() {
             document.getElementById('newGameModal').classList.remove('active');
+        }
+
+        function openReportsModal() {
+            if (events.length === 0) {
+                alert('No game data to report!');
+                return;
+            }
+
+            generateReports();
+            document.getElementById('reportsModal').classList.add('active');
+        }
+
+        function closeReportsModal() {
+            document.getElementById('reportsModal').classList.remove('active');
+        }
+
+        function generateReports() {
+            const reportsContent = document.getElementById('reportsContent');
+            let html = '';
+
+            // Top 3 Possessions - OUR
+            const ourStats = getPlayerStats('OUR');
+            html += '<div class="report-section">';
+            html += '<h3>' + team1Name + ' - Top 3 Possessions</h3>';
+            html += '<table class="report-table">';
+            html += '<tr><th>Player Number</th><th>Possessions</th></tr>';
+            ourStats.slice(0, 3).forEach(player => {
+                const playerNum = player.category.replace('OUR ', '');
+                html += '<tr><td>' + playerNum + '</td><td>' + player.touches + '</td></tr>';
+            });
+            html += '</table>';
+            html += '</div>';
+
+            // Top 3 Scorers - OUR
+            const ourScorers = getPlayerStats('OUR').filter(p => p.goals > 0 || p.points > 0 || p.twoPointers > 0);
+            html += '<div class="report-section">';
+            html += '<h3>' + team1Name + ' - Top 3 Scorers</h3>';
+            html += '<table class="report-table">';
+            html += '<tr><th>Player Number</th><th>Goals</th><th>2-Pointers</th><th>Points</th></tr>';
+            ourScorers.slice(0, 3).forEach(player => {
+                const playerNum = player.category.replace('OUR ', '');
+                html += '<tr><td>' + playerNum + '</td><td>' + player.goals + '</td><td>' + player.twoPointers + '</td><td>' + player.points + '</td></tr>';
+            });
+            if (ourScorers.length === 0) {
+                html += '<tr><td colspan="4" style="text-align: center; color: #999;">No scoring events</td></tr>';
+            }
+            html += '</table>';
+            html += '</div>';
+
+            // Top 3 Possessions - OPP
+            const oppStats = getPlayerStats('OPP');
+            html += '<div class="report-section">';
+            html += '<h3>' + team2Name + ' - Top 3 Possessions</h3>';
+            html += '<table class="report-table">';
+            html += '<tr><th>Player Number</th><th>Possessions</th></tr>';
+            oppStats.slice(0, 3).forEach(player => {
+                const playerNum = player.category.replace('OPP ', '');
+                html += '<tr><td>' + playerNum + '</td><td>' + player.touches + '</td></tr>';
+            });
+            html += '</table>';
+            html += '</div>';
+
+            // Top 3 Scorers - OPP
+            const oppScorers = getPlayerStats('OPP').filter(p => p.goals > 0 || p.points > 0 || p.twoPointers > 0);
+            html += '<div class="report-section">';
+            html += '<h3>' + team2Name + ' - Top 3 Scorers</h3>';
+            html += '<table class="report-table">';
+            html += '<tr><th>Player Number</th><th>Goals</th><th>2-Pointers</th><th>Points</th></tr>';
+            oppScorers.slice(0, 3).forEach(player => {
+                const playerNum = player.category.replace('OPP ', '');
+                html += '<tr><td>' + playerNum + '</td><td>' + player.goals + '</td><td>' + player.twoPointers + '</td><td>' + player.points + '</td></tr>';
+            });
+            if (oppScorers.length === 0) {
+                html += '<tr><td colspan="4" style="text-align: center; color: #999;">No scoring events</td></tr>';
+            }
+            html += '</table>';
+            html += '</div>';
+
+            reportsContent.innerHTML = html;
+        }
+
+        function calculateScores() {
+            let ourGoals = 0, ourPoints = 0, oppGoals = 0, oppPoints = 0;
+
+            events.forEach(event => {
+                const descriptorList = event.descriptors.split(',').map(d => d.trim());
+                if (event.type === 'OUR') {
+                    if (descriptorList.includes('Goal')) ourGoals++;
+                    if (descriptorList.includes('Point')) ourPoints += 1;
+                    if (descriptorList.includes('2 Pointer')) ourPoints += 2;
+                } else if (event.type === 'OPP') {
+                    if (descriptorList.includes('Goal')) oppGoals++;
+                    if (descriptorList.includes('Point')) oppPoints += 1;
+                    if (descriptorList.includes('2 Pointer')) oppPoints += 2;
+                }
+            });
+
+            return { ourGoals, ourPoints, oppGoals, oppPoints };
+        }
+
+        function getPlayerStats(type) {
+            const playerStats = {};
+
+            events.forEach(event => {
+                if (event.type !== type) return;
+
+                if (!playerStats[event.category]) {
+                    playerStats[event.category] = { category: event.category, touches: 0, goals: 0, points: 0, twoPointers: 0 };
+                }
+
+                const descriptorList = event.descriptors.split(',').map(d => d.trim());
+                if (descriptorList.includes('Touch')) playerStats[event.category].touches++;
+                if (descriptorList.includes('Goal')) playerStats[event.category].goals++;
+                if (descriptorList.includes('Point')) playerStats[event.category].points++;
+                if (descriptorList.includes('2 Pointer')) playerStats[event.category].twoPointers++;
+            });
+
+            return Object.values(playerStats).sort((a, b) => b.touches - a.touches);
+        }
+
+        function getEventDistribution() {
+            let our = 0, opp = 0;
+            events.forEach(event => {
+                if (event.type === 'OUR') our++;
+                else if (event.type === 'OPP') opp++;
+            });
+            return { our, opp };
+        }
+
+        function getDescriptorStats() {
+            const descriptorCounts = {};
+
+            events.forEach(event => {
+                const descriptorList = event.descriptors.split(',').map(d => d.trim());
+                descriptorList.forEach(desc => {
+                    descriptorCounts[desc] = (descriptorCounts[desc] || 0) + 1;
+                });
+            });
+
+            return Object.entries(descriptorCounts)
+                .map(([descriptor, count]) => ({ descriptor, count }))
+                .sort((a, b) => b.count - a.count);
         }
 
         function updateGameName() {
@@ -1655,11 +1863,40 @@
             }
         }
 
+        function updatePeriodButtons() {
+            const buttons = {
+                'Start 1st Half': document.querySelectorAll('.period-btn')[0],
+                'End 1st Half': document.querySelectorAll('.period-btn')[1],
+                'Start 2nd Half': document.querySelectorAll('.period-btn')[2],
+                'End 2nd Half': document.querySelectorAll('.period-btn')[3]
+            };
+
+            // Disable all buttons first
+            Object.values(buttons).forEach(btn => {
+                if (btn) btn.disabled = true;
+            });
+
+            // Enable appropriate button based on current period
+            if (currentPeriod === 'Not Started') {
+                if (buttons['Start 1st Half']) buttons['Start 1st Half'].disabled = false;
+            } else if (currentPeriod === '1st Half Started') {
+                if (buttons['End 1st Half']) buttons['End 1st Half'].disabled = false;
+            } else if (currentPeriod === '1st Half Ended') {
+                if (buttons['Start 2nd Half']) buttons['Start 2nd Half'].disabled = false;
+            } else if (currentPeriod === '2nd Half Started') {
+                if (buttons['End 2nd Half']) buttons['End 2nd Half'].disabled = false;
+            }
+            // If '2nd Half Ended', all buttons remain disabled
+        }
+
         function setPeriod(btn, period) {
             currentPeriod = period;
             document.getElementById('currentPeriod').textContent = period;
             document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
+
+            // Update button states
+            updatePeriodButtons();
 
             // Handle timer based on period
             if (period === '1st Half Started') {
@@ -1728,8 +1965,13 @@
 
         function selectCat(btn, type, category) {
             // Check if a half has been started
+            if (currentPeriod === 'Not Started') {
+                alert('Please start 1st Half before selecting a player!');
+                return;
+            }
+
             if (!currentPeriod.includes('Started')) {
-                alert('Please start 1st Half or 2nd Half before selecting a category!');
+                alert('Please start a half before selecting a player! (Currently in: ' + currentPeriod + ')');
                 return;
             }
 
@@ -1876,6 +2118,7 @@
             });
             document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
             updateMatrix();
+            updatePeriodButtons();
         }
 
         function downloadCSV() {
@@ -2022,6 +2265,7 @@
                                 b.classList.add('active');
                             }
                         });
+                        updatePeriodButtons();
                     }
 
                     // Update displays
