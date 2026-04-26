@@ -871,7 +871,7 @@
         // Configuration
         const categories = ['OUR 1', 'OUR 2', 'OUR 3', 'OUR 4', 'OUR 5', 'OUR 6', 'OUR 7', 'OUR 8', 'OUR 9', 'OUR 10', 'OUR 11', 'OUR 12', 'OUR 13', 'OUR 14', 'OUR 15', 'OUR 16', 'OUR 17', 'OUR 18', 'OUR 19', 'OUR 20', 'OUR 21', 'OUR 22', 'OUR 23', 'OUR 24', 'OUR 25', 'OUR 26'];
         const opponents = ['OPP 1', 'OPP 2', 'OPP 3', 'OPP 4', 'OPP 5', 'OPP 6', 'OPP 7', 'OPP 8', 'OPP 9', 'OPP 10', 'OPP 11', 'OPP 12', 'OPP 13', 'OPP 14', 'OPP 15', 'OPP 16', 'OPP 17', 'OPP 18', 'OPP 19', 'OPP 20', 'OPP 21', 'OPP 22', 'OPP 23', 'OPP 24', 'OPP 25', 'OPP 26'];
-        const defaultDescriptors = ['Shot', 'Goal', '2 Pointer', 'Point', 'T/O Won', 'T/O Lost', 'K/O Won'];
+        const defaultDescriptors = ['Shot', 'Goal', '2 Pointer', 'Point', 'T/O Won', 'T/O Lost', 'K/O Won', 'Own KO Won', 'Own KO Lost'];
         let descriptors = [];
         let allDescriptors = [];
 
@@ -990,7 +990,7 @@
                 return;
             }
 
-            if (!confirm('Reset to default descriptors?\n\nThis will restore:\n• Shot\n• Goal\n• 2 Pointer\n• Point\n• T/O Won\n• T/O Lost\n• K/O Won\n\nCustom descriptors will be removed.')) {
+            if (!confirm('Reset to default descriptors?\n\nThis will restore:\n• Shot\n• Goal\n• 2 Pointer\n• Point\n• T/O Won\n• T/O Lost\n• K/O Won\n• Own KO Won\n• Own KO Lost\n\nCustom descriptors will be removed.')) {
                 return;
             }
 
@@ -1133,6 +1133,46 @@
             const reportsContent = document.getElementById('reportsContent');
             let html = '';
 
+            // Shot Conversion
+            const shotStats = getShotConversion();
+            html += '<div class="report-section">';
+            html += '<h3>Shot Conversion</h3>';
+            html += '<table class="report-table">';
+            html += '<tr><th>Team</th><th>Shots</th><th>Scores</th><th>Conversion %</th></tr>';
+            html += '<tr>';
+            html += '<td>' + team1Name + '</td>';
+            html += '<td>' + shotStats.ourShots + '</td>';
+            html += '<td>' + shotStats.ourScores + '</td>';
+            html += '<td>' + shotStats.ourConversion + '%</td>';
+            html += '</tr>';
+            html += '<tr>';
+            html += '<td>' + team2Name + '</td>';
+            html += '<td>' + shotStats.oppShots + '</td>';
+            html += '<td>' + shotStats.oppScores + '</td>';
+            html += '<td>' + shotStats.oppConversion + '%</td>';
+            html += '</tr>';
+            html += '</table>';
+            html += '</div>';
+
+            // Kickouts
+            const kickoutStats = getKickoutStats();
+            html += '<div class="report-section">';
+            html += '<h3>Kickouts</h3>';
+            html += '<table class="report-table">';
+            html += '<tr><th>Team</th><th>Our KO</th><th>Their KO</th></tr>';
+            html += '<tr>';
+            html += '<td>' + team1Name + '</td>';
+            html += '<td>' + kickoutStats.ourWon + '/' + kickoutStats.ourTotal + ' (' + kickoutStats.ourPercent + '%)</td>';
+            html += '<td>' + kickoutStats.oppLost + '/' + kickoutStats.oppTotal + ' (' + kickoutStats.theirPercent + '%)</td>';
+            html += '</tr>';
+            html += '<tr>';
+            html += '<td>' + team2Name + '</td>';
+            html += '<td>' + kickoutStats.oppWon + '/' + kickoutStats.oppTotal + ' (' + kickoutStats.oppPercent + '%)</td>';
+            html += '<td>' + kickoutStats.ourLost + '/' + kickoutStats.ourTotal + ' (' + kickoutStats.ourTheirPercent + '%)</td>';
+            html += '</tr>';
+            html += '</table>';
+            html += '</div>';
+
             // Top 3 Possessions - OUR
             const ourStats = getPlayerStats('OUR');
             html += '<div class="report-section">';
@@ -1267,6 +1307,74 @@
             return Object.entries(descriptorCounts)
                 .map(([descriptor, count]) => ({ descriptor, count }))
                 .sort((a, b) => b.count - a.count);
+        }
+
+        function getShotConversion() {
+            let ourShots = 0, ourScores = 0, oppShots = 0, oppScores = 0;
+
+            events.forEach(event => {
+                const descriptorList = event.descriptors.split(',').map(d => d.trim());
+                const hasShot = descriptorList.includes('Shot');
+                const hasScore = descriptorList.includes('Goal') ||
+                                descriptorList.includes('Point') ||
+                                descriptorList.includes('2 Pointer');
+
+                if (event.type === 'OUR') {
+                    if (hasShot) ourShots++;
+                    if (hasScore) ourScores++;
+                } else if (event.type === 'OPP') {
+                    if (hasShot) oppShots++;
+                    if (hasScore) oppScores++;
+                }
+            });
+
+            const ourConversion = ourShots > 0 ? Math.round((ourScores / ourShots) * 100) : 0;
+            const oppConversion = oppShots > 0 ? Math.round((oppScores / oppShots) * 100) : 0;
+
+            return {
+                ourShots,
+                ourScores,
+                ourConversion,
+                oppShots,
+                oppScores,
+                oppConversion
+            };
+        }
+
+        function getKickoutStats() {
+            let ourWon = 0, ourLost = 0, oppWon = 0, oppLost = 0;
+
+            events.forEach(event => {
+                const descriptorList = event.descriptors.split(',').map(d => d.trim());
+
+                if (event.type === 'OUR') {
+                    if (descriptorList.includes('Own KO Won')) ourWon++;
+                    if (descriptorList.includes('Own KO Lost')) ourLost++;
+                } else if (event.type === 'OPP') {
+                    if (descriptorList.includes('Own KO Won')) oppWon++;
+                    if (descriptorList.includes('Own KO Lost')) oppLost++;
+                }
+            });
+
+            const ourTotal = ourWon + ourLost;
+            const oppTotal = oppWon + oppLost;
+            const ourPercent = ourTotal > 0 ? Math.round((ourWon / ourTotal) * 100) : 0;
+            const oppPercent = oppTotal > 0 ? Math.round((oppWon / oppTotal) * 100) : 0;
+            const theirPercent = oppTotal > 0 ? Math.round((oppLost / oppTotal) * 100) : 0;
+            const ourTheirPercent = ourTotal > 0 ? Math.round((ourLost / ourTotal) * 100) : 0;
+
+            return {
+                ourWon,
+                ourLost,
+                ourTotal,
+                ourPercent,
+                oppWon,
+                oppLost,
+                oppTotal,
+                oppPercent,
+                theirPercent,
+                ourTheirPercent
+            };
         }
 
         function updateGameName() {
