@@ -67,6 +67,70 @@
             right: 0;
         }
 
+        .premium-badge {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .premium-badge:hover {
+            box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+        }
+
+        .premium-badge.trial {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .premium-badge.free {
+            background: #999;
+        }
+
+        .locked-feature {
+            position: relative;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .upgrade-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            z-index: 100;
+            pointer-events: all;
+            cursor: pointer;
+        }
+
+        .upgrade-overlay h3 {
+            font-size: 16px;
+            margin-bottom: 8px;
+            color: #667eea;
+        }
+
+        .upgrade-overlay p {
+            font-size: 13px;
+            color: #666;
+            text-align: center;
+            max-width: 80%;
+        }
+
         .section {
             background: white;
             padding: 15px;
@@ -695,6 +759,80 @@
         .report-stat strong {
             color: #2196F3;
         }
+
+        .license-info {
+            background: #e8f5e9;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 13px;
+        }
+
+        .license-info.trial {
+            background: #fff3e0;
+        }
+
+        .license-info.expired {
+            background: #ffebee;
+        }
+
+        .license-key-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            font-family: monospace;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .trial-info {
+            background: #e3f2fd;
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .trial-info strong {
+            color: #1976D2;
+        }
+
+        .price-info {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .price-info .price {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 10px 0;
+        }
+
+        .feature-list {
+            text-align: left;
+            margin: 15px 0;
+            padding: 0 20px;
+        }
+
+        .feature-list li {
+            margin: 8px 0;
+            font-size: 14px;
+        }
+
+        .feature-list li::before {
+            content: "✓ ";
+            color: #4CAF50;
+            font-weight: bold;
+            margin-right: 5px;
+        }
     </style>
 </head>
 <body>
@@ -702,7 +840,10 @@
         <button onclick="openNewGameModal()" class="header-btn left">
             ⚙️ New Game
         </button>
-        <h1>Player Logger <span class="version">v0.1</span></h1>
+        <button onclick="openLicenseModal()" class="premium-badge" id="premiumBadge">
+            ⭐ Premium
+        </button>
+        <h1>Player Logger <span class="version">v0.2</span></h1>
         <a href="https://github.com/essential-appz/player-tagger/blob/release-1.0/README.md" target="_blank" class="header-btn right">
             ❓ Help
         </a>
@@ -816,6 +957,45 @@
         </div>
     </div>
 
+    <!-- License Modal -->
+    <div id="licenseModal" class="modal">
+        <div class="modal-content">
+            <h2>🔑 Premium License</h2>
+
+            <div id="licenseStatusDiv"></div>
+
+            <div class="price-info">
+                <h3>Unlock Premium Features</h3>
+                <div class="price">€59.99 / year</div>
+                <p>One license, all features, 1 year access</p>
+            </div>
+
+            <ul class="feature-list">
+                <li>Detailed Game Reports & Analytics</li>
+                <li>Custom Event Descriptors</li>
+                <li>CSV Import/Export</li>
+                <li>Save Multiple Games</li>
+                <li>Unlimited Game Progress Saves</li>
+            </ul>
+
+            <div class="form-group">
+                <label for="licenseKeyInput">Enter License Key:</label>
+                <input type="text" id="licenseKeyInput" class="license-key-input" placeholder="XXXX-XXXX-XXXX-XXXX" maxlength="19">
+            </div>
+
+            <div class="trial-info" id="trialInfo" style="display: none;">
+                <p><strong>14-Day Free Trial Active!</strong></p>
+                <p>All premium features unlocked. <span id="trialDaysLeft"></span></p>
+            </div>
+
+            <div class="modal-buttons">
+                <button class="modal-btn secondary" onclick="closeLicenseModal()">Close</button>
+                <button class="modal-btn primary" onclick="activateLicense()">Activate License</button>
+                <button class="modal-btn secondary" onclick="startTrial()" id="startTrialBtn">Start Free Trial</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Reports Modal -->
     <div id="reportsModal" class="modal">
         <div class="modal-content">
@@ -890,15 +1070,171 @@
         let team1Name = 'Us';
         let team2Name = 'Opposition';
 
+        // License State
+        let isPremium = false;
+        let isTrialActive = false;
+        let trialDaysRemaining = 0;
+
         // Initialize
         function init() {
+            checkLicenseStatus();
             loadCustomDescriptors();
             createButtons();
             buildMatrix();
             loadEvents();
             updateGameName();
             updatePeriodButtons();
+            updatePremiumUI();
         }
+
+        // ============================================
+        // LICENSE & PREMIUM SYSTEM
+        // ============================================
+
+        function checkLicenseStatus() {
+            const license = localStorage.getItem('premiumLicense');
+            const trialStart = localStorage.getItem('trialStartDate');
+
+            if (license) {
+                if (validateLicenseKey(license)) {
+                    isPremium = true;
+                    isTrialActive = false;
+                    return;
+                }
+            }
+
+            if (trialStart) {
+                const trialStartDate = new Date(trialStart);
+                const now = new Date();
+                const daysSinceStart = Math.floor((now - trialStartDate) / (1000 * 60 * 60 * 24));
+                trialDaysRemaining = 14 - daysSinceStart;
+
+                if (trialDaysRemaining > 0) {
+                    isPremium = true;
+                    isTrialActive = true;
+                    return;
+                }
+            }
+
+            isPremium = false;
+            isTrialActive = false;
+        }
+
+        function validateLicenseKey(key) {
+            if (!key) return false;
+
+            // Format: PTAG-XXXX-XXXX-XXXX
+            const pattern = /^PTAG-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/;
+            if (!pattern.test(key)) return false;
+
+            // Simple checksum validation
+            const parts = key.split('-');
+            const checksum = parts.slice(1, 3).join('');
+            let sum = 0;
+            for (let char of checksum) {
+                sum += char.charCodeAt(0);
+            }
+
+            // Valid keys have checksum divisible by 7
+            return sum % 7 === 0;
+        }
+
+        function updatePremiumUI() {
+            const badge = document.getElementById('premiumBadge');
+
+            if (isPremium && !isTrialActive) {
+                badge.textContent = '⭐ Premium';
+                badge.className = 'premium-badge';
+            } else if (isTrialActive) {
+                badge.textContent = `🎁 Trial (${trialDaysRemaining}d left)`;
+                badge.className = 'premium-badge trial';
+            } else {
+                badge.textContent = '🔒 Free Version';
+                badge.className = 'premium-badge free';
+            }
+        }
+
+        function openLicenseModal() {
+            updateLicenseModalContent();
+            document.getElementById('licenseModal').classList.add('active');
+        }
+
+        function closeLicenseModal() {
+            document.getElementById('licenseModal').classList.remove('active');
+        }
+
+        function updateLicenseModalContent() {
+            const statusDiv = document.getElementById('licenseStatusDiv');
+            const trialInfo = document.getElementById('trialInfo');
+            const startTrialBtn = document.getElementById('startTrialBtn');
+
+            if (isPremium && !isTrialActive) {
+                statusDiv.innerHTML = '<div class="license-info"><strong>✓ Premium Active</strong><br>Thank you for supporting Player Logger!</div>';
+                trialInfo.style.display = 'none';
+                startTrialBtn.style.display = 'none';
+            } else if (isTrialActive) {
+                statusDiv.innerHTML = '';
+                trialInfo.style.display = 'block';
+                document.getElementById('trialDaysLeft').textContent = `${trialDaysRemaining} days remaining.`;
+                startTrialBtn.style.display = 'none';
+            } else {
+                const existingTrial = localStorage.getItem('trialStartDate');
+                if (existingTrial) {
+                    statusDiv.innerHTML = '<div class="license-info expired"><strong>Trial Expired</strong><br>Enter a license key to continue using premium features.</div>';
+                    startTrialBtn.style.display = 'none';
+                } else {
+                    statusDiv.innerHTML = '';
+                    startTrialBtn.style.display = 'inline-block';
+                }
+                trialInfo.style.display = 'none';
+            }
+        }
+
+        function startTrial() {
+            if (localStorage.getItem('trialStartDate')) {
+                alert('Trial already used! Enter a license key to unlock premium features.');
+                return;
+            }
+
+            localStorage.setItem('trialStartDate', new Date().toISOString());
+            checkLicenseStatus();
+            updatePremiumUI();
+            updateLicenseModalContent();
+            alert('14-day free trial activated! All premium features are now unlocked.');
+        }
+
+        function activateLicense() {
+            const input = document.getElementById('licenseKeyInput');
+            const key = input.value.trim().toUpperCase();
+
+            if (!key) {
+                alert('Please enter a license key!');
+                return;
+            }
+
+            if (validateLicenseKey(key)) {
+                localStorage.setItem('premiumLicense', key);
+                checkLicenseStatus();
+                updatePremiumUI();
+                updateLicenseModalContent();
+                alert('✓ Premium license activated successfully!\n\nAll features are now unlocked. Thank you for your support!');
+                input.value = '';
+            } else {
+                alert('Invalid license key format!\n\nPlease check your key and try again.\nFormat: PTAG-XXXX-XXXX-XXXX');
+            }
+        }
+
+        function requirePremium(featureName) {
+            if (isPremium) return true;
+
+            const daysText = isTrialActive ? ` (${trialDaysRemaining} days left)` : '';
+            alert(`🔒 Premium Feature: ${featureName}\n\nThis feature requires a premium license${daysText}.\n\nPrice: €59.99/year\n\nClick the Premium badge to learn more or start your free 14-day trial!`);
+            return false;
+        }
+
+        // ============================================
+        // END LICENSE SYSTEM
+        // ============================================
 
         function loadCustomDescriptors() {
             try {
@@ -930,6 +1266,8 @@
         }
 
         function addCustomDescriptor() {
+            if (!requirePremium('Custom Descriptors')) return;
+
             if (!canModifyDescriptors()) {
                 alert('Cannot modify descriptors while game is in progress! End 2nd Half first.');
                 return;
@@ -964,6 +1302,8 @@
         }
 
         function deleteCustomDescriptor(desc) {
+            if (!requirePremium('Custom Descriptors')) return;
+
             if (!canModifyDescriptors()) {
                 alert('Cannot modify descriptors while game is in progress! End 2nd Half first.');
                 return;
@@ -985,6 +1325,8 @@
         }
 
         function resetDescriptors() {
+            if (!requirePremium('Custom Descriptors')) return;
+
             if (!canModifyDescriptors()) {
                 alert('Cannot modify descriptors while game is in progress! End 2nd Half first.');
                 return;
@@ -1012,8 +1354,16 @@
 
             list.innerHTML = '';
 
-            // Show lock message if game in progress
-            if (!canModify && events.length > 0) {
+            // Show premium lock message if not premium
+            if (!isPremium) {
+                const premiumMsg = document.createElement('div');
+                premiumMsg.className = 'descriptor-lock-message';
+                premiumMsg.style.background = '#f5f5f5';
+                premiumMsg.style.color = '#667eea';
+                premiumMsg.textContent = '🔒 Premium Feature - Click Premium badge to unlock';
+                list.appendChild(premiumMsg);
+            } else if (!canModify && events.length > 0) {
+                // Show lock message if game in progress
                 const lockMsg = document.createElement('div');
                 lockMsg.className = 'descriptor-lock-message';
                 lockMsg.textContent = '🔒 Locked during game - End 2nd Half to modify';
@@ -1038,10 +1388,11 @@
                 list.appendChild(item);
             });
 
-            // Enable/disable input and buttons
-            input.disabled = !canModify;
-            addBtn.disabled = !canModify;
-            resetBtn.disabled = !canModify;
+            // Enable/disable input and buttons (require premium AND game not in progress)
+            const enableControls = isPremium && canModify;
+            input.disabled = !enableControls;
+            addBtn.disabled = !enableControls;
+            resetBtn.disabled = !enableControls;
         }
 
         function rebuildDescriptorButtons() {
@@ -1116,6 +1467,8 @@
         }
 
         function openReportsModal() {
+            if (!requirePremium('Game Reports')) return;
+
             if (events.length === 0) {
                 alert('No game data to report!');
                 return;
@@ -1414,6 +1767,8 @@
         }
 
         function saveProgress(isFinalGame = false) {
+            if (!requirePremium('Save Game Progress')) return;
+
             if (events.length === 0) {
                 alert('No events to save!');
                 return;
@@ -1472,6 +1827,8 @@
         }
 
         function loadSave(index) {
+            if (!requirePremium('Load Saved Games')) return;
+
             if (!confirm('Loading this save will replace all current game data. Continue?')) {
                 return;
             }
@@ -1522,6 +1879,8 @@
         }
 
         function downloadSavedGame(index) {
+            if (!requirePremium('Download Saved Games')) return;
+
             const saves = JSON.parse(localStorage.getItem('gameSaves') || '[]');
             const save = saves[index];
 
@@ -2265,6 +2624,11 @@
         function importCSV(event) {
             const file = event.target.files[0];
             if (!file) return;
+
+            if (!requirePremium('CSV Import')) {
+                event.target.value = '';
+                return;
+            }
 
             // Warn if current game has data
             if (events.length > 0) {
