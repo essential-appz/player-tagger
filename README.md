@@ -34,6 +34,8 @@ Try all premium features free for 14 days! Click the Premium badge in the app to
 - **New Game Setup**: Configure team names with auto-generated game titles (e.g., "Team 1 v Team 2 - 06/04/2026")
 - **Period Tracking**: Start and end 1st and 2nd halves with automatic game clock
 - **Live Scoreboard**: Real-time score tracking with goals and points for both teams
+  - Half-time scores displayed automatically after 1st half ends
+  - HT scores shown in smaller font below current scores (e.g., "HT: 1:5")
 - **Game Clock**: Automatic timer that runs during each half
 
 ### Event Logging
@@ -71,6 +73,26 @@ Try all premium features free for 14 days! Click the Premium badge in the app to
   - Kickout win/loss analysis
   - Top 3 possessions per team
   - Top 3 scorers (sorted by scoring value)
+
+### Game Reports & Analytics (⭐ PREMIUM)
+- **Reports Button**: Access comprehensive game analytics from the Game Period section
+- **Possession Statistics**: Time-based possession calculation
+  - Total possession time for each team (MM:SS format)
+  - Possession percentage based on ball control between touches
+  - Calculated from consecutive touch events using game clock
+- **Shot Conversion**: Shooting efficiency metrics
+  - Total shots vs scores for each team
+  - Conversion percentage
+- **Kickout Analysis**: Kickout win/loss statistics
+  - Own kickout success rates
+  - Opposition kickout wins
+- **Top 3 Possessions**: Most active players ranked by touches
+- **Top 3 Scorers**: Highest scoring players with detailed breakdown
+  - Goals, 2-Pointers, and Points columns
+  - Total Points value calculated (Goals×3 + 2-Pointers×2 + Points)
+  - Sorted by total points contribution
+- **In-Game Reports**: View analytics during the game without interrupting play
+- **Sequential Period Controls**: Reports adapt to current game period
 
 ### Save & Load System (⭐ PREMIUM)
 - **Save Game Progress**: Create checkpoint saves during the game (labeled "in-progress game")
@@ -118,9 +140,22 @@ Try all premium features free for 14 days! Click the Premium badge in the app to
 ### Managing Periods
 
 - Click **End 1st Half** when the first half finishes
+  - Half-time scores are automatically captured and displayed
 - Click **Start 2nd Half** to begin the second half (timer continues from 30:00)
 - Click **End 2nd Half** when game is complete
   - This automatically opens Game Settings
+
+### Viewing Game Reports
+
+1. Click **Reports** button in the Game Period section
+2. View comprehensive analytics including:
+   - **Possession**: Total time and percentage for each team
+   - **Shot Conversion**: Shots vs scores with conversion percentage
+   - **Kickouts**: Success rates for own kickouts and opposition wins
+   - **Top 3 Possessions**: Most active players by touch count
+   - **Top 3 Scorers**: Leading scorers with goals, 2-pointers, points, and total points value
+3. Reports can be viewed anytime during or after the game
+4. Click **Close** to return to game
 
 ### Saving Progress
 
@@ -214,11 +249,14 @@ Works best on modern browsers:
 
 ### For Premium Users:
 - Use **Save Game Progress** frequently during games to create backup checkpoints
+- Click **Reports** at halftime or end of game to view detailed analytics
+- Check possession stats during breaks to adjust strategy
 - Create custom descriptors before starting a game (they lock once the game begins)
 - Share games with others by downloading CSV and having them import it
 - Download saved game checkpoints to create backups outside the browser
 - Use **Reports** for quick in-game analytics and coaching decisions
 - Import previous games to analyze patterns across multiple matches
+- Half-time scores are automatically saved when you end the 1st half
 
 ## 🔑 Licensing & Pricing
 
@@ -266,6 +304,13 @@ Works best on modern browsers:
 
 ### v0.1
 
+- ✅ **Game Reports & Analytics**: Comprehensive statistics dashboard
+  - Possession tracking with time and percentage
+  - Shot conversion analysis
+  - Kickout success rates
+  - Top 3 players by possessions
+  - Top 3 scorers with total points calculation
+- ✅ **Half-time Score Display**: Automatic HT score tracking after 1st half
 - ✅ Custom event descriptors (add, delete, reset)
 - ✅ CSV import/export for game sharing
 - ✅ Download button for saved games
@@ -282,6 +327,7 @@ Planned features may include:
 - Additional export formats (JSON, Excel, PDF reports)
 - Cloud sync capabilities for premium users
 - Multi-game tournament tracking and season analytics
+- Extended analytics (heat maps, player efficiency ratings)
 - Advanced filtering and comparison tools
 
 ---

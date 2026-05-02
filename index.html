@@ -854,6 +854,7 @@
     <div class="stats">
         <div class="stat-box">
             <div class="stat-value" id="ckScore">0:0</div>
+            <div id="ckHalfTime" style="font-size: 12px; color: #666; margin-top: 4px; display: none;"></div>
             <div class="stat-label">Us</div>
         </div>
         <div class="stat-box">
@@ -862,6 +863,7 @@
         </div>
         <div class="stat-box">
             <div class="stat-value" id="oppScore">0:0</div>
+            <div id="oppHalfTime" style="font-size: 12px; color: #666; margin-top: 4px; display: none;"></div>
             <div class="stat-label">Opposition</div>
         </div>
     </div>
@@ -1069,6 +1071,10 @@
         let gameName = '';
         let team1Name = 'Us';
         let team2Name = 'Opposition';
+        let htOurGoals = null;
+        let htOurPoints = null;
+        let htOppGoals = null;
+        let htOppPoints = null;
 
         // License State
         let isPremium = false;
@@ -1486,6 +1492,25 @@
             const reportsContent = document.getElementById('reportsContent');
             let html = '';
 
+            // Possession
+            const possessionStats = getPossessionStats();
+            html += '<div class="report-section">';
+            html += '<h3>Possession</h3>';
+            html += '<table class="report-table">';
+            html += '<tr><th>Team</th><th>Time (MM:SS)</th><th>Possession %</th></tr>';
+            html += '<tr>';
+            html += '<td>' + team1Name + '</td>';
+            html += '<td>' + possessionStats.ourTimeFormatted + '</td>';
+            html += '<td>' + possessionStats.ourPercent + '%</td>';
+            html += '</tr>';
+            html += '<tr>';
+            html += '<td>' + team2Name + '</td>';
+            html += '<td>' + possessionStats.oppTimeFormatted + '</td>';
+            html += '<td>' + possessionStats.oppPercent + '%</td>';
+            html += '</tr>';
+            html += '</table>';
+            html += '</div>';
+
             // Shot Conversion
             const shotStats = getShotConversion();
             html += '<div class="report-section">';
@@ -1550,13 +1575,14 @@
             html += '<div class="report-section">';
             html += '<h3>' + team1Name + ' - Top 3 Scorers</h3>';
             html += '<table class="report-table">';
-            html += '<tr><th>Player Number</th><th>Goals</th><th>2-Pointers</th><th>Points</th></tr>';
+            html += '<tr><th>Player Number</th><th>Goals</th><th>2-Pointers</th><th>Points</th><th>Total Points</th></tr>';
             ourScorers.slice(0, 3).forEach(player => {
                 const playerNum = player.category.replace('OUR ', '');
-                html += '<tr><td>' + playerNum + '</td><td>' + player.goals + '</td><td>' + player.twoPointers + '</td><td>' + player.points + '</td></tr>';
+                const totalPoints = (player.goals * 3) + (player.twoPointers * 2) + player.points;
+                html += '<tr><td>' + playerNum + '</td><td>' + player.goals + '</td><td>' + player.twoPointers + '</td><td>' + player.points + '</td><td>' + totalPoints + '</td></tr>';
             });
             if (ourScorers.length === 0) {
-                html += '<tr><td colspan="4" style="text-align: center; color: #999;">No scoring events</td></tr>';
+                html += '<tr><td colspan="5" style="text-align: center; color: #999;">No scoring events</td></tr>';
             }
             html += '</table>';
             html += '</div>';
@@ -1585,13 +1611,14 @@
             html += '<div class="report-section">';
             html += '<h3>' + team2Name + ' - Top 3 Scorers</h3>';
             html += '<table class="report-table">';
-            html += '<tr><th>Player Number</th><th>Goals</th><th>2-Pointers</th><th>Points</th></tr>';
+            html += '<tr><th>Player Number</th><th>Goals</th><th>2-Pointers</th><th>Points</th><th>Total Points</th></tr>';
             oppScorers.slice(0, 3).forEach(player => {
                 const playerNum = player.category.replace('OPP ', '');
-                html += '<tr><td>' + playerNum + '</td><td>' + player.goals + '</td><td>' + player.twoPointers + '</td><td>' + player.points + '</td></tr>';
+                const totalPoints = (player.goals * 3) + (player.twoPointers * 2) + player.points;
+                html += '<tr><td>' + playerNum + '</td><td>' + player.goals + '</td><td>' + player.twoPointers + '</td><td>' + player.points + '</td><td>' + totalPoints + '</td></tr>';
             });
             if (oppScorers.length === 0) {
-                html += '<tr><td colspan="4" style="text-align: center; color: #999;">No scoring events</td></tr>';
+                html += '<tr><td colspan="5" style="text-align: center; color: #999;">No scoring events</td></tr>';
             }
             html += '</table>';
             html += '</div>';
@@ -1730,6 +1757,73 @@
             };
         }
 
+        function getPossessionStats() {
+            // Filter events with Touch descriptor
+            const touchEvents = events.filter(event => {
+                const descriptorList = event.descriptors.split(',').map(d => d.trim());
+                return descriptorList.includes('Touch');
+            });
+
+            if (touchEvents.length < 2) {
+                return {
+                    ourTime: 0,
+                    oppTime: 0,
+                    ourTimeFormatted: '00:00',
+                    oppTimeFormatted: '00:00',
+                    ourPercent: 0,
+                    oppPercent: 0
+                };
+            }
+
+            let ourPossessionSeconds = 0;
+            let oppPossessionSeconds = 0;
+
+            // Helper function to parse game time MM:SS to seconds
+            function parseGameTime(timeStr) {
+                const parts = timeStr.split(':');
+                return parseInt(parts[0]) * 60 + parseInt(parts[1]);
+            }
+
+            // Calculate possession between consecutive touches
+            for (let i = 0; i < touchEvents.length - 1; i++) {
+                const currentEvent = touchEvents[i];
+                const nextEvent = touchEvents[i + 1];
+
+                const currentTime = parseGameTime(currentEvent.time);
+                const nextTime = parseGameTime(nextEvent.time);
+                const possessionDuration = nextTime - currentTime;
+
+                // Only count positive durations (ignore if next event is earlier due to half transitions)
+                if (possessionDuration > 0) {
+                    if (currentEvent.type === 'OUR') {
+                        ourPossessionSeconds += possessionDuration;
+                    } else if (currentEvent.type === 'OPP') {
+                        oppPossessionSeconds += possessionDuration;
+                    }
+                }
+            }
+
+            const totalPossession = ourPossessionSeconds + oppPossessionSeconds;
+            const ourPercent = totalPossession > 0 ? Math.round((ourPossessionSeconds / totalPossession) * 100) : 0;
+            const oppPercent = totalPossession > 0 ? Math.round((oppPossessionSeconds / totalPossession) * 100) : 0;
+
+            // Format times as MM:SS
+            function formatTime(seconds) {
+                const mins = Math.floor(seconds / 60);
+                const secs = seconds % 60;
+                return String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+            }
+
+            return {
+                ourTime: ourPossessionSeconds,
+                oppTime: oppPossessionSeconds,
+                ourTimeFormatted: formatTime(ourPossessionSeconds),
+                oppTimeFormatted: formatTime(oppPossessionSeconds),
+                ourPercent: ourPercent,
+                oppPercent: oppPercent
+            };
+        }
+
         function updateGameName() {
             const t1 = document.getElementById('team1Name').value || 'Team 1';
             const t2 = document.getElementById('team2Name').value || 'Team 2';
@@ -1781,7 +1875,11 @@
                 events: events,
                 timestamp: new Date().toISOString(),
                 eventCount: events.length,
-                isFinalGame: isFinalGame
+                isFinalGame: isFinalGame,
+                htOurGoals: htOurGoals,
+                htOurPoints: htOurPoints,
+                htOppGoals: htOppGoals,
+                htOppPoints: htOppPoints
             };
 
             const saves = JSON.parse(localStorage.getItem('gameSaves') || '[]');
@@ -1846,6 +1944,10 @@
             team1Name = save.team1Name || 'Us';
             team2Name = save.team2Name || 'Opposition';
             events = save.events || [];
+            htOurGoals = save.htOurGoals !== undefined ? save.htOurGoals : null;
+            htOurPoints = save.htOurPoints !== undefined ? save.htOurPoints : null;
+            htOppGoals = save.htOppGoals !== undefined ? save.htOppGoals : null;
+            htOppPoints = save.htOppPoints !== undefined ? save.htOppPoints : null;
 
             // Update UI labels
             document.querySelectorAll('.stat-label')[0].textContent = team1Name;
@@ -2276,6 +2378,24 @@
 
             document.getElementById('ckScore').textContent = ckGoals + ':' + ckPoints;
             document.getElementById('oppScore').textContent = oppGoals + ':' + oppPoints;
+
+            // Update half-time scores if they exist
+            const ckHT = document.getElementById('ckHalfTime');
+            const oppHT = document.getElementById('oppHalfTime');
+
+            if (htOurGoals !== null && htOurPoints !== null) {
+                ckHT.textContent = 'HT: ' + htOurGoals + ':' + htOurPoints;
+                ckHT.style.display = 'block';
+            } else {
+                ckHT.style.display = 'none';
+            }
+
+            if (htOppGoals !== null && htOppPoints !== null) {
+                oppHT.textContent = 'HT: ' + htOppGoals + ':' + htOppPoints;
+                oppHT.style.display = 'block';
+            } else {
+                oppHT.style.display = 'none';
+            }
         }
 
         function updateMatrix() {
@@ -2395,6 +2515,13 @@
                     });
                     document.getElementById('status').textContent = 'Ready - Select a category';
                 }
+                // Capture half-time scores
+                const scores = calculateScores();
+                htOurGoals = scores.ourGoals;
+                htOurPoints = scores.ourPoints;
+                htOppGoals = scores.oppGoals;
+                htOppPoints = scores.oppPoints;
+                updateScoreboard();
             } else if (period === '2nd Half Started') {
                 startTimer(1800); // 30:00 in seconds
             } else if (period === '2nd Half Ended') {
@@ -2576,6 +2703,10 @@
             currentCategory = null;
             currentPeriod = 'Not Started';
             selectedDescriptors = [];
+            htOurGoals = null;
+            htOurPoints = null;
+            htOppGoals = null;
+            htOppPoints = null;
 
             stopTimer();
             timerSeconds = 0;
@@ -2589,6 +2720,8 @@
             document.getElementById('status').textContent = 'Ready - Select a category';
             document.getElementById('ckScore').textContent = '0:0';
             document.getElementById('oppScore').textContent = '0:0';
+            document.getElementById('ckHalfTime').style.display = 'none';
+            document.getElementById('oppHalfTime').style.display = 'none';
 
             document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
             document.querySelectorAll('.descriptor-btn').forEach(b => {
@@ -2712,6 +2845,12 @@
                     // Load imported events
                     events = importedEvents;
 
+                    // Clear half-time scores (will be recalculated if needed)
+                    htOurGoals = null;
+                    htOurPoints = null;
+                    htOppGoals = null;
+                    htOppPoints = null;
+
                     // Detect and add any new descriptors from imported events
                     const newDescriptors = [];
                     events.forEach(event => {
@@ -2750,6 +2889,31 @@
                             }
                         });
                         updatePeriodButtons();
+                    }
+
+                    // Recalculate half-time scores if applicable
+                    const hasSecondHalfEvents = events.some(e => e.period === '2nd Half Started' || e.period === '2nd Half Ended');
+                    if (hasSecondHalfEvents) {
+                        // Calculate scores from first half events only
+                        let ourGoals = 0, ourPoints = 0, oppGoals = 0, oppPoints = 0;
+                        events.forEach(event => {
+                            if (event.period === '1st Half Started' || event.period === '1st Half Ended') {
+                                const descriptorList = event.descriptors.split(',').map(d => d.trim());
+                                if (event.type === 'OUR') {
+                                    if (descriptorList.includes('Goal')) ourGoals++;
+                                    if (descriptorList.includes('Point')) ourPoints += 1;
+                                    if (descriptorList.includes('2 Pointer')) ourPoints += 2;
+                                } else if (event.type === 'OPP') {
+                                    if (descriptorList.includes('Goal')) oppGoals++;
+                                    if (descriptorList.includes('Point')) oppPoints += 1;
+                                    if (descriptorList.includes('2 Pointer')) oppPoints += 2;
+                                }
+                            }
+                        });
+                        htOurGoals = ourGoals;
+                        htOurPoints = ourPoints;
+                        htOppGoals = oppGoals;
+                        htOppPoints = oppPoints;
                     }
 
                     // Update displays
