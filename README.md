@@ -44,7 +44,7 @@ A mobile-friendly web application for tracking player events during sports games
 - **Live Statistics**: Event count and score updates in real-time
 
 ### Game Reports & Analytics
-- **Reports Button**: Access comprehensive game analytics from the Game Period section
+- **Reports Button**: Access comprehensive game analytics from the main controls
 - **Possession Statistics**: Time-based possession calculation
   - Total possession time for each team (MM:SS format)
   - Possession percentage based on ball control between touches
@@ -91,7 +91,7 @@ A mobile-friendly web application for tracking player events during sports games
 
 ### Starting a New Game
 
-1. Click **Game Settings** button
+1. Click **Settings** button (top-left)
 2. Enter team names (Team 1 and Team 2)
 3. Game name auto-generates as "Team 1 v Team 2 - dd/mm/yyyy"
 4. Click **New Game** to start
@@ -112,11 +112,11 @@ A mobile-friendly web application for tracking player events during sports games
   - Half-time scores are automatically captured and displayed
 - Click **Start 2nd Half** to begin the second half (timer continues from 30:00)
 - Click **End 2nd Half** when game is complete
-  - This automatically opens Game Settings
+  - This automatically opens Settings modal
 
 ### Viewing Game Reports
 
-1. Click **Reports** button in the Game Period section
+1. Click **Reports** button in the main controls (right of Clear All)
 2. View comprehensive analytics including:
    - **Possession**: Total time and percentage for each team
    - **Shot Conversion**: Shots vs scores with conversion percentage
@@ -135,7 +135,7 @@ A mobile-friendly web application for tracking player events during sports games
 
 ### Ending a Game
 
-1. Click **End 2nd Half** (opens Game Settings automatically)
+1. Click **End 2nd Half** (opens Settings modal automatically)
 2. Click **End Game**
    - Saves current game as "full game"
    - Clears all "in-progress game" checkpoints
@@ -145,7 +145,7 @@ A mobile-friendly web application for tracking player events during sports games
 
 ### Loading Previous Games
 
-1. Click **Game Settings**
+1. Click **Settings** button
 2. View list of saved games in "Saved Progress" section
 3. Click **Load** on any save to restore that game state
 4. Click **Download** to export that saved game as CSV
@@ -153,7 +153,7 @@ A mobile-friendly web application for tracking player events during sports games
 
 ### Managing Custom Descriptors
 
-1. Click **Game Settings**
+1. Click **Settings** button
 2. Scroll to "Custom Event Descriptors" section
 3. Type a new descriptor name and click **Add** (or press Enter)
 4. Click **×** next to any descriptor to delete it
