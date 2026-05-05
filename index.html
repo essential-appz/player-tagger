@@ -838,7 +838,7 @@
 <body>
     <div class="header">
         <button onclick="openNewGameModal()" class="header-btn left">
-            ⚙️ New Game
+            ⚙️ Settings
         </button>
         <button onclick="openLicenseModal()" class="premium-badge" id="premiumBadge">
             ⭐ Premium
@@ -879,11 +879,11 @@
     </div>
 
     <div class="controls">
-        <button class="control-btn primary" onclick="openNewGameModal()">Game Settings</button>
         <button class="control-btn primary" onclick="saveProgress()">Save Game Progress</button>
         <button class="control-btn primary" onclick="downloadCSV()">Download CSV</button>
         <button class="control-btn primary" onclick="document.getElementById('csvImport').click()">Import CSV</button>
         <button class="control-btn danger" onclick="clearData()">Clear All</button>
+        <button class="control-btn warning" onclick="openReportsModal()">Reports</button>
     </div>
 
     <input type="file" id="csvImport" accept=".csv" style="display: none;" onchange="importCSV(event)">
@@ -895,7 +895,6 @@
             <button class="period-btn" onclick="setPeriod(this, '1st Half Ended')">End 1st Half</button>
             <button class="period-btn" onclick="setPeriod(this, '2nd Half Started')">Start 2nd Half</button>
             <button class="period-btn" onclick="setPeriod(this, '2nd Half Ended')">End 2nd Half</button>
-            <button class="period-btn" style="background: #ff9800; color: white;" onclick="openReportsModal()">Reports</button>
         </div>
     </div>
 
