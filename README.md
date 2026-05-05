@@ -75,7 +75,7 @@ Try all premium features free for 14 days! Click the Premium badge in the app to
   - Top 3 scorers (sorted by scoring value)
 
 ### Game Reports & Analytics (⭐ PREMIUM)
-- **Reports Button**: Access comprehensive game analytics from the Game Period section
+- **Reports Button**: Access comprehensive game analytics from the main controls
 - **Possession Statistics**: Time-based possession calculation
   - Total possession time for each team (MM:SS format)
   - Possession percentage based on ball control between touches
@@ -122,7 +122,7 @@ Try all premium features free for 14 days! Click the Premium badge in the app to
 
 ### Starting a New Game
 
-1. Click **Game Settings** button
+1. Click **Settings** button (top-left)
 2. Enter team names (Team 1 and Team 2)
 3. Game name auto-generates as "Team 1 v Team 2 - dd/mm/yyyy"
 4. Click **New Game** to start
@@ -143,11 +143,11 @@ Try all premium features free for 14 days! Click the Premium badge in the app to
   - Half-time scores are automatically captured and displayed
 - Click **Start 2nd Half** to begin the second half (timer continues from 30:00)
 - Click **End 2nd Half** when game is complete
-  - This automatically opens Game Settings
+  - This automatically opens Settings modal
 
 ### Viewing Game Reports
 
-1. Click **Reports** button in the Game Period section
+1. Click **Reports** button in the main controls (right of Clear All)
 2. View comprehensive analytics including:
    - **Possession**: Total time and percentage for each team
    - **Shot Conversion**: Shots vs scores with conversion percentage
@@ -166,7 +166,7 @@ Try all premium features free for 14 days! Click the Premium badge in the app to
 
 ### Ending a Game
 
-1. Click **End 2nd Half** (opens Game Settings automatically)
+1. Click **End 2nd Half** (opens Settings modal automatically)
 2. Click **End Game**
    - Saves current game as "full game"
    - Clears all "in-progress game" checkpoints
@@ -176,7 +176,7 @@ Try all premium features free for 14 days! Click the Premium badge in the app to
 
 ### Loading Previous Games
 
-1. Click **Game Settings**
+1. Click **Settings** button
 2. View list of saved games in "Saved Progress" section
 3. Click **Load** on any save to restore that game state
 4. Click **Download** to export that saved game as CSV
@@ -185,7 +185,7 @@ Try all premium features free for 14 days! Click the Premium badge in the app to
 ### Managing Custom Descriptors (⭐ PREMIUM)
 
 1. Activate premium license or start free trial
-2. Click **Game Settings**
+2. Click **Settings** button
 3. Scroll to "Custom Event Descriptors" section
 4. Type a new descriptor name and click **Add** (or press Enter)
 5. Click **×** next to any descriptor to delete it
