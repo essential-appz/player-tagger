@@ -700,7 +700,7 @@
 <body>
     <div class="header">
         <button onclick="openNewGameModal()" class="header-btn left">
-            ⚙️ New Game
+            ⚙️ Settings
         </button>
         <h1>Player Logger <span class="version">v0.1</span></h1>
         <a href="https://github.com/essential-appz/player-tagger/blob/release-1.0/README.md" target="_blank" class="header-btn right">
@@ -738,11 +738,11 @@
     </div>
 
     <div class="controls">
-        <button class="control-btn primary" onclick="openNewGameModal()">Game Settings</button>
         <button class="control-btn primary" onclick="saveProgress()">Save Game Progress</button>
         <button class="control-btn primary" onclick="downloadCSV()">Download CSV</button>
         <button class="control-btn primary" onclick="document.getElementById('csvImport').click()">Import CSV</button>
         <button class="control-btn danger" onclick="clearData()">Clear All</button>
+        <button class="control-btn warning" onclick="openReportsModal()">Reports</button>
     </div>
 
     <input type="file" id="csvImport" accept=".csv" style="display: none;" onchange="importCSV(event)">
@@ -754,7 +754,6 @@
             <button class="period-btn" onclick="setPeriod(this, '1st Half Ended')">End 1st Half</button>
             <button class="period-btn" onclick="setPeriod(this, '2nd Half Started')">Start 2nd Half</button>
             <button class="period-btn" onclick="setPeriod(this, '2nd Half Ended')">End 2nd Half</button>
-            <button class="period-btn" style="background: #ff9800; color: white;" onclick="openReportsModal()">Reports</button>
         </div>
     </div>
 
