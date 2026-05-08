@@ -883,6 +883,7 @@
         <button class="control-btn primary" onclick="downloadCSV()">Download CSV</button>
         <button class="control-btn primary" onclick="document.getElementById('csvImport').click()">Import CSV</button>
         <button class="control-btn danger" onclick="clearData()">Clear All</button>
+        <button class="control-btn warning" onclick="openTimeline()">Timeline</button>
         <button class="control-btn warning" onclick="openReportsModal()">Reports</button>
     </div>
 
@@ -1485,6 +1486,230 @@
 
         function closeReportsModal() {
             document.getElementById('reportsModal').classList.remove('active');
+        }
+
+        function openTimeline() {
+            if (events.length === 0) {
+                alert('No game data to display!');
+                return;
+            }
+
+            // Generate timeline HTML
+            const timelineWindow = window.open('', 'Match Timeline', 'width=900,height=700,scrollbars=yes');
+
+            if (!timelineWindow) {
+                alert('Please allow popups to view the timeline!');
+                return;
+            }
+
+            let html = `
+<!DOCTYPE html>
+<html>
+<head>
+    <title>${gameName} - Match Timeline</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+            margin: 0;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .timeline-table {
+            width: 100%;
+            background: white;
+            border-collapse: collapse;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .timeline-table th {
+            background: #2196F3;
+            color: white;
+            padding: 12px;
+            font-weight: bold;
+            border: 1px solid #1976D2;
+        }
+        .timeline-table td {
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+        .team-header {
+            background: #1976D2;
+            font-size: 18px;
+            padding: 15px;
+        }
+        .match-time {
+            background: #e3f2fd;
+            font-weight: bold;
+            color: #1976D2;
+        }
+        .our-side {
+            background: white;
+        }
+        .opp-side {
+            background: white;
+        }
+        .score-cell {
+            font-weight: bold;
+            font-size: 16px;
+            color: #2196F3;
+        }
+        .empty-cell {
+            background: #fafafa;
+            color: #ccc;
+        }
+        @media print {
+            body {
+                background: white;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>${gameName}</h1>
+    <table class="timeline-table">
+        <thead>
+            <tr>
+                <th colspan="3" class="team-header">${team1Name}</th>
+                <th rowspan="2" class="match-time">Match<br>Time</th>
+                <th colspan="3" class="team-header">${team2Name}</th>
+            </tr>
+            <tr>
+                <th>Player</th>
+                <th>Event</th>
+                <th>Score</th>
+                <th>Score</th>
+                <th>Event</th>
+                <th>Player</th>
+            </tr>
+        </thead>
+        <tbody>
+`;
+
+            // Filter events that have scoring descriptors
+            const scoringEvents = events.filter(event => {
+                const descriptorList = event.descriptors.split(',').map(d => d.trim());
+                return descriptorList.some(d => ['Goal', 'Point', '2 Pointer'].includes(d));
+            });
+
+            if (scoringEvents.length === 0) {
+                html += `
+            <tr>
+                <td colspan="7" style="padding: 20px; text-align: center; color: #999;">
+                    No scoring events recorded yet
+                </td>
+            </tr>
+`;
+            } else {
+                let ourGoals = 0, ourPoints = 0, oppGoals = 0, oppPoints = 0;
+                let halfTimeInserted = false;
+
+                scoringEvents.forEach(event => {
+                    const descriptorList = event.descriptors.split(',').map(d => d.trim());
+                    const playerNum = event.category.replace('OUR ', '').replace('OPP ', '');
+
+                    // Check if we should insert half-time row
+                    if (!halfTimeInserted && event.period.includes('2nd Half')) {
+                        // Insert half-time summary row
+                        const htOurScore = (htOurGoals !== null ? htOurGoals : ourGoals) + ':' + (htOurPoints !== null ? htOurPoints : ourPoints);
+                        const htOppScore = (htOppGoals !== null ? htOppGoals : oppGoals) + ':' + (htOppPoints !== null ? htOppPoints : oppPoints);
+                        html += `
+            <tr style="background: #fffde7; font-weight: bold;">
+                <td class="empty-cell">-</td>
+                <td class="empty-cell">-</td>
+                <td class="score-cell" style="background: #fffde7;">${htOurScore}</td>
+                <td style="background: #fff9c4; font-weight: bold; font-size: 16px;">Half-Time</td>
+                <td class="score-cell" style="background: #fffde7;">${htOppScore}</td>
+                <td class="empty-cell">-</td>
+                <td class="empty-cell">-</td>
+            </tr>
+`;
+                        halfTimeInserted = true;
+                    }
+
+                    // Determine score type
+                    let scoreText = '';
+                    if (descriptorList.includes('Goal')) {
+                        scoreText = 'Goal';
+                        if (event.type === 'OUR') ourGoals++;
+                        else oppGoals++;
+                    } else if (descriptorList.includes('2 Pointer')) {
+                        scoreText = '2 Pointer';
+                        if (event.type === 'OUR') ourPoints += 2;
+                        else oppPoints += 2;
+                    } else if (descriptorList.includes('Point')) {
+                        scoreText = 'Point';
+                        if (event.type === 'OUR') ourPoints += 1;
+                        else oppPoints += 1;
+                    }
+
+                    const ourScore = ourGoals + ':' + ourPoints;
+                    const oppScore = oppGoals + ':' + oppPoints;
+
+                    // Determine row background color based on event type
+                    let rowBg = 'white';
+                    if (scoreText === 'Goal') {
+                        rowBg = '#e8f5e9'; // green
+                    } else if (scoreText === '2 Pointer') {
+                        rowBg = '#fff3e0'; // amber
+                    }
+
+                    if (event.type === 'OUR') {
+                        html += `
+            <tr>
+                <td style="background: ${rowBg};">${playerNum}</td>
+                <td class="score-cell" style="background: ${rowBg};">${scoreText}</td>
+                <td class="score-cell" style="background: ${rowBg};">${ourScore}</td>
+                <td class="match-time">${event.time}</td>
+                <td class="score-cell">${oppScore}</td>
+                <td class="empty-cell">-</td>
+                <td class="empty-cell">-</td>
+            </tr>
+`;
+                    } else {
+                        html += `
+            <tr>
+                <td class="empty-cell">-</td>
+                <td class="empty-cell">-</td>
+                <td class="score-cell">${ourScore}</td>
+                <td class="match-time">${event.time}</td>
+                <td class="score-cell" style="background: ${rowBg};">${oppScore}</td>
+                <td class="score-cell" style="background: ${rowBg};">${scoreText}</td>
+                <td style="background: ${rowBg};">${playerNum}</td>
+            </tr>
+`;
+                    }
+                });
+
+                // Insert full-time row
+                const ftOurScore = ourGoals + ':' + ourPoints;
+                const ftOppScore = oppGoals + ':' + oppPoints;
+                html += `
+            <tr style="background: #e8f5e9; font-weight: bold;">
+                <td class="empty-cell">-</td>
+                <td class="empty-cell">-</td>
+                <td class="score-cell" style="background: #e8f5e9;">${ftOurScore}</td>
+                <td style="background: #c8e6c9; font-weight: bold; font-size: 16px;">Full-Time</td>
+                <td class="score-cell" style="background: #e8f5e9;">${ftOppScore}</td>
+                <td class="empty-cell">-</td>
+                <td class="empty-cell">-</td>
+            </tr>
+`;
+            }
+
+            html += `
+        </tbody>
+    </table>
+</body>
+</html>
+`;
+
+            timelineWindow.document.write(html);
+            timelineWindow.document.close();
         }
 
         function generateReports() {
