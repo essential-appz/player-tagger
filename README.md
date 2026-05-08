@@ -34,13 +34,21 @@ A mobile-friendly web application for tracking player events during sports games
   - Descriptors locked during active games (protects data integrity)
   - Custom descriptors saved in browser and persist across sessions
 - **Manual Save Event**: Manually save player actions from Match Events panel
-- **Undo Last Event**: Quickly remove the most recently logged event
+- **Recent Events Panel**: View last 10 events with individual delete buttons
+  - Quick visual reference of recent game activity
+  - Delete any recent event (not just the last one)
+  - Shows game time, player, and descriptors for each event
 - **Automatic Timestamps**: Every event recorded with game time and period
 
 ### Data Visualization
 - **Event Matrix**: Interactive tables showing event counts by player and descriptor
 - **Sortable Columns**: Click column headers to sort players by any event type
-- **Event Log**: Chronological list of all recorded events
+- **Recent Events**: Shows last 10 events with delete buttons for quick corrections
+- **Timeline**: Chronological scoring timeline in modal view
+  - Player and event type for each score
+  - Running score display for both teams
+  - Half-time and full-time summary rows
+  - Color-coded by score type (Goals=green, 2 Pointers=amber)
 - **Live Statistics**: Event count and score updates in real-time
 
 ### Game Reports & Analytics
@@ -103,7 +111,7 @@ A mobile-friendly web application for tracking player events during sports games
    - Touch is automatically added
 3. Add additional event descriptors as needed (Shot, Goal, etc.)
 4. Click **Manual Save Event** or select another player to auto-save
-5. Use **Undo Last Event** to quickly correct mistakes
+5. Check **Recent Events** panel to review and delete any mistakes
 6. Repeat for all events during the game
 
 ### Managing Periods
@@ -114,9 +122,20 @@ A mobile-friendly web application for tracking player events during sports games
 - Click **End 2nd Half** when game is complete
   - This automatically opens Settings modal
 
+### Viewing Match Timeline
+
+1. Click **Timeline** button in the main controls
+2. View chronological scoring timeline showing:
+   - Each scoring event with game time
+   - Player number and event type (Goal, Point, 2 Pointer)
+   - Running score for both teams after each event
+   - Half-Time and Full-Time summary rows
+3. Timeline opens in a modal overlay
+4. Click **X** to close
+
 ### Viewing Game Reports
 
-1. Click **Reports** button in the main controls (right of Clear All)
+1. Click **Reports** button in the main controls
 2. View comprehensive analytics including:
    - **Possession**: Total time and percentage for each team
    - **Shot Conversion**: Shots vs scores with conversion percentage
@@ -124,7 +143,7 @@ A mobile-friendly web application for tracking player events during sports games
    - **Top 3 Possessions**: Most active players by touch count
    - **Top 3 Scorers**: Leading scorers with goals, 2-pointers, points, and total points value
 3. Reports can be viewed anytime during or after the game
-4. Click **Close** to return to game
+4. Click **X** to close
 
 ### Saving Progress
 
@@ -200,7 +219,8 @@ Works best on modern browsers:
 - The event matrix updates in real-time - use it to track player involvement
 - Sort by "Touch" to see most active players
 - Download CSV after each game for permanent backup
-- Use **Undo Last Event** to quickly correct mistakes
+- Use **Recent Events** panel to review and delete any mistakes
+- Click **Timeline** to see scoring progression throughout the game
 - Create custom descriptors before starting a game (they lock once the game begins)
 - Share games with others by downloading CSV and having them import it
 - Download saved game checkpoints to create backups outside the browser
@@ -208,6 +228,14 @@ Works best on modern browsers:
 
 ## Recent Updates (v0.1)
 
+- ✅ **Match Timeline**: Chronological scoring timeline with running scores
+  - Half-Time and Full-Time summary rows
+  - Color-coded by score type (Goals=green, 2 Pointers=amber)
+  - Modal overlay with X close button
+- ✅ **Recent Events Panel**: Shows last 10 events with individual delete buttons
+  - Delete any recent event, not just the most recent
+  - Quick visual reference of recent game activity
+- ✅ **Performance Improvement**: Removed event log DOM rendering for faster operation
 - ✅ **Game Reports & Analytics**: Comprehensive statistics dashboard
   - Possession tracking with time and percentage
   - Shot conversion analysis
@@ -221,6 +249,7 @@ Works best on modern browsers:
 - ✅ GAA formation layout for player selection
 - ✅ Descriptor locking during active games
 - ✅ Auto-detection of custom descriptors from imported CSVs
+- ✅ **UI Consistency**: Standardized modal close buttons (X) for Timeline and Reports
 
 ## Future Enhancements
 

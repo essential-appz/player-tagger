@@ -274,17 +274,6 @@
             color: #666;
         }
 
-        #eventLog {
-            max-height: 200px;
-            overflow-y: auto;
-            font-size: 12px;
-        }
-
-        .log-entry {
-            padding: 8px;
-            border-bottom: 1px solid #eee;
-        }
-
         /* Matrix styles */
         .matrix-container {
             overflow: auto;
@@ -686,6 +675,84 @@
             background: #f5f5f5;
         }
 
+        .recent-events {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .recent-events h3 {
+            font-size: 14px;
+            margin: 0 0 10px 0;
+            color: #666;
+        }
+
+        .recent-events-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            max-height: 180px;
+            overflow-y: auto;
+        }
+
+        .recent-event-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 10px;
+            background: #f5f5f5;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .recent-event-info {
+            flex: 1;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .recent-event-time {
+            font-weight: bold;
+            color: #2196F3;
+            min-width: 45px;
+        }
+
+        .recent-event-player {
+            font-weight: bold;
+            min-width: 50px;
+        }
+
+        .recent-event-desc {
+            color: #666;
+        }
+
+        .delete-event-btn {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+            min-width: 28px;
+        }
+
+        .delete-event-btn:hover {
+            background: #d32f2f;
+        }
+
+        .no-recent-events {
+            text-align: center;
+            padding: 15px;
+            color: #999;
+            font-size: 12px;
+        }
+
         .report-section {
             margin-bottom: 20px;
             padding: 15px;
@@ -849,10 +916,10 @@
         </div>
     </div>
 
-    <div class="section">
-        <h2>Event Log</h2>
-        <div id="eventLog">
-            <div style="text-align: center; color: #999;">No events logged</div>
+    <div class="recent-events">
+        <h3>Recent Events</h3>
+        <div class="recent-events-list" id="recentEventsList">
+            <div class="no-recent-events">No events yet</div>
         </div>
     </div>
 
@@ -1122,17 +1189,6 @@
             saveBtn.disabled = true;
             saveBtn.onclick = () => saveCurrentEvent();
             descGrid.appendChild(saveBtn);
-
-            // Add Undo Last Event button
-            const undoBtn = document.createElement('button');
-            undoBtn.className = 'descriptor-btn';
-            undoBtn.textContent = 'Undo Last Event';
-            undoBtn.style.background = '#f44336';
-            undoBtn.style.color = 'white';
-            undoBtn.style.borderColor = '#f44336';
-            undoBtn.disabled = true;
-            undoBtn.onclick = () => undoLastEvent();
-            descGrid.appendChild(undoBtn);
 
             // Re-enable buttons if category is selected
             if (currentType && currentCategory) {
@@ -1845,18 +1901,10 @@
             document.querySelectorAll('.stat-label')[2].textContent = team2Name;
             document.querySelector('h1').textContent = gameName;
 
-            // Rebuild event log
-            let log = document.getElementById('eventLog');
-            if (events.length === 0) {
-                log.innerHTML = '<div style="text-align: center; color: #999;">No events logged</div>';
-            } else {
-                log.innerHTML = '';
-                events.forEach(e => addLogEntry(e));
-            }
-
             document.getElementById('eventCount').textContent = events.length;
             saveToStorage();
             updateMatrix();
+            updateRecentEvents();
 
             closeNewGameModal();
             alert('Game loaded successfully! (' + events.length + ' events)');
@@ -2330,12 +2378,9 @@
                 if (saved) {
                     events = JSON.parse(saved);
                     if (events.length > 0) {
-                        document.getElementById('eventLog').innerHTML = '';
-                        events.forEach(e => {
-                            addLogEntry(e);
-                        });
                         document.getElementById('eventCount').textContent = events.length;
                         updateMatrix();
+                        updateRecentEvents();
                     }
                 }
             } catch (e) {
@@ -2520,23 +2565,11 @@
             };
 
             events.push(event);
-            addLogEntry(event);
             saveToStorage();
             updateMatrix();
+            updateRecentEvents();
 
             document.getElementById('eventCount').textContent = events.length;
-        }
-
-        function addLogEntry(event) {
-            let log = document.getElementById('eventLog');
-            if (events.length === 1) log.innerHTML = '';
-
-            let entry = document.createElement('div');
-            entry.className = 'log-entry';
-            entry.innerHTML = '#' + events.length + ' [' + event.time + '] ' +
-                event.type + ' ' + event.category + ' | ' + event.descriptors + ' | ' + event.period;
-            log.appendChild(entry);
-            log.scrollTop = log.scrollHeight;
         }
 
         function saveCurrentEvent() {
@@ -2560,28 +2593,56 @@
             document.getElementById('status').textContent = 'Ready - Select a category';
         }
 
-        function undoLastEvent() {
+        function updateRecentEvents() {
+            const recentEventsList = document.getElementById('recentEventsList');
+
             if (events.length === 0) {
-                alert('No events to undo!');
+                recentEventsList.innerHTML = '<div class="no-recent-events">No events yet</div>';
                 return;
             }
 
-            if (!confirm('Undo last event?')) return;
+            // Show last 10 events in reverse order (most recent first)
+            const recentEvents = events.slice(-10).reverse();
 
-            events.pop();
+            let html = '';
+            recentEvents.forEach((event, index) => {
+                // Calculate actual index in events array
+                const actualIndex = events.length - 1 - index;
+                const playerNum = event.category.replace('OUR ', '').replace('OPP ', '');
 
-            // Rebuild event log
-            let log = document.getElementById('eventLog');
-            if (events.length === 0) {
-                log.innerHTML = '<div style="text-align: center; color: #999;">No events logged</div>';
-            } else {
-                log.innerHTML = '';
-                events.forEach(e => addLogEntry(e));
+                html += `
+                    <div class="recent-event-item">
+                        <div class="recent-event-info">
+                            <span class="recent-event-time">${event.time}</span>
+                            <span class="recent-event-player">${event.type} ${playerNum}</span>
+                            <span class="recent-event-desc">${event.descriptors}</span>
+                        </div>
+                        <button class="delete-event-btn" onclick="deleteEvent(${actualIndex})" title="Delete this event">&times;</button>
+                    </div>
+                `;
+            });
+
+            recentEventsList.innerHTML = html;
+        }
+
+        function deleteEvent(index) {
+            if (index < 0 || index >= events.length) return;
+
+            const event = events[index];
+            const playerNum = event.category.replace('OUR ', '').replace('OPP ', '');
+
+            if (!confirm(`Delete event: ${event.time} - ${event.type} ${playerNum} - ${event.descriptors}?`)) {
+                return;
             }
 
+            // Remove event from array
+            events.splice(index, 1);
+
+            // Update UI
             document.getElementById('eventCount').textContent = events.length;
             saveToStorage();
             updateMatrix();
+            updateRecentEvents();
         }
 
         function clearData(skipConfirm = false) {
@@ -2603,7 +2664,6 @@
 
             localStorage.removeItem('categoryEvents');
 
-            document.getElementById('eventLog').innerHTML = '<div style="text-align: center; color: #999;">No events logged</div>';
             document.getElementById('eventCount').textContent = '0';
             document.getElementById('currentPeriod').textContent = 'Not Started';
             document.getElementById('status').textContent = 'Ready - Select a category';
@@ -2619,6 +2679,7 @@
             });
             document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
             updateMatrix();
+            updateRecentEvents();
             updatePeriodButtons();
         }
 
@@ -2753,11 +2814,6 @@
                         rebuildDescriptorButtons();
                     }
 
-                    // Rebuild event log
-                    let log = document.getElementById('eventLog');
-                    log.innerHTML = '';
-                    events.forEach(e => addLogEntry(e));
-
                     // Set period based on last event
                     if (events.length > 0) {
                         const lastEvent = events[events.length - 1];
@@ -2804,6 +2860,7 @@
                     document.getElementById('eventCount').textContent = events.length;
                     saveToStorage();
                     rebuildMatrices();
+                    updateRecentEvents();
 
                     let message = 'CSV imported successfully!\n' + events.length + ' events loaded.';
                     if (newDescriptors.length > 0) {
@@ -2873,8 +2930,6 @@
             console.log('Events created. Updating UI...');
 
             // Update UI
-            document.getElementById('eventLog').innerHTML = '';
-            events.forEach(e => addLogEntry(e));
             document.getElementById('eventCount').textContent = events.length;
 
             console.log('Updating matrix...');
