@@ -2,7 +2,7 @@
 
 **Version:** v0.2
 
-A mobile-friendly web application for tracking player events during sports games. Record touches, goals, points, and other key events in real-time with an intuitive interface designed for quick data entry.
+A mobile-friendly web application for tracking player events during sports games. Supports multiple sports including Gaelic Games (GAA) and Soccer, with sport-specific formations and player layouts. Record touches, goals, points, and other key events in real-time with an intuitive interface designed for quick data entry.
 
 ## 🎁 Free Version + Premium License
 
@@ -30,8 +30,19 @@ Try all premium features free for 14 days! Click the Premium badge in the app to
 
 ## Features
 
+### Multi-Sport Support
+- **Sport Selection**: Choose between different sports when creating a new game
+  - **Gaelic Games (GAA)**: 15 starting players + 11 substitutes (26 total)
+    - Traditional GAA formation: Goalkeeper, Full Backs, Half Backs, Midfield, Half Forwards, Full Forwards
+    - Substitutes numbered 16-26
+  - **Soccer**: 11 starting players + 11 substitutes (22 total)
+    - 4-4-2 formation: Goalkeeper, 4 Defenders, 4 Midfielders, 2 Forwards
+    - Substitutes numbered 12-22
+- **Sport Type Saved**: Game type persists in saved games and is displayed in saved games list
+- **Dynamic Player Layouts**: Player grids and event matrices automatically adjust based on selected sport
+
 ### Game Management
-- **New Game Setup**: Configure team names with auto-generated game titles (e.g., "Team 1 v Team 2 - 06/04/2026")
+- **New Game Setup**: Configure sport type and team names with auto-generated game titles (e.g., "Team 1 v Team 2 - 06/04/2026")
 - **Period Tracking**: Start and end 1st and 2nd halves with automatic game clock
 - **Live Scoreboard**: Real-time score tracking with goals and points for both teams
   - Half-time scores displayed automatically after 1st half ends
@@ -39,9 +50,10 @@ Try all premium features free for 14 days! Click the Premium badge in the app to
 - **Game Clock**: Automatic timer that runs during each half
 
 ### Event Logging
-- **Player Selection**: Track up to 26 players per team (OUR and OPP)
-  - Players arranged in GAA formation (goalkeeper, backs, midfield, forwards)
-  - 15 starting players + 11 substitutes per team
+- **Player Selection**: Track players per team based on selected sport (OUR and OPP)
+  - Gaelic Games: 26 players (15 starters + 11 subs) in GAA formation
+  - Soccer: 22 players (11 starters + 11 subs) in 4-4-2 formation
+  - Player layouts automatically adjust to match selected sport
 - **Default Event Descriptors** (FREE): Record multiple event types per touch:
   - Touch (automatically included)
   - Shot
@@ -131,9 +143,14 @@ Try all premium features free for 14 days! Click the Premium badge in the app to
 ### Starting a New Game
 
 1. Click **Settings** button (top-left)
-2. Enter team names (Team 1 and Team 2)
-3. Game name auto-generates as "Team 1 v Team 2 - dd/mm/yyyy"
-4. Click **New Game** to start
+2. Select **Game Type** from dropdown:
+   - Gaelic Games (15 players + 11 subs)
+   - Soccer (11 players + 11 subs)
+3. Enter team names (Team 1 and Team 2)
+4. Game name auto-generates as "Team 1 v Team 2 - dd/mm/yyyy"
+5. Click **New Game** to start
+   - Player layout updates to match selected sport
+   - Formation displays appropriate positions
 
 ### Recording Events
 
@@ -180,7 +197,8 @@ Try all premium features free for 14 days! Click the Premium badge in the app to
 
 - Click **Save Game Progress** anytime during the game to create a checkpoint
 - Multiple checkpoints can be saved per game
-- Each save shows timestamp, event count, and game type (in-progress or full game)
+- Each save shows timestamp, event count, sport type (Soccer/Gaelic), and save type (in-progress or full game)
+- Sport configuration is preserved when loading saved games
 - Click **Download** on any saved game to export as CSV
 
 ### Ending a Game
@@ -260,6 +278,7 @@ Works best on modern browsers:
 ## Tips
 
 ### For Free Users:
+- Select the correct **Game Type** before starting a new game (cannot be changed mid-game)
 - Download CSV after each game for permanent backup
 - The event matrix updates in real-time - use it to track player involvement
 - Sort by "Touch" to see most active players
@@ -268,6 +287,7 @@ Works best on modern browsers:
 - Start your **14-day free trial** to explore all premium features
 
 ### For Premium Users:
+- Select the correct **Game Type** before starting a new game (cannot be changed mid-game)
 - Use **Save Game Progress** frequently during games to create backup checkpoints
 - Click **Reports** at halftime or end of game to view detailed analytics
 - Check possession stats during breaks to adjust strategy
@@ -321,6 +341,12 @@ Works best on modern browsers:
 - 🎁 14-day free trial for all premium features
 - ⭐ Premium badge showing license status
 - 💶 €59.99/year pricing for premium access
+- ✅ **Multi-Sport Support**: Configure game type with sport-specific formations
+  - Gaelic Games (GAA): Traditional 15-player formation + 11 subs
+  - Soccer: 4-4-2 formation with 11 starters + 11 subs
+  - Sport type selector dropdown for easy future expansion
+  - Game type saved and displayed in saved games list
+  - Matrices dynamically adjust to correct player counts
 - 📊 **Match Timeline**: Chronological scoring timeline with running scores
   - Half-Time and Full-Time summary rows
   - Color-coded by score type (Goals=green, 2 Pointers=amber)
@@ -350,6 +376,7 @@ Works best on modern browsers:
 ## Future Enhancements
 
 Planned features may include:
+- Additional sports support (Rugby, Hockey, Basketball, etc.)
 - Online license key validation and management portal
 - Team collaboration features (share licenses, sync data)
 - Player substitution tracking
