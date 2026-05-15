@@ -2778,22 +2778,38 @@
                 }
             });
 
-            document.getElementById('ckScore').textContent = ckGoals + ':' + ckPoints;
-            document.getElementById('oppScore').textContent = oppGoals + ':' + oppPoints;
+            // Display score based on game type
+            if (gameType === 'soccer') {
+                // Soccer: show only goals
+                document.getElementById('ckScore').textContent = ckGoals;
+                document.getElementById('oppScore').textContent = oppGoals;
+            } else {
+                // Gaelic: show goals:points
+                document.getElementById('ckScore').textContent = ckGoals + ':' + ckPoints;
+                document.getElementById('oppScore').textContent = oppGoals + ':' + oppPoints;
+            }
 
             // Update half-time scores if they exist
             const ckHT = document.getElementById('ckHalfTime');
             const oppHT = document.getElementById('oppHalfTime');
 
             if (htOurGoals !== null && htOurPoints !== null) {
-                ckHT.textContent = 'HT: ' + htOurGoals + ':' + htOurPoints;
+                if (gameType === 'soccer') {
+                    ckHT.textContent = 'HT: ' + htOurGoals;
+                } else {
+                    ckHT.textContent = 'HT: ' + htOurGoals + ':' + htOurPoints;
+                }
                 ckHT.style.display = 'block';
             } else {
                 ckHT.style.display = 'none';
             }
 
             if (htOppGoals !== null && htOppPoints !== null) {
-                oppHT.textContent = 'HT: ' + htOppGoals + ':' + htOppPoints;
+                if (gameType === 'soccer') {
+                    oppHT.textContent = 'HT: ' + htOppGoals;
+                } else {
+                    oppHT.textContent = 'HT: ' + htOppGoals + ':' + htOppPoints;
+                }
                 oppHT.style.display = 'block';
             } else {
                 oppHT.style.display = 'none';
