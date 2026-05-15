@@ -422,7 +422,7 @@
                 <a href="#sports">Sports</a>
                 <a href="#pricing">Pricing</a>
                 <a href="#guide">Quick Start</a>
-                <a href="index.html" class="launch-btn">Launch App</a>
+                <a href="player-app.html" class="launch-btn">Launch App</a>
             </nav>
         </div>
     </header>
@@ -433,7 +433,7 @@
             <h1>Track Every Play, Master Every Game</h1>
             <p>Professional-grade player event tracking for Gaelic Games and Soccer. Real-time statistics, comprehensive analytics, and offline capability — all in one powerful mobile app.</p>
             <div class="cta-buttons">
-                <a href="index.html" class="btn btn-primary">Launch App →</a>
+                <a href="player-app.html" class="btn btn-primary">Launch App →</a>
                 <a href="#guide" class="btn btn-secondary">Quick Start Guide</a>
             </div>
         </div>
@@ -529,7 +529,7 @@
                         <li>Timeline view</li>
                         <li>Offline PWA capability</li>
                     </ul>
-                    <a href="index.html" class="btn btn-secondary" style="width: 100%; text-align: center;">Get Started</a>
+                    <a href="player-app.html" class="btn btn-secondary" style="width: 100%; text-align: center;">Get Started</a>
                 </div>
                 <div class="pricing-card premium">
                     <div class="popular-badge">Most Popular</div>
@@ -548,7 +548,7 @@
                         <li>🥅 Kickout Win/Loss Analysis</li>
                         <li>🏆 Top Performers Reports</li>
                     </ul>
-                    <a href="index.html" class="btn btn-primary" style="width: 100%; text-align: center;">Start Free Trial</a>
+                    <a href="player-app.html" class="btn btn-primary" style="width: 100%; text-align: center;">Start Free Trial</a>
                 </div>
             </div>
         </div>
@@ -604,7 +604,7 @@
             <p><strong>Player Tagger v1.0</strong></p>
             <p style="margin-top: 15px;">Professional player event tracking for Gaelic Games and Soccer</p>
             <p style="margin-top: 15px;">
-                <a href="index.html">Launch App</a> |
+                <a href="player-app.html">Launch App</a> |
                 <a href="https://github.com/essential-appz/player-tagger" target="_blank">GitHub</a> |
                 <a href="README.md" target="_blank">Documentation</a>
             </p>
