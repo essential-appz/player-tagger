@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Player Logger">
-    <title>Player Logger</title>
+    <meta name="apple-mobile-web-app-title" content="Player Tagger">
+    <title>Player Tagger</title>
     <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiUGxheWVyIExvZ2dlciIsInNob3J0X25hbWUiOiJQbGF5ZXJMb2ciLCJzdGFydF91cmwiOiIuLyIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiYmFja2dyb3VuZF9jb2xvciI6IiNmNWY1ZjUiLCJ0aGVtZV9jb2xvciI6IiMyMTk2RjMiLCJpY29ucyI6W119">
     <style>
         * {
@@ -957,7 +957,7 @@
         <button onclick="openLicenseModal()" class="premium-badge" id="premiumBadge">
             ⭐ Premium
         </button>
-        <h1>Player Logger <span class="version">v0.2</span></h1>
+        <h1>Player Tagger <span class="version">v1.0</span></h1>
         <a href="https://github.com/essential-appz/player-tagger/blob/release-1.0/README.md" target="_blank" class="header-btn right">
             ❓ Help
         </a>
@@ -1318,7 +1318,7 @@
             const startTrialBtn = document.getElementById('startTrialBtn');
 
             if (isPremium && !isTrialActive) {
-                statusDiv.innerHTML = '<div class="license-info"><strong>✓ Premium Active</strong><br>Thank you for supporting Player Logger!</div>';
+                statusDiv.innerHTML = '<div class="license-info"><strong>✓ Premium Active</strong><br>Thank you for supporting Player Tagger!</div>';
                 trialInfo.style.display = 'none';
                 startTrialBtn.style.display = 'none';
             } else if (isTrialActive) {

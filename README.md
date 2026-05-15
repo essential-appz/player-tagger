@@ -1,12 +1,12 @@
-# Player Logger
+# Player Tagger
 
-**Version:** v0.2
+**Version:** v1.0
 
 A mobile-friendly web application for tracking player events during sports games. Supports multiple sports including Gaelic Games (GAA) and Soccer, with sport-specific formations and player layouts. Record touches, goals, points, and other key events in real-time with an intuitive interface designed for quick data entry.
 
 ## 🎁 Free Version + Premium License
 
-Player Logger offers a **free tier** with core game logging features, plus a **premium license** that unlocks advanced analytics, customization, and data management.
+Player Tagger offers a **free tier** with core game logging features, plus a **premium license** that unlocks advanced analytics, customization, and data management.
 
 ### **Free Forever:**
 - ✅ Full game logging (unlimited players, unlimited events)
@@ -124,7 +124,7 @@ Try all premium features free for 14 days! Click the Premium badge in the app to
 
 ### Data Import & Export
 - **CSV Download** (FREE): Export complete event log with timestamps, periods, and descriptors
-- **CSV Import** (⭐ PREMIUM): Import game files from other Player Logger instances
+- **CSV Import** (⭐ PREMIUM): Import game files from other Player Tagger instances
   - Automatic descriptor detection and creation
   - Period state restoration
   - Format validation
@@ -343,7 +343,7 @@ Works best on modern browsers:
 
 ## Recent Updates
 
-### v0.2 (Latest)
+### v1.0 (Latest)
 - 🔑 Freemium model with premium licensing
 - 🎁 14-day free trial for all premium features
 - ⭐ Premium badge showing license status
