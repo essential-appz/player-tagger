@@ -133,7 +133,7 @@ Try all premium features free for 14 days! Click the Premium badge in the app to
 - **Cross-Instance Sharing**: Share games between different browsers or users via CSV files
 
 ### Additional Features
-- **Clear All**: Reset current game data
+- **End Game**: Complete game workflow with save and reset options
 - **Responsive Design**: Optimized for mobile and tablet use
 - **Offline Capable**: Works without internet connection
 - **Local Storage**: All data saved in browser (events, descriptors, saved games)
@@ -143,14 +143,15 @@ Try all premium features free for 14 days! Click the Premium badge in the app to
 ### Starting a New Game
 
 1. Click **Settings** button (top-left)
-2. Select **Game Type** from dropdown:
-   - Gaelic Games (15 players + 11 subs)
-   - Soccer (11 players + 11 subs)
-3. Enter team names (Team 1 and Team 2)
-4. Game name auto-generates as "Team 1 v Team 2 - dd/mm/yyyy"
-5. Click **New Game** to start
+2. In the **Start New Game** section:
+   - Select **Game Type** from dropdown (Gaelic Games or Soccer)
+   - Enter team names (Team 1 and Team 2)
+   - Game name auto-generates as "Team 1 v Team 2 - dd/mm/yyyy"
+3. Click **New Game** button
    - Player layout updates to match selected sport
    - Formation displays appropriate positions
+   - Settings modal closes automatically
+4. Click **X** in modal header anytime to close without starting a game
 
 ### Recording Events
 
@@ -168,7 +169,7 @@ Try all premium features free for 14 days! Click the Premium badge in the app to
   - Half-time scores are automatically captured and displayed
 - Click **Start 2nd Half** to begin the second half (timer continues from 30:00)
 - Click **End 2nd Half** when game is complete
-  - This automatically opens Settings modal
+- Use **End Game** button when ready to finalize and save the game
 
 ### Viewing Match Timeline
 
@@ -203,31 +204,35 @@ Try all premium features free for 14 days! Click the Premium badge in the app to
 
 ### Ending a Game
 
-1. Click **End 2nd Half** (opens Settings modal automatically)
-2. Click **End Game**
+1. Click **End Game** button in the main controls
+2. Confirms: "End game and save final data?"
    - Saves current game as "full game"
    - Clears all "in-progress game" checkpoints
-   - Keeps game data visible for review
-3. Download CSV to export final data
-4. Click **Clear All** when ready to start a new game
+3. Prompts: "Game saved! Start a new game?"
+   - **Yes**: Clears current data and opens Settings modal to configure new game
+   - **No**: Keeps game data visible for review and CSV export
+4. Download CSV to export final data if needed
 
 ### Loading Previous Games
 
 1. Click **Settings** button
-2. View list of saved games in "Saved Progress" section
-3. Click **Load** on any save to restore that game state
-4. Click **Download** to export that saved game as CSV
-5. Click **Delete** to remove individual saves
+2. Scroll to **Saved Games** section
+3. Browse list of saved games with sport type and save type labels
+4. Click **Load** on any save to restore that game state
+5. Click **Download** to export that saved game as CSV
+6. Click **Delete** to remove individual saves
+7. Click **X** to close settings when done
 
 ### Managing Custom Descriptors (⭐ PREMIUM)
 
 1. Activate premium license or start free trial
 2. Click **Settings** button
-3. Scroll to "Custom Event Descriptors" section
+3. Scroll to **Custom Event Descriptors** section
 4. Type a new descriptor name and click **Add** (or press Enter)
 5. Click **×** next to any descriptor to delete it
 6. Click **Reset to Defaults** to restore original 9 descriptors
-7. **Note**: Descriptors are locked during active games - you must end 2nd half before modifying
+7. Click **X** to close settings when done
+8. **Note**: Descriptors are locked during active games - you must end 2nd half before modifying
 
 ### Importing Games from Other Instances (⭐ PREMIUM)
 
@@ -279,6 +284,7 @@ Works best on modern browsers:
 
 ### For Free Users:
 - Select the correct **Game Type** before starting a new game (cannot be changed mid-game)
+- Use **End Game** button to save and optionally start a new game with one workflow
 - Download CSV after each game for permanent backup
 - The event matrix updates in real-time - use it to track player involvement
 - Sort by "Touch" to see most active players
@@ -288,6 +294,7 @@ Works best on modern browsers:
 
 ### For Premium Users:
 - Select the correct **Game Type** before starting a new game (cannot be changed mid-game)
+- Use **End Game** button to save and optionally start a new game with one workflow
 - Use **Save Game Progress** frequently during games to create backup checkpoints
 - Click **Reports** at halftime or end of game to view detailed analytics
 - Check possession stats during breaks to adjust strategy
@@ -356,6 +363,15 @@ Works best on modern browsers:
   - Delete any recent event, not just the most recent
 - ⚡ **Performance Improvement**: Removed event log DOM rendering for faster operation
 - 🎨 **UI Consistency**: Standardized modal close buttons (X) for Timeline and Reports
+- 🎨 **Settings Modal Redesign**: Improved organization and workflow
+  - Separated into clear sections: Start New Game, Saved Games, Custom Descriptors
+  - Added X close button to modal header
+  - Removed Close button from footer for cleaner UI
+  - Added section headers with visual separators
+- 🔄 **End Game Workflow**: Streamlined game completion process
+  - Replaced "Clear All" with "End Game" button in main controls
+  - End Game now offers to start a new game immediately
+  - Single-button workflow from game end to new game start
 
 ### v0.1
 
