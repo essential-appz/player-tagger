@@ -407,6 +407,15 @@
             font-size: 18px;
         }
 
+        .modal-content h3 {
+            font-size: 15px;
+            font-weight: bold;
+            margin: 0 0 10px 0;
+            color: #333;
+            border-bottom: 2px solid #2196F3;
+            padding-bottom: 5px;
+        }
+
         .timeline-modal {
             max-width: 95%;
             max-height: 95vh;
@@ -846,7 +855,7 @@
         <button class="control-btn primary" onclick="saveProgress()">Save Game Progress</button>
         <button class="control-btn primary" onclick="downloadCSV()">Download CSV</button>
         <button class="control-btn primary" onclick="document.getElementById('csvImport').click()">Import CSV</button>
-        <button class="control-btn danger" onclick="clearData()">Clear All</button>
+        <button class="control-btn danger" onclick="endGame()">End Game</button>
         <button class="control-btn warning" onclick="openTimeline()">Timeline</button>
         <button class="control-btn warning" onclick="openReportsModal()">Reports</button>
     </div>
@@ -948,7 +957,13 @@
     <!-- New Game Modal -->
     <div id="newGameModal" class="modal">
         <div class="modal-content">
-            <h2>Game Settings</h2>
+            <div class="modal-header">
+                <h2>Game Settings</h2>
+                <button class="modal-close" onclick="closeNewGameModal()">&times;</button>
+            </div>
+            <p style="font-size: 13px; color: #666; margin: -10px 0 20px 0;">Configure settings for a new game</p>
+
+            <h3>Start New Game</h3>
             <div class="form-group">
                 <label for="gameTypeSelect">Game Type:</label>
                 <select id="gameTypeSelect" onchange="updateGameType()" style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 6px; font-size: 14px;">
@@ -967,14 +982,23 @@
             <div class="game-name-display" id="gameNameDisplay">
                 Game Name
             </div>
+            <div style="text-align: center; margin-bottom: 20px;">
+                <button class="modal-btn primary" onclick="startNewGame()" style="width: auto; padding: 10px 30px;">New Game</button>
+            </div>
+
+            <hr style="border: none; border-top: 2px solid #e0e0e0; margin: 20px 0;">
+
+            <h3>Saved Games</h3>
             <div class="form-group">
-                <label>Saved Progress:</label>
                 <div class="saved-games-list" id="savedGamesList">
                     <div class="no-saves">No saved progress</div>
                 </div>
             </div>
+
+            <hr style="border: none; border-top: 2px solid #e0e0e0; margin: 20px 0;">
+
+            <h3>Custom Event Descriptors</h3>
             <div class="form-group">
-                <label>Custom Event Descriptors:</label>
                 <div class="descriptors-manager">
                     <div class="descriptors-list" id="descriptorsList"></div>
                     <div class="add-descriptor-row">
@@ -983,11 +1007,6 @@
                     </div>
                     <button class="reset-descriptors-btn" onclick="resetDescriptors()">Reset to Defaults</button>
                 </div>
-            </div>
-            <div class="modal-buttons">
-                <button class="modal-btn secondary" onclick="closeNewGameModal()">Close</button>
-                <button class="modal-btn primary" onclick="startNewGame()">New Game</button>
-                <button class="modal-btn secondary" style="background: #f44336;" onclick="endGame()">End Game</button>
             </div>
         </div>
     </div>
@@ -1978,7 +1997,7 @@
 
         function endGame() {
             if (events.length === 0) {
-                alert('No game data to save!');
+                alert('No game data to end! Start a game first.');
                 return;
             }
 
@@ -1994,10 +2013,14 @@
             const finalGames = saves.filter(save => save.isFinalGame);
             localStorage.setItem('gameSaves', JSON.stringify(finalGames));
 
-            alert('Game saved as complete! (' + events.length + ' events)\nIn-progress saves cleared.\n\nUse "Clear All" to reset for a new game, or download CSV to export data.');
-
-            loadSavedGamesList();
-            closeNewGameModal();
+            // Ask if user wants to start a new game
+            if (confirm('Game saved as complete! (' + events.length + ' events)\n\nStart a new game?')) {
+                clearData(true); // Clear data without confirmation
+                openNewGameModal();
+            } else {
+                // Keep game visible for review
+                loadSavedGamesList();
+            }
         }
 
         function createButtons() {
