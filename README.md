@@ -89,23 +89,24 @@ Try all premium features free for 14 days! Click the Premium badge in the app to
   - Color-coded by score type (Goals=green, 2 Pointers=amber)
 - **Live Statistics** (FREE): Event count and score updates in real-time
 - **Game Reports** (⭐ PREMIUM): Comprehensive analytics including:
-  - Shot Conversion statistics
-  - Kickout win/loss analysis
+  - Possession, Shot Conversion, and Kickout statistics with 1st Half, 2nd Half, and Total breakdowns
   - Top 3 possessions per team
   - Top 3 scorers (sorted by scoring value)
 
 ### Game Reports & Analytics (⭐ PREMIUM)
 - **Reports Button**: Access comprehensive game analytics from the main controls
-- **Possession Statistics**: Time-based possession calculation
-  - Total possession time for each team (MM:SS format)
+- **Possession Statistics**: Time-based possession calculation with half-by-half breakdown
+  - 1st Half, 2nd Half, and Total possession time for each team (MM:SS format)
   - Possession percentage based on ball control between touches
   - Calculated from consecutive touch events using game clock
-- **Shot Conversion**: Shooting efficiency metrics
-  - Total shots vs scores for each team
-  - Conversion percentage
-- **Kickout Analysis**: Kickout win/loss statistics
-  - Own kickout success rates
-  - Opposition kickout wins
+  - Compare half-to-half performance to identify conditioning or tactical trends
+- **Shot Conversion**: Shooting efficiency metrics with period-by-period analysis
+  - Shots, Scores, and Conversion % for 1st Half, 2nd Half, and Total
+  - Identify finishing trends between halves
+- **Kickout Analysis**: Kickout win/loss statistics broken down by half
+  - Own kickout and opposition kickout success rates for each half
+  - Total game kickout performance
+  - Track kickout strategy effectiveness throughout the match
 - **Top 3 Possessions**: Most active players ranked by touches
 - **Top 3 Scorers**: Highest scoring players with detailed breakdown
   - Goals, 2-Pointers, and Points columns
@@ -186,13 +187,14 @@ Try all premium features free for 14 days! Click the Premium badge in the app to
 
 1. Click **Reports** button in the main controls
 2. View comprehensive analytics including:
-   - **Possession**: Total time and percentage for each team
-   - **Shot Conversion**: Shots vs scores with conversion percentage
-   - **Kickouts**: Success rates for own kickouts and opposition wins
+   - **Possession**: Time and percentage for each team broken down by 1st Half, 2nd Half, and Total
+   - **Shot Conversion**: Shots, scores, and conversion % for each half and total game
+   - **Kickouts**: Success rates for own kickouts and opposition wins across both halves
    - **Top 3 Possessions**: Most active players by touch count
    - **Top 3 Scorers**: Leading scorers with goals, 2-pointers, points, and total points value
 3. Reports can be viewed anytime during or after the game
-4. Click **X** to close
+4. Half-by-half breakdown helps identify performance trends and tactical adjustments
+5. Click **X** to close
 
 ### Saving Progress
 
@@ -298,6 +300,8 @@ Works best on modern browsers:
 - Use **Save Game Progress** frequently during games to create backup checkpoints
 - Click **Reports** at halftime or end of game to view detailed analytics
 - Check possession stats during breaks to adjust strategy
+- Use half-by-half breakdown to identify performance drops or improvements between halves
+- Compare 1st half vs 2nd half shot conversion to assess finishing under fatigue
 - Create custom descriptors before starting a game (they lock once the game begins)
 - Share games with others by downloading CSV and having them import it
 - Download saved game checkpoints to create backups outside the browser
@@ -344,6 +348,11 @@ Works best on modern browsers:
 ## Recent Updates
 
 ### v1.0 (Latest)
+- 📊 **Half-by-Half Analytics**: Game Reports now show 1st Half, 2nd Half, and Total metrics
+  - Possession statistics broken down by period
+  - Shot Conversion analysis per half
+  - Kickout success rates for each half
+  - Helps identify performance trends and tactical adjustments between halves
 - 🔑 Freemium model with premium licensing
 - 🎁 14-day free trial for all premium features
 - ⭐ Premium badge showing license status

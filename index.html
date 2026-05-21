@@ -1827,61 +1827,98 @@
             const reportsContent = document.getElementById('reportsContent');
             let html = '';
 
-            // Possession
-            const possessionStats = getPossessionStats();
+            // Kickouts
+            const kickoutStats1st = getKickoutStats('1st');
+            const kickoutStats2nd = getKickoutStats('2nd');
+            const kickoutStatsTotal = getKickoutStats();
             html += '<div class="report-section">';
-            html += '<h3>Possession</h3>';
+            html += '<h3>Kickouts</h3>';
             html += '<table class="report-table">';
-            html += '<tr><th>Team</th><th>Time (MM:SS)</th><th>Possession %</th></tr>';
+            html += '<tr><th rowspan="2">Team</th><th colspan="2">1st Half</th><th colspan="2">2nd Half</th><th colspan="2">Total</th></tr>';
+            html += '<tr><th>Our KO</th><th>Their KO</th><th>Our KO</th><th>Their KO</th><th>Our KO</th><th>Their KO</th></tr>';
             html += '<tr>';
             html += '<td>' + team1Name + '</td>';
-            html += '<td>' + possessionStats.ourTimeFormatted + '</td>';
-            html += '<td>' + possessionStats.ourPercent + '%</td>';
+            html += '<td>' + kickoutStats1st.ourWon + '/' + kickoutStats1st.ourTotal + ' (' + kickoutStats1st.ourPercent + '%)</td>';
+            html += '<td>' + kickoutStats1st.oppLost + '/' + kickoutStats1st.oppTotal + ' (' + kickoutStats1st.theirPercent + '%)</td>';
+            html += '<td>' + kickoutStats2nd.ourWon + '/' + kickoutStats2nd.ourTotal + ' (' + kickoutStats2nd.ourPercent + '%)</td>';
+            html += '<td>' + kickoutStats2nd.oppLost + '/' + kickoutStats2nd.oppTotal + ' (' + kickoutStats2nd.theirPercent + '%)</td>';
+            html += '<td>' + kickoutStatsTotal.ourWon + '/' + kickoutStatsTotal.ourTotal + ' (' + kickoutStatsTotal.ourPercent + '%)</td>';
+            html += '<td>' + kickoutStatsTotal.oppLost + '/' + kickoutStatsTotal.oppTotal + ' (' + kickoutStatsTotal.theirPercent + '%)</td>';
             html += '</tr>';
             html += '<tr>';
             html += '<td>' + team2Name + '</td>';
-            html += '<td>' + possessionStats.oppTimeFormatted + '</td>';
-            html += '<td>' + possessionStats.oppPercent + '%</td>';
+            html += '<td>' + kickoutStats1st.oppWon + '/' + kickoutStats1st.oppTotal + ' (' + kickoutStats1st.oppPercent + '%)</td>';
+            html += '<td>' + kickoutStats1st.ourLost + '/' + kickoutStats1st.ourTotal + ' (' + kickoutStats1st.ourTheirPercent + '%)</td>';
+            html += '<td>' + kickoutStats2nd.oppWon + '/' + kickoutStats2nd.oppTotal + ' (' + kickoutStats2nd.oppPercent + '%)</td>';
+            html += '<td>' + kickoutStats2nd.ourLost + '/' + kickoutStats2nd.ourTotal + ' (' + kickoutStats2nd.ourTheirPercent + '%)</td>';
+            html += '<td>' + kickoutStatsTotal.oppWon + '/' + kickoutStatsTotal.oppTotal + ' (' + kickoutStatsTotal.oppPercent + '%)</td>';
+            html += '<td>' + kickoutStatsTotal.ourLost + '/' + kickoutStatsTotal.ourTotal + ' (' + kickoutStatsTotal.ourTheirPercent + '%)</td>';
             html += '</tr>';
             html += '</table>';
             html += '</div>';
 
             // Shot Conversion
-            const shotStats = getShotConversion();
+            const shotStats1st = getShotConversion('1st');
+            const shotStats2nd = getShotConversion('2nd');
+            const shotStatsTotal = getShotConversion();
             html += '<div class="report-section">';
             html += '<h3>Shot Conversion</h3>';
             html += '<table class="report-table">';
-            html += '<tr><th>Team</th><th>Shots</th><th>Scores</th><th>Conversion %</th></tr>';
+            html += '<tr><th rowspan="2">Team</th><th colspan="3">1st Half</th><th colspan="3">2nd Half</th><th colspan="3">Total</th></tr>';
+            html += '<tr><th>Shots</th><th>Scores</th><th>%</th><th>Shots</th><th>Scores</th><th>%</th><th>Shots</th><th>Scores</th><th>%</th></tr>';
             html += '<tr>';
             html += '<td>' + team1Name + '</td>';
-            html += '<td>' + shotStats.ourShots + '</td>';
-            html += '<td>' + shotStats.ourScores + '</td>';
-            html += '<td>' + shotStats.ourConversion + '%</td>';
+            html += '<td>' + shotStats1st.ourShots + '</td>';
+            html += '<td>' + shotStats1st.ourScores + '</td>';
+            html += '<td>' + shotStats1st.ourConversion + '%</td>';
+            html += '<td>' + shotStats2nd.ourShots + '</td>';
+            html += '<td>' + shotStats2nd.ourScores + '</td>';
+            html += '<td>' + shotStats2nd.ourConversion + '%</td>';
+            html += '<td>' + shotStatsTotal.ourShots + '</td>';
+            html += '<td>' + shotStatsTotal.ourScores + '</td>';
+            html += '<td>' + shotStatsTotal.ourConversion + '%</td>';
             html += '</tr>';
             html += '<tr>';
             html += '<td>' + team2Name + '</td>';
-            html += '<td>' + shotStats.oppShots + '</td>';
-            html += '<td>' + shotStats.oppScores + '</td>';
-            html += '<td>' + shotStats.oppConversion + '%</td>';
+            html += '<td>' + shotStats1st.oppShots + '</td>';
+            html += '<td>' + shotStats1st.oppScores + '</td>';
+            html += '<td>' + shotStats1st.oppConversion + '%</td>';
+            html += '<td>' + shotStats2nd.oppShots + '</td>';
+            html += '<td>' + shotStats2nd.oppScores + '</td>';
+            html += '<td>' + shotStats2nd.oppConversion + '%</td>';
+            html += '<td>' + shotStatsTotal.oppShots + '</td>';
+            html += '<td>' + shotStatsTotal.oppScores + '</td>';
+            html += '<td>' + shotStatsTotal.oppConversion + '%</td>';
             html += '</tr>';
             html += '</table>';
             html += '</div>';
 
-            // Kickouts
-            const kickoutStats = getKickoutStats();
+            // Possession
+            const possessionStats1st = getPossessionStats('1st');
+            const possessionStats2nd = getPossessionStats('2nd');
+            const possessionStatsTotal = getPossessionStats();
             html += '<div class="report-section">';
-            html += '<h3>Kickouts</h3>';
+            html += '<h3>Possession</h3>';
             html += '<table class="report-table">';
-            html += '<tr><th>Team</th><th>Our KO</th><th>Their KO</th></tr>';
+            html += '<tr><th rowspan="2">Team</th><th colspan="2">1st Half</th><th colspan="2">2nd Half</th><th colspan="2">Total</th></tr>';
+            html += '<tr><th>Time</th><th>%</th><th>Time</th><th>%</th><th>Time</th><th>%</th></tr>';
             html += '<tr>';
             html += '<td>' + team1Name + '</td>';
-            html += '<td>' + kickoutStats.ourWon + '/' + kickoutStats.ourTotal + ' (' + kickoutStats.ourPercent + '%)</td>';
-            html += '<td>' + kickoutStats.oppLost + '/' + kickoutStats.oppTotal + ' (' + kickoutStats.theirPercent + '%)</td>';
+            html += '<td>' + possessionStats1st.ourTimeFormatted + '</td>';
+            html += '<td>' + possessionStats1st.ourPercent + '%</td>';
+            html += '<td>' + possessionStats2nd.ourTimeFormatted + '</td>';
+            html += '<td>' + possessionStats2nd.ourPercent + '%</td>';
+            html += '<td>' + possessionStatsTotal.ourTimeFormatted + '</td>';
+            html += '<td>' + possessionStatsTotal.ourPercent + '%</td>';
             html += '</tr>';
             html += '<tr>';
             html += '<td>' + team2Name + '</td>';
-            html += '<td>' + kickoutStats.oppWon + '/' + kickoutStats.oppTotal + ' (' + kickoutStats.oppPercent + '%)</td>';
-            html += '<td>' + kickoutStats.ourLost + '/' + kickoutStats.ourTotal + ' (' + kickoutStats.ourTheirPercent + '%)</td>';
+            html += '<td>' + possessionStats1st.oppTimeFormatted + '</td>';
+            html += '<td>' + possessionStats1st.oppPercent + '%</td>';
+            html += '<td>' + possessionStats2nd.oppTimeFormatted + '</td>';
+            html += '<td>' + possessionStats2nd.oppPercent + '%</td>';
+            html += '<td>' + possessionStatsTotal.oppTimeFormatted + '</td>';
+            html += '<td>' + possessionStatsTotal.oppPercent + '%</td>';
             html += '</tr>';
             html += '</table>';
             html += '</div>';
@@ -2024,10 +2061,18 @@
                 .sort((a, b) => b.count - a.count);
         }
 
-        function getShotConversion() {
+        function getShotConversion(periodFilter = null) {
+            // Filter events by period if specified
+            let filteredEvents = events;
+            if (periodFilter === '1st') {
+                filteredEvents = events.filter(e => e.period === '1st Half Started' || e.period === '1st Half Ended');
+            } else if (periodFilter === '2nd') {
+                filteredEvents = events.filter(e => e.period === '2nd Half Started' || e.period === '2nd Half Ended');
+            }
+
             let ourShots = 0, ourScores = 0, oppShots = 0, oppScores = 0;
 
-            events.forEach(event => {
+            filteredEvents.forEach(event => {
                 const descriptorList = event.descriptors.split(',').map(d => d.trim());
                 const hasShot = descriptorList.includes('Shot');
                 const hasScore = descriptorList.includes('Goal') ||
@@ -2056,10 +2101,18 @@
             };
         }
 
-        function getKickoutStats() {
+        function getKickoutStats(periodFilter = null) {
+            // Filter events by period if specified
+            let filteredEvents = events;
+            if (periodFilter === '1st') {
+                filteredEvents = events.filter(e => e.period === '1st Half Started' || e.period === '1st Half Ended');
+            } else if (periodFilter === '2nd') {
+                filteredEvents = events.filter(e => e.period === '2nd Half Started' || e.period === '2nd Half Ended');
+            }
+
             let ourWon = 0, ourLost = 0, oppWon = 0, oppLost = 0;
 
-            events.forEach(event => {
+            filteredEvents.forEach(event => {
                 const descriptorList = event.descriptors.split(',').map(d => d.trim());
 
                 if (event.type === 'OUR') {
@@ -2092,9 +2145,17 @@
             };
         }
 
-        function getPossessionStats() {
+        function getPossessionStats(periodFilter = null) {
+            // Filter events by period if specified
+            let filteredEvents = events;
+            if (periodFilter === '1st') {
+                filteredEvents = events.filter(e => e.period === '1st Half Started' || e.period === '1st Half Ended');
+            } else if (periodFilter === '2nd') {
+                filteredEvents = events.filter(e => e.period === '2nd Half Started' || e.period === '2nd Half Ended');
+            }
+
             // Filter events with Touch descriptor
-            const touchEvents = events.filter(event => {
+            const touchEvents = filteredEvents.filter(event => {
                 const descriptorList = event.descriptors.split(',').map(d => d.trim());
                 return descriptorList.includes('Touch');
             });
