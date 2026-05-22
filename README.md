@@ -19,6 +19,7 @@ Player Tagger offers a **free tier** with core game logging features, plus a **p
 
 ### **Premium Features (€59.99/year):**
 - ⭐ **Game Reports** - Detailed analytics with top performers, shot conversion, and kickout statistics
+- ⭐ **Video Sync** - Generate FFmpeg commands to extract video clips of game events
 - ⭐ **Custom Descriptors** - Create unlimited custom event types
 - ⭐ **CSV Import** - Load games from other users or devices
 - ⭐ **Save Game Progress** - Create multiple checkpoint saves per game
@@ -115,6 +116,34 @@ Try all premium features free for 14 days! Click the Premium badge in the app to
 - **In-Game Reports**: View analytics during the game without interrupting play
 - **Sequential Period Controls**: Reports adapt to current game period
 
+### Video Sync & Clip Generation (⭐ PREMIUM)
+- **Video Button**: Access video clip generation from the main controls
+- **Video Timestamp Sync**: Map game events to your MP4 video recording
+  - Enter 1st Half start time in video (e.g., `02:30` or `00:02:30`)
+  - Enter 2nd Half start time in video (e.g., `47:15`)
+  - Timestamps saved to localStorage for persistence
+- **Clip Filters**: Generate clips for specific events
+  - **Team Selection**: Choose which team's events to extract (dropdown)
+  - **Clip Type**: Select event type (radio buttons)
+    - Scores (Goals, Points, 2 Pointers)
+    - Kickouts Won
+    - Kickouts Lost
+- **Customizable Duration**: Set clip timing
+  - Seconds before event (default: 10)
+  - Seconds after event (default: 20)
+  - Live total duration display
+- **FFmpeg Command Generation**:
+  - Automatically calculates video timestamps from game clock
+  - Handles 1st half and 2nd half timing conversions
+  - Generates batch FFmpeg commands for all matching events
+  - Descriptive filenames (e.g., `clip_1_OUR5_0312_Goal.mp4`)
+- **Copy to Clipboard**: One-click copy of all commands for terminal execution
+- **Use Cases**:
+  - Player highlight reels
+  - Coaching review clips
+  - Social media content
+  - Game analysis packages
+
 ### Save & Load System (⭐ PREMIUM)
 - **Save Game Progress**: Create checkpoint saves during the game (labeled "in-progress game")
 - **End Game**: Mark game complete and save final data (labeled "full game")
@@ -196,6 +225,44 @@ Try all premium features free for 14 days! Click the Premium badge in the app to
 4. Half-by-half breakdown helps identify performance trends and tactical adjustments
 5. Click **X** to close
 
+### Generating Video Clips (⭐ PREMIUM)
+
+1. **Sync Your Video to Game Events:**
+   - Click **Video** button in the main controls
+   - Enter when 1st Half starts in your video (e.g., `02:30` if kickoff is 2 minutes 30 seconds into the recording)
+   - Enter when 2nd Half starts in your video (e.g., `47:15`)
+   - Click **Save Video Sync** to store timestamps
+
+2. **Configure Clip Filters:**
+   - Select **Team** from dropdown (uses actual team names)
+   - Select **Clip Type**:
+     - **Scores**: All goals, points, and 2-pointers
+     - **Kickouts Won**: Own kickout wins
+     - **Kickouts Lost**: Own kickout losses
+   - Adjust **Clip Duration**:
+     - Set seconds before event (e.g., 10 seconds)
+     - Set seconds after event (e.g., 20 seconds)
+     - Total duration updates automatically
+
+3. **Generate FFmpeg Commands:**
+   - Click **Generate Clip Commands**
+   - Review list of FFmpeg commands in scrollable output
+   - Each command creates one clip with format: `clip_#_PLAYER_TIME_TYPE.mp4`
+   - Example: `ffmpeg -i game.mp4 -ss 00:05:22 -t 00:00:30 -c copy clip_1_OUR5_0312_Goal.mp4`
+
+4. **Execute Commands:**
+   - Click **Copy to Clipboard**
+   - Open terminal/command prompt
+   - Navigate to directory with your `game.mp4` video file
+   - Paste and run commands (or save to a batch/shell script)
+   - Clips are extracted with `-c copy` (fast, no re-encoding)
+
+5. **Use Cases:**
+   - Generate all scores by your team for highlight reel
+   - Extract all kickouts won for training analysis
+   - Create individual player clip packages
+   - Batch process multiple clip types
+
 ### Saving Progress
 
 - Click **Save Game Progress** anytime during the game to create a checkpoint
@@ -265,8 +332,10 @@ All data is stored locally in your browser using localStorage:
 - Team names and game settings
 - Saved game checkpoints
 - Custom event descriptors
+- Video sync timestamps (1st/2nd half start times)
 - No data is sent to external servers
 - CSV files can be shared between instances for collaboration
+- Video files are NOT stored in browser (only timestamp references)
 
 ## Browser Compatibility
 
@@ -308,6 +377,11 @@ Works best on modern browsers:
 - Use **Reports** for quick in-game analytics and coaching decisions
 - Import previous games to analyze patterns across multiple matches
 - Half-time scores are automatically saved when you end the 1st half
+- **Video Sync**: Note video start times immediately after recording
+  - Sync 1st/2nd half start times while watching the video
+  - Start with 10 sec before, 20 sec after for good context
+  - Generate clips for individual players or entire team
+  - Use `-c copy` in FFmpeg for fast extraction (no re-encoding)
 
 ## 🔑 Licensing & Pricing
 
@@ -348,10 +422,19 @@ Works best on modern browsers:
 ## Recent Updates
 
 ### v1.0 (Latest)
+- 🎬 **Video Sync & Clip Generation**: Generate FFmpeg commands to extract video clips
+  - Sync game events to MP4 video recordings with 1st/2nd half start timestamps
+  - Filter clips by team and event type (Scores, Kickouts Won, Kickouts Lost)
+  - Customizable clip duration (seconds before/after event)
+  - Automatic timestamp calculation from game clock to video time
+  - Batch FFmpeg command generation with descriptive filenames
+  - One-click copy to clipboard for terminal execution
+  - Perfect for player highlights, coaching analysis, and social media content
 - 📊 **Half-by-Half Analytics**: Game Reports now show 1st Half, 2nd Half, and Total metrics
   - Possession statistics broken down by period
   - Shot Conversion analysis per half
   - Kickout success rates for each half
+  - Vertical separators and improved table readability
   - Helps identify performance trends and tactical adjustments between halves
 - 🔑 Freemium model with premium licensing
 - 🎁 14-day free trial for all premium features
