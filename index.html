@@ -1262,6 +1262,24 @@
             <div class="game-name-display" id="gameNameDisplay">
                 Game Name
             </div>
+
+            <hr style="border: none; border-top: 2px solid #e0e0e0; margin: 20px 0;">
+
+            <h3>Custom Event Descriptors</h3>
+            <p style="font-size: 13px; color: #666; margin: -10px 0 15px 0;">Changes will be applied when you click New Game</p>
+            <div class="form-group">
+                <div class="descriptors-manager">
+                    <div class="descriptors-list" id="descriptorsList"></div>
+                    <div class="add-descriptor-row">
+                        <input type="text" id="newDescriptorInput" placeholder="New descriptor name" maxlength="20" onkeypress="if(event.key==='Enter')addCustomDescriptor()">
+                        <button class="add-descriptor-btn" onclick="addCustomDescriptor()">Add</button>
+                    </div>
+                    <button class="reset-descriptors-btn" onclick="resetDescriptors()">Reset to Defaults</button>
+                </div>
+            </div>
+
+            <hr style="border: none; border-top: 2px solid #e0e0e0; margin: 20px 0;">
+
             <div style="text-align: center; margin-bottom: 20px;">
                 <button class="modal-btn primary" onclick="startNewGame()" style="width: auto; padding: 10px 30px;">New Game</button>
             </div>
@@ -1274,20 +1292,6 @@
                     <div class="no-saves">No saved progress</div>
                 </div>
             </div>
-
-            <hr style="border: none; border-top: 2px solid #e0e0e0; margin: 20px 0;">
-
-            <h3>Custom Event Descriptors</h3>
-            <div class="form-group">
-                <div class="descriptors-manager">
-                    <div class="descriptors-list" id="descriptorsList"></div>
-                    <div class="add-descriptor-row">
-                        <input type="text" id="newDescriptorInput" placeholder="New descriptor name" maxlength="20" onkeypress="if(event.key==='Enter')addCustomDescriptor()">
-                        <button class="add-descriptor-btn" onclick="addCustomDescriptor()">Add</button>
-                    </div>
-                    <button class="reset-descriptors-btn" onclick="resetDescriptors()">Reset to Defaults</button>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -1295,9 +1299,10 @@
         // Configuration
         const categories = ['OUR 1', 'OUR 2', 'OUR 3', 'OUR 4', 'OUR 5', 'OUR 6', 'OUR 7', 'OUR 8', 'OUR 9', 'OUR 10', 'OUR 11', 'OUR 12', 'OUR 13', 'OUR 14', 'OUR 15', 'OUR 16', 'OUR 17', 'OUR 18', 'OUR 19', 'OUR 20', 'OUR 21', 'OUR 22', 'OUR 23', 'OUR 24', 'OUR 25', 'OUR 26'];
         const opponents = ['OPP 1', 'OPP 2', 'OPP 3', 'OPP 4', 'OPP 5', 'OPP 6', 'OPP 7', 'OPP 8', 'OPP 9', 'OPP 10', 'OPP 11', 'OPP 12', 'OPP 13', 'OPP 14', 'OPP 15', 'OPP 16', 'OPP 17', 'OPP 18', 'OPP 19', 'OPP 20', 'OPP 21', 'OPP 22', 'OPP 23', 'OPP 24', 'OPP 25', 'OPP 26'];
-        const defaultDescriptors = ['Shot', 'Goal', '2 Pointer', 'Point', 'T/O Won', 'T/O Lost', 'K/O Won', 'Own KO Won', 'Own KO Lost'];
+        const defaultDescriptors = ['Shot', 'Goal', '2 Pointer', 'Point', 'T/O Won', 'Own KO Won', 'Own KO Lost'];
         let descriptors = [];
         let allDescriptors = [];
+        let tempDescriptors = []; // Temporary descriptors while editing in modal
 
         // State
         let currentType = null;
@@ -1517,11 +1522,6 @@
         function addCustomDescriptor() {
             if (!requirePremium('Custom Descriptors')) return;
 
-            if (!canModifyDescriptors()) {
-                alert('Cannot modify descriptors while game is in progress! End 2nd Half first.');
-                return;
-            }
-
             const input = document.getElementById('newDescriptorInput');
             const newDesc = input.value.trim();
 
@@ -1535,63 +1535,39 @@
                 return;
             }
 
-            if (descriptors.includes(newDesc)) {
+            if (tempDescriptors.includes(newDesc)) {
                 alert('This descriptor already exists!');
                 return;
             }
 
-            descriptors.push(newDesc);
-            allDescriptors = ['Touch', ...descriptors];
-            saveCustomDescriptors();
-
+            tempDescriptors.push(newDesc);
             input.value = '';
             updateDescriptorsList();
-            rebuildDescriptorButtons();
-            rebuildMatrices();
         }
 
         function deleteCustomDescriptor(desc) {
             if (!requirePremium('Custom Descriptors')) return;
 
-            if (!canModifyDescriptors()) {
-                alert('Cannot modify descriptors while game is in progress! End 2nd Half first.');
+            if (!confirm('Delete "' + desc + '"?')) {
                 return;
             }
 
-            if (!confirm('Delete "' + desc + '"? This will not remove it from existing events.')) {
-                return;
-            }
-
-            const index = descriptors.indexOf(desc);
+            const index = tempDescriptors.indexOf(desc);
             if (index > -1) {
-                descriptors.splice(index, 1);
-                allDescriptors = ['Touch', ...descriptors];
-                saveCustomDescriptors();
+                tempDescriptors.splice(index, 1);
                 updateDescriptorsList();
-                rebuildDescriptorButtons();
-                rebuildMatrices();
             }
         }
 
         function resetDescriptors() {
             if (!requirePremium('Custom Descriptors')) return;
 
-            if (!canModifyDescriptors()) {
-                alert('Cannot modify descriptors while game is in progress! End 2nd Half first.');
+            if (!confirm('Reset to default descriptors?\n\nThis will restore:\n• Shot\n• Goal\n• 2 Pointer\n• Point\n• T/O Won\n• Own KO Won\n• Own KO Lost\n\nCustom descriptors will be removed.')) {
                 return;
             }
 
-            if (!confirm('Reset to default descriptors?\n\nThis will restore:\n• Shot\n• Goal\n• 2 Pointer\n• Point\n• T/O Won\n• T/O Lost\n• K/O Won\n• Own KO Won\n• Own KO Lost\n\nCustom descriptors will be removed.')) {
-                return;
-            }
-
-            descriptors = [...defaultDescriptors];
-            allDescriptors = ['Touch', ...descriptors];
-            saveCustomDescriptors();
+            tempDescriptors = [...defaultDescriptors];
             updateDescriptorsList();
-            rebuildDescriptorButtons();
-            rebuildMatrices();
-            alert('Descriptors reset to defaults!');
         }
 
         function updateDescriptorsList() {
@@ -1599,7 +1575,6 @@
             const input = document.getElementById('newDescriptorInput');
             const addBtn = document.querySelector('.add-descriptor-btn');
             const resetBtn = document.querySelector('.reset-descriptors-btn');
-            const canModify = canModifyDescriptors();
 
             list.innerHTML = '';
 
@@ -1611,15 +1586,9 @@
                 premiumMsg.style.color = '#667eea';
                 premiumMsg.textContent = '🔒 Premium Feature - Click Premium badge to unlock';
                 list.appendChild(premiumMsg);
-            } else if (!canModify && events.length > 0) {
-                // Show lock message if game in progress
-                const lockMsg = document.createElement('div');
-                lockMsg.className = 'descriptor-lock-message';
-                lockMsg.textContent = '🔒 Locked during game - End 2nd Half to modify';
-                list.appendChild(lockMsg);
             }
 
-            descriptors.forEach(desc => {
+            tempDescriptors.forEach(desc => {
                 const item = document.createElement('div');
                 item.className = 'descriptor-item';
 
@@ -1629,7 +1598,7 @@
                 const btn = document.createElement('button');
                 btn.className = 'delete-descriptor-btn';
                 btn.textContent = '×';
-                btn.disabled = !canModify;
+                btn.disabled = !isPremium;
                 btn.onclick = () => deleteCustomDescriptor(desc);
 
                 item.appendChild(span);
@@ -1637,8 +1606,8 @@
                 list.appendChild(item);
             });
 
-            // Enable/disable input and buttons (require premium AND game not in progress)
-            const enableControls = isPremium && canModify;
+            // Enable/disable input and buttons (require premium only)
+            const enableControls = isPremium;
             input.disabled = !enableControls;
             addBtn.disabled = !enableControls;
             resetBtn.disabled = !enableControls;
@@ -1698,6 +1667,9 @@
 
             // Set game type dropdown
             document.getElementById('gameTypeSelect').value = gameType;
+
+            // Copy current descriptors to temp for editing
+            tempDescriptors = [...descriptors];
 
             updateGameName();
             loadSavedGamesList();
@@ -2551,11 +2523,20 @@
             team2Name = document.getElementById('team2Name').value || 'Team 2';
             gameType = document.getElementById('gameTypeSelect').value;
 
+            // Apply descriptor changes
+            descriptors = [...tempDescriptors];
+            allDescriptors = ['Touch', ...descriptors];
+            saveCustomDescriptors();
+
             // Clear current game
             clearData(true);
 
             // Rebuild buttons for selected game type
             createButtons();
+
+            // Rebuild descriptor buttons and matrices with new descriptors
+            rebuildDescriptorButtons();
+            rebuildMatrices();
 
             // Update UI labels
             document.querySelectorAll('.stat-label')[0].textContent = team1Name;
