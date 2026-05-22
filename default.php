@@ -522,7 +522,7 @@
                     <ul class="features-list">
                         <li>Full game logging</li>
                         <li>Unlimited players & events</li>
-                        <li>Default event descriptors (9 types)</li>
+                        <li>Default event descriptors (7 types)</li>
                         <li>Live scoreboard & game clock</li>
                         <li>Event matrices & statistics</li>
                         <li>CSV export for current game</li>
@@ -534,7 +534,7 @@
                 <div class="pricing-card premium">
                     <div class="popular-badge">Most Popular</div>
                     <h3>Premium</h3>
-                    <div class="price">€59.99<span>/year</span></div>
+                    <div class="price">€79.99<span>/year</span></div>
                     <p style="color: #4CAF50; font-weight: bold; margin-bottom: 15px;">14-Day Free Trial</p>
                     <ul class="features-list">
                         <li><strong>All Free features, plus:</strong></li>

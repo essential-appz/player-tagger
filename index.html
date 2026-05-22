@@ -1077,13 +1077,16 @@
     <!-- License Modal -->
     <div id="licenseModal" class="modal">
         <div class="modal-content">
-            <h2>🔑 Premium License</h2>
+            <div class="modal-header">
+                <h2>🔑 Premium License</h2>
+                <button class="modal-close" onclick="closeLicenseModal()">&times;</button>
+            </div>
 
             <div id="licenseStatusDiv"></div>
 
             <div class="price-info">
                 <h3>Unlock Premium Features</h3>
-                <div class="price">€59.99 / year</div>
+                <div class="price">€79.99 / year</div>
                 <p>One license, all features, 1 year access</p>
             </div>
 
@@ -1106,9 +1109,8 @@
             </div>
 
             <div class="modal-buttons">
-                <button class="modal-btn secondary" onclick="closeLicenseModal()">Close</button>
                 <button class="modal-btn primary" onclick="activateLicense()">Activate License</button>
-                <button class="modal-btn secondary" onclick="startTrial()" id="startTrialBtn">Start Free Trial</button>
+                <button class="modal-btn" style="background: #ff9800;" onclick="startTrial()" id="startTrialBtn">Start Free Trial</button>
             </div>
         </div>
     </div>
@@ -1482,7 +1484,7 @@
             if (isPremium) return true;
 
             const daysText = isTrialActive ? ` (${trialDaysRemaining} days left)` : '';
-            alert(`🔒 Premium Feature: ${featureName}\n\nThis feature requires a premium license${daysText}.\n\nPrice: €59.99/year\n\nClick the Premium badge to learn more or start your free 14-day trial!`);
+            alert(`🔒 Premium Feature: ${featureName}\n\nThis feature requires a premium license${daysText}.\n\nPrice: €79.99/year\n\nClick the Premium badge to learn more or start your free 14-day trial!`);
             return false;
         }
 

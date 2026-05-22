@@ -10,14 +10,14 @@ Player Tagger offers a **free tier** with core game logging features, plus a **p
 
 ### **Free Forever:**
 - ✅ Full game logging (unlimited players, unlimited events)
-- ✅ Default event descriptors (9 types)
+- ✅ Default event descriptors (7 types)
 - ✅ Live scoreboard & game clock
 - ✅ Event matrices & sortable statistics
 - ✅ CSV export for current game
 - ✅ Period tracking & game management
 - ✅ Offline PWA capability
 
-### **Premium Features (€59.99/year):**
+### **Premium Features (€79.99/year):**
 - ⭐ **Game Reports** - Detailed analytics with top performers, shot conversion, and kickout statistics
 - ⭐ **Video Sync** - Generate FFmpeg commands to extract video clips of game events
 - ⭐ **Custom Descriptors** - Create unlimited custom event types
@@ -62,15 +62,13 @@ Try all premium features free for 14 days! Click the Premium badge in the app to
   - 2 Pointer
   - Point
   - T/O Won (Turnover Won)
-  - T/O Lost (Turnover Lost)
-  - K/O Won (Kick Out Won)
   - Own KO Won
   - Own KO Lost
 - **Custom Event Descriptors** (⭐ PREMIUM): Create, edit, and manage your own event types
   - Add unlimited custom descriptors (e.g., "Assist", "Block", "Foul")
   - Delete unused descriptors
   - Reset to default set at any time
-  - Descriptors locked during active games (protects data integrity)
+  - Changes applied when starting a new game (protects data integrity)
   - Custom descriptors saved in browser and persist across sessions
 - **Manual Save Event**: Manually save player actions from Match Events panel
 - **Recent Events Panel**: View last 10 events with individual delete buttons
@@ -177,11 +175,15 @@ Try all premium features free for 14 days! Click the Premium badge in the app to
    - Select **Game Type** from dropdown (Gaelic Games or Soccer)
    - Enter team names (Team 1 and Team 2)
    - Game name auto-generates as "Team 1 v Team 2 - dd/mm/yyyy"
-3. Click **New Game** button
+3. (Optional) Configure **Custom Event Descriptors** if you have premium
+   - Add, delete, or reset descriptors as needed
+   - Changes will be applied when you click New Game
+4. Click **New Game** button
    - Player layout updates to match selected sport
    - Formation displays appropriate positions
+   - Descriptor changes are applied
    - Settings modal closes automatically
-4. Click **X** in modal header anytime to close without starting a game
+5. Click **X** in modal header anytime to close without starting a game
 
 ### Recording Events
 
@@ -299,9 +301,9 @@ Try all premium features free for 14 days! Click the Premium badge in the app to
 3. Scroll to **Custom Event Descriptors** section
 4. Type a new descriptor name and click **Add** (or press Enter)
 5. Click **×** next to any descriptor to delete it
-6. Click **Reset to Defaults** to restore original 9 descriptors
-7. Click **X** to close settings when done
-8. **Note**: Descriptors are locked during active games - you must end 2nd half before modifying
+6. Click **Reset to Defaults** to restore original 7 descriptors
+7. Click **New Game** to apply your descriptor changes
+8. **Note**: Descriptor changes are only applied when starting a new game (ensures data integrity)
 
 ### Importing Games from Other Instances (⭐ PREMIUM)
 
@@ -371,7 +373,7 @@ Works best on modern browsers:
 - Check possession stats during breaks to adjust strategy
 - Use half-by-half breakdown to identify performance drops or improvements between halves
 - Compare 1st half vs 2nd half shot conversion to assess finishing under fatigue
-- Create custom descriptors before starting a game (they lock once the game begins)
+- Configure custom descriptors in Settings and click New Game to apply changes
 - Share games with others by downloading CSV and having them import it
 - Download saved game checkpoints to create backups outside the browser
 - Use **Reports** for quick in-game analytics and coaching decisions
@@ -394,7 +396,7 @@ Works best on modern browsers:
    - No payment required
 
 2. **Purchase License Key**
-   - Price: **€59.99 per year**
+   - Price: **€79.99 per year**
    - One license unlocks all premium features
    - Works offline after activation
    - Valid for 1 year from purchase date
@@ -439,7 +441,7 @@ Works best on modern browsers:
 - 🔑 Freemium model with premium licensing
 - 🎁 14-day free trial for all premium features
 - ⭐ Premium badge showing license status
-- 💶 €59.99/year pricing for premium access
+- 💶 €79.99/year pricing for premium access
 - ✅ **Multi-Sport Support**: Configure game type with sport-specific formations
   - Gaelic Games (GAA): Traditional 15-player formation + 11 subs
   - Soccer: 4-4-2 formation with 11 starters + 11 subs
@@ -499,7 +501,7 @@ Planned features may include:
 ## Support & Purchase
 
 - **Free Trial**: Start your 14-day trial directly in the app
-- **Purchase License**: Contact us for license key purchase (€59.99/year)
+- **Purchase License**: Contact us for license key purchase (€79.99/year)
 - **Technical Support**: Report issues via GitHub Issues
 - **Feature Requests**: Submit suggestions via GitHub Issues
 
