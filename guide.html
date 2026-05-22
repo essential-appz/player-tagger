@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Guide - Player Tagger</title>
+    <meta name="description" content="Complete user guide for Player Tagger - Learn how to track player events, manage games, and use premium features.">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8f9fa;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .version-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: normal;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin-left: 30px;
+            font-weight: 500;
+            transition: opacity 0.3s;
+        }
+
+        nav a:hover {
+            opacity: 0.8;
+        }
+
+        .launch-btn {
+            background: white;
+            color: #2196F3;
+            padding: 10px 24px;
+            border-radius: 25px;
+            font-weight: bold;
+            margin-left: 30px;
+            transition: transform 0.2s;
+        }
+
+        .launch-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            color: white;
+            padding: 60px 0;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 42px;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .hero p {
+            font-size: 18px;
+            opacity: 0.95;
+        }
+
+        /* Content Section */
+        .content {
+            padding: 60px 0;
+            background: white;
+        }
+
+        .section-title {
+            font-size: 32px;
+            margin-bottom: 30px;
+            color: #1976D2;
+            border-bottom: 3px solid #2196F3;
+            padding-bottom: 10px;
+        }
+
+        .subsection-title {
+            font-size: 24px;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            color: #2196F3;
+        }
+
+        .guide-section {
+            margin-bottom: 60px;
+        }
+
+        .guide-section p {
+            margin-bottom: 15px;
+            color: #666;
+            font-size: 16px;
+        }
+
+        .guide-section ul, .guide-section ol {
+            margin-left: 25px;
+            margin-bottom: 20px;
+        }
+
+        .guide-section li {
+            margin-bottom: 10px;
+            color: #666;
+            line-height: 1.8;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .feature-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #2196F3;
+        }
+
+        .feature-item h4 {
+            color: #2196F3;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .feature-item p {
+            color: #666;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .premium-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+
+        .step-list {
+            counter-reset: step-counter;
+            list-style: none;
+            margin-left: 0;
+        }
+
+        .step-list li {
+            counter-increment: step-counter;
+            padding: 20px;
+            margin-bottom: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            position: relative;
+            padding-left: 70px;
+        }
+
+        .step-list li:before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .tip-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 4px;
+        }
+
+        .tip-box h4 {
+            color: #1976D2;
+            margin-bottom: 10px;
+        }
+
+        .tip-box ul {
+            margin-left: 20px;
+        }
+
+        .tip-box li {
+            color: #555;
+        }
+
+        .warning-box {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 4px;
+        }
+
+        .warning-box h4 {
+            color: #e65100;
+            margin-bottom: 10px;
+        }
+
+        code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            color: #d32f2f;
+            font-size: 14px;
+        }
+
+        /* Table of Contents */
+        .toc {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 40px;
+        }
+
+        .toc h3 {
+            color: #1976D2;
+            margin-bottom: 15px;
+        }
+
+        .toc ul {
+            list-style: none;
+            margin-left: 0;
+        }
+
+        .toc li {
+            margin-bottom: 8px;
+        }
+
+        .toc a {
+            color: #2196F3;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .toc a:hover {
+            color: #1976D2;
+            text-decoration: underline;
+        }
+
+        /* Footer */
+        footer {
+            background: #2c3e50;
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+        }
+
+        footer a {
+            color: #2196F3;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 32px;
+            }
+
+            nav {
+                display: none;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section-title {
+                font-size: 28px;
+            }
+
+            .subsection-title {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="logo">
+                Player Tagger
+                <span class="version-badge">v1.0</span>
+            </div>
+            <nav>
+                <a href="default.php">Home</a>
+                <a href="#getting-started">Getting Started</a>
+                <a href="#workflows">Workflows</a>
+                <a href="#premium">Premium Features</a>
+                <a href="player-app.html" class="launch-btn">Launch App</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>User Guide</h1>
+            <p>Everything you need to know about using Player Tagger</p>
+        </div>
+    </section>
+
+    <!-- Content Section -->
+    <section class="content">
+        <div class="container">
+            <!-- Table of Contents -->
+            <div class="toc">
+                <h3>Table of Contents</h3>
+                <ul>
+                    <li><a href="#getting-started">Getting Started</a></li>
+                    <li><a href="#workflows">Common Workflows</a></li>
+                    <li><a href="#event-logging">Event Logging</a></li>
+                    <li><a href="#analytics">Analytics & Reports</a></li>
+                    <li><a href="#premium">Premium Features</a></li>
+                    <li><a href="#data-management">Data Management</a></li>
+                    <li><a href="#tips">Tips & Best Practices</a></li>
+                </ul>
+            </div>
+
+            <!-- Getting Started -->
+            <div class="guide-section" id="getting-started">
+                <h2 class="section-title">Getting Started</h2>
+
+                <h3 class="subsection-title">Starting a New Game</h3>
+                <ol class="step-list">
+                    <li>
+                        <strong>Open Settings:</strong> Click the Settings button (top-left)
+                    </li>
+                    <li>
+                        <strong>Configure Game Type:</strong> Select your sport from the dropdown
+                        <ul style="margin-top: 10px;">
+                            <li><strong>Gaelic Games (GAA):</strong> 15 starting players + 11 substitutes in traditional formation</li>
+                            <li><strong>Soccer:</strong> 11 starting players + 11 substitutes in 4-4-2 formation</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <strong>Enter Team Names:</strong> Type team names (auto-generates game title with date)
+                    </li>
+                    <li>
+                        <strong>Configure Descriptors (Premium):</strong> If you have premium, customize your event descriptors
+                        <ul style="margin-top: 10px;">
+                            <li>Add, delete, or reset descriptors as needed</li>
+                            <li>Changes will be applied when you click New Game</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <strong>Click New Game:</strong> Player layout updates, descriptors apply, and modal closes
+                    </li>
+                </ol>
+
+                <h3 class="subsection-title">Recording Your First Event</h3>
+                <ol class="step-list">
+                    <li>
+                        <strong>Start the Game:</strong> Click "Start 1st Half" to begin the game timer
+                    </li>
+                    <li>
+                        <strong>Select a Player:</strong> Click a player button (e.g., "OUR 5" or "OPP 12")
+                        <ul style="margin-top: 10px;">
+                            <li>"Touch" is automatically added to every event</li>
+                            <li>Player buttons are arranged in sport-specific formations</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <strong>Add Event Descriptors:</strong> Click additional event types
+                        <ul style="margin-top: 10px;">
+                            <li>Shot, Goal, Point, 2 Pointer, T/O Won, etc.</li>
+                            <li>Click again to deselect</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <strong>Save the Event:</strong> Click "Manual Save Event" or select another player to auto-save
+                    </li>
+                    <li>
+                        <strong>Review Recent Events:</strong> Check the Recent Events panel to verify or delete mistakes
+                    </li>
+                </ol>
+            </div>
+
+            <!-- Workflows -->
+            <div class="guide-section" id="workflows">
+                <h2 class="section-title">Common Workflows</h2>
+
+                <h3 class="subsection-title">Managing Game Periods</h3>
+                <ul>
+                    <li><strong>Start 1st Half:</strong> Begins game clock at 00:00</li>
+                    <li><strong>End 1st Half:</strong> Stops clock, captures half-time scores automatically</li>
+                    <li><strong>Start 2nd Half:</strong> Resumes game clock at 30:00</li>
+                    <li><strong>End 2nd Half:</strong> Completes the game timing</li>
+                    <li><strong>End Game:</strong> Saves final data, optionally starts new game</li>
+                </ul>
+
+                <h3 class="subsection-title">Viewing Match Timeline</h3>
+                <ol class="step-list">
+                    <li>Click the <strong>Timeline</strong> button in main controls</li>
+                    <li>View chronological scoring events with:
+                        <ul style="margin-top: 10px;">
+                            <li>Game time for each score</li>
+                            <li>Player number and event type</li>
+                            <li>Running score after each event</li>
+                            <li>Half-Time and Full-Time summary rows</li>
+                        </ul>
+                    </li>
+                    <li>Click <strong>X</strong> to close the modal</li>
+                </ol>
+
+                <h3 class="subsection-title">Ending a Game</h3>
+                <ol class="step-list">
+                    <li>Click <strong>End Game</strong> button in main controls</li>
+                    <li>Confirm: "End game and save final data?"
+                        <ul style="margin-top: 10px;">
+                            <li>Saves current game as "full game"</li>
+                            <li>Clears all "in-progress game" checkpoints</li>
+                        </ul>
+                    </li>
+                    <li>Choose next action:
+                        <ul style="margin-top: 10px;">
+                            <li><strong>Yes:</strong> Clears data and opens Settings to configure new game</li>
+                            <li><strong>No:</strong> Keeps game data visible for review and CSV export</li>
+                        </ul>
+                    </li>
+                    <li>Download CSV to export final data if needed</li>
+                </ol>
+            </div>
+
+            <!-- Event Logging -->
+            <div class="guide-section" id="event-logging">
+                <h2 class="section-title">Event Logging</h2>
+
+                <h3 class="subsection-title">Default Event Descriptors (Free)</h3>
+                <div class="feature-grid">
+                    <div class="feature-item">
+                        <h4>Touch</h4>
+                        <p>Automatically included in every event</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4>Shot</h4>
+                        <p>Any scoring attempt</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4>Goal</h4>
+                        <p>Ball in the net (3 points in GAA)</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4>2 Pointer</h4>
+                        <p>Two-point score</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4>Point</h4>
+                        <p>Ball over the bar (1 point)</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4>T/O Won</h4>
+                        <p>Turnover won from opposition</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4>Own KO Won</h4>
+                        <p>Own kickout won</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4>Own KO Lost</h4>
+                        <p>Own kickout lost to opposition</p>
+                    </div>
+                </div>
+
+                <h3 class="subsection-title">Recent Events Panel</h3>
+                <p>The Recent Events panel shows your last 10 events with individual delete buttons:</p>
+                <ul>
+                    <li>Quick visual reference of recent activity</li>
+                    <li>Delete any recent event (not just the last one)</li>
+                    <li>Shows game time, player, and descriptors for each event</li>
+                    <li>Updates in real-time as you log events</li>
+                </ul>
+
+                <h3 class="subsection-title">Event Matrix</h3>
+                <p>Interactive tables showing event counts by player and descriptor:</p>
+                <ul>
+                    <li>Separate matrices for OUR team and OPP team</li>
+                    <li>Click column headers to sort by any event type</li>
+                    <li>Ascending/descending toggle</li>
+                    <li>Highlighted cells for players with events</li>
+                    <li>Sticky headers for easy scrolling</li>
+                </ul>
+            </div>
+
+            <!-- Analytics -->
+            <div class="guide-section" id="analytics">
+                <h2 class="section-title">Analytics & Reports</h2>
+
+                <h3 class="subsection-title">Live Statistics (Free)</h3>
+                <ul>
+                    <li><strong>Scoreboard:</strong> Real-time score tracking with goals and points</li>
+                    <li><strong>Game Clock:</strong> Running timer showing current game time</li>
+                    <li><strong>Half-Time Scores:</strong> Displayed below current scores after 1st half ends</li>
+                    <li><strong>Event Counts:</strong> Updated matrices showing all event totals</li>
+                </ul>
+
+                <h3 class="subsection-title">Game Reports<span class="premium-badge">⭐ PREMIUM</span></h3>
+                <p>Click the <strong>Reports</strong> button to access comprehensive analytics:</p>
+
+                <div class="feature-grid">
+                    <div class="feature-item">
+                        <h4>Possession Statistics</h4>
+                        <p>Time-based possession with half-by-half breakdown. Shows 1st Half, 2nd Half, and Total possession time (MM:SS format) with percentage.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4>Shot Conversion</h4>
+                        <p>Shooting efficiency metrics broken down by period. Shots, Scores, and Conversion % for each half and total game.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4>Kickout Analysis</h4>
+                        <p>Kickout win/loss statistics per half. Own kickout and opposition kickout success rates with totals.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4>Top 3 Possessions</h4>
+                        <p>Most active players ranked by touches. Identifies key ball carriers.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4>Top 3 Scorers</h4>
+                        <p>Leading scorers with Goals, 2-Pointers, Points columns. Total Points value calculated and sorted.</p>
+                    </div>
+                </div>
+
+                <div class="tip-box">
+                    <h4>💡 Using Half-by-Half Analytics</h4>
+                    <ul>
+                        <li>Compare 1st half vs 2nd half possession to identify conditioning trends</li>
+                        <li>Check shot conversion drops between halves to assess finishing under fatigue</li>
+                        <li>Review kickout success rates to evaluate tactical adjustments</li>
+                        <li>Use reports at halftime for real-time coaching decisions</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Premium Features -->
+            <div class="guide-section" id="premium">
+                <h2 class="section-title">Premium Features</h2>
+
+                <h3 class="subsection-title">Custom Event Descriptors<span class="premium-badge">⭐ PREMIUM</span></h3>
+                <ol class="step-list">
+                    <li>Activate premium license or start free trial</li>
+                    <li>Click <strong>Settings</strong> button</li>
+                    <li>Scroll to <strong>Custom Event Descriptors</strong> section</li>
+                    <li>Type a descriptor name and click <strong>Add</strong> (or press Enter)</li>
+                    <li>Click <strong>×</strong> next to any descriptor to delete it</li>
+                    <li>Click <strong>Reset to Defaults</strong> to restore original 7 descriptors</li>
+                    <li>Click <strong>New Game</strong> to apply your descriptor changes</li>
+                </ol>
+
+                <div class="warning-box">
+                    <h4>⚠️ Important</h4>
+                    <p>Descriptor changes are only applied when starting a new game. This ensures data integrity and prevents conflicts with in-progress games.</p>
+                </div>
+
+                <h3 class="subsection-title">Save & Load System<span class="premium-badge">⭐ PREMIUM</span></h3>
+                <p><strong>Saving Progress:</strong></p>
+                <ul>
+                    <li>Click <strong>Save Game Progress</strong> anytime to create checkpoint</li>
+                    <li>Multiple checkpoints can be saved per game</li>
+                    <li>Each save shows timestamp, event count, and sport type</li>
+                    <li>Labeled as "in-progress game" until you end the game</li>
+                </ul>
+
+                <p><strong>Loading Games:</strong></p>
+                <ol class="step-list">
+                    <li>Click <strong>Settings</strong> button</li>
+                    <li>Scroll to <strong>Saved Games</strong> section</li>
+                    <li>Browse list with sport type and save type labels</li>
+                    <li>Click <strong>Load</strong> to restore that game state</li>
+                    <li>Click <strong>Download</strong> to export as CSV</li>
+                    <li>Click <strong>Delete</strong> to remove individual saves</li>
+                </ol>
+
+                <h3 class="subsection-title">Video Sync & Clip Generation<span class="premium-badge">⭐ PREMIUM</span></h3>
+                <ol class="step-list">
+                    <li><strong>Sync Video Timestamps:</strong>
+                        <ul style="margin-top: 10px;">
+                            <li>Click <strong>Video</strong> button in main controls</li>
+                            <li>Enter when 1st Half starts in your video (e.g., <code>02:30</code>)</li>
+                            <li>Enter when 2nd Half starts (e.g., <code>47:15</code>)</li>
+                            <li>Click <strong>Save Video Sync</strong></li>
+                        </ul>
+                    </li>
+                    <li><strong>Configure Clip Filters:</strong>
+                        <ul style="margin-top: 10px;">
+                            <li>Select team from dropdown</li>
+                            <li>Choose clip type (Scores, Kickouts Won, Kickouts Lost)</li>
+                            <li>Adjust seconds before/after event</li>
+                        </ul>
+                    </li>
+                    <li><strong>Generate Commands:</strong>
+                        <ul style="margin-top: 10px;">
+                            <li>Click <strong>Generate Clip Commands</strong></li>
+                            <li>Review FFmpeg commands in output panel</li>
+                            <li>Click <strong>Copy to Clipboard</strong></li>
+                        </ul>
+                    </li>
+                    <li><strong>Execute in Terminal:</strong>
+                        <ul style="margin-top: 10px;">
+                            <li>Open terminal in directory with <code>game.mp4</code></li>
+                            <li>Paste and run commands</li>
+                            <li>Clips extracted with format: <code>clip_1_OUR5_0312_Goal.mp4</code></li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h3 class="subsection-title">CSV Import<span class="premium-badge">⭐ PREMIUM</span></h3>
+                <ol class="step-list">
+                    <li>Receive CSV file from another Player Tagger user</li>
+                    <li>Click <strong>Import CSV</strong> button in the app</li>
+                    <li>Select the CSV file</li>
+                    <li>Game data loads automatically with:
+                        <ul style="margin-top: 10px;">
+                            <li>All events and timestamps</li>
+                            <li>Custom descriptors (auto-detected and created)</li>
+                            <li>Period state restoration</li>
+                            <li>Team names and scoreboard</li>
+                        </ul>
+                    </li>
+                </ol>
+            </div>
+
+            <!-- Data Management -->
+            <div class="guide-section" id="data-management">
+                <h2 class="section-title">Data Management</h2>
+
+                <h3 class="subsection-title">Data Storage</h3>
+                <p>All data is stored locally in your browser using localStorage:</p>
+                <ul>
+                    <li>Current game events</li>
+                    <li>Team names and game settings</li>
+                    <li>Saved game checkpoints (Premium)</li>
+                    <li>Custom event descriptors (Premium)</li>
+                    <li>Video sync timestamps (Premium)</li>
+                    <li>License key and trial status</li>
+                </ul>
+
+                <div class="warning-box">
+                    <h4>⚠️ Important</h4>
+                    <p>Clearing browser data will delete all saved games and settings. Always export important games as CSV for permanent backup.</p>
+                </div>
+
+                <h3 class="subsection-title">CSV Export (Free)</h3>
+                <p>Export complete event log with all details:</p>
+                <ul>
+                    <li>Event number</li>
+                    <li>Timestamp (ISO format)</li>
+                    <li>Game time (MM:SS)</li>
+                    <li>Period (1st Half Started, 2nd Half Ended, etc.)</li>
+                    <li>Team type (OUR/OPP)</li>
+                    <li>Player category (e.g., OUR 5)</li>
+                    <li>Event descriptors (comma-separated)</li>
+                </ul>
+
+                <h3 class="subsection-title">Browser Compatibility</h3>
+                <p>Works best on modern browsers:</p>
+                <ul>
+                    <li>Chrome/Edge (desktop & mobile)</li>
+                    <li>Safari (desktop & mobile)</li>
+                    <li>Firefox (desktop & mobile)</li>
+                </ul>
+            </div>
+
+            <!-- Tips -->
+            <div class="guide-section" id="tips">
+                <h2 class="section-title">Tips & Best Practices</h2>
+
+                <h3 class="subsection-title">For Free Users</h3>
+                <div class="tip-box">
+                    <h4>💡 Getting the Most Out of Free Features</h4>
+                    <ul>
+                        <li>Select the correct Game Type before starting (cannot be changed mid-game)</li>
+                        <li>Use End Game button for streamlined game completion workflow</li>
+                        <li>Download CSV after each game for permanent backup</li>
+                        <li>Use event matrix sorting to track most active players</li>
+                        <li>Review Recent Events panel frequently to catch mistakes early</li>
+                        <li>Click Timeline to see scoring progression throughout the game</li>
+                        <li>Start your 14-day free trial to explore all premium features</li>
+                    </ul>
+                </div>
+
+                <h3 class="subsection-title">For Premium Users</h3>
+                <div class="tip-box">
+                    <h4>⭐ Maximizing Premium Features</h4>
+                    <ul>
+                        <li>Use Save Game Progress frequently during games for backup checkpoints</li>
+                        <li>Click Reports at halftime to view analytics and adjust strategy</li>
+                        <li>Check possession stats during breaks to evaluate ball control</li>
+                        <li>Use half-by-half breakdown to identify performance trends</li>
+                        <li>Compare 1st vs 2nd half shot conversion to assess finishing under fatigue</li>
+                        <li>Configure custom descriptors in Settings before starting new game</li>
+                        <li>Share games with coaches/teammates by downloading CSV for import</li>
+                        <li>Download saved game checkpoints as external backups</li>
+                        <li>Import previous games to analyze patterns across multiple matches</li>
+                        <li>Video Sync: Note video start times immediately after recording</li>
+                        <li>Start with 10 sec before, 20 sec after for clip context</li>
+                        <li>Generate clips for individual players or entire team highlights</li>
+                    </ul>
+                </div>
+
+                <h3 class="subsection-title">Testing & Performance</h3>
+                <p>Test the app with synthetic data using the browser console:</p>
+                <ul>
+                    <li>Open browser console (F12 → Console)</li>
+                    <li>Run: <code>testLoad(500)</code> to generate 500 random events</li>
+                    <li>Test matrix rendering, sorting, and scoreboard calculations</li>
+                    <li>Verify app performance with large datasets</li>
+                </ul>
+
+                <h3 class="subsection-title">Activating Your License</h3>
+                <ol class="step-list">
+                    <li>Click the <strong>Premium badge</strong> in the app header</li>
+                    <li>Choose one option:
+                        <ul style="margin-top: 10px;">
+                            <li><strong>Start Free Trial</strong> (14 days, no payment required)</li>
+                            <li><strong>Enter License Key</strong> (if purchased: €79.99/year)</li>
+                        </ul>
+                    </li>
+                    <li>If entering a key:
+                        <ul style="margin-top: 10px;">
+                            <li>Type or paste your license key</li>
+                            <li>Format: <code>PTAG-XXXX-XXXX-XXXX</code></li>
+                            <li>Click "Activate License"</li>
+                        </ul>
+                    </li>
+                    <li>Confirmation appears and premium features unlock immediately</li>
+                </ol>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p><strong>Player Tagger v1.0</strong></p>
+            <p style="margin-top: 15px;">Professional player event tracking for Gaelic Games and Soccer</p>
+            <p style="margin-top: 15px;">
+                <a href="player-app.html">Launch App</a> |
+                <a href="default.php">Home</a> |
+                <a href="https://github.com/essential-appz/player-tagger" target="_blank">GitHub</a> |
+                <a href="README.md" target="_blank">Full Documentation</a>
+            </p>
+            <p style="margin-top: 20px; opacity: 0.7; font-size: 14px;">
+                &copy; 2025 Player Tagger. All rights reserved.
+            </p>
+        </div>
+    </footer>
+</body>
+</html>
