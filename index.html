@@ -1247,13 +1247,6 @@
 
             <h3>Start New Game</h3>
             <div class="form-group">
-                <label for="gameTypeSelect">Game Type:</label>
-                <select id="gameTypeSelect" onchange="updateGameType()" style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 6px; font-size: 14px;">
-                    <option value="gaelic">Gaelic Games (15 players + 11 subs)</option>
-                    <option value="soccer">Soccer (11 players + 11 subs)</option>
-                </select>
-            </div>
-            <div class="form-group">
                 <label for="team1Name">Team 1 Name:</label>
                 <input type="text" id="team1Name" placeholder="Enter team 1 name" oninput="updateGameName()">
             </div>
@@ -1324,8 +1317,6 @@
         let htOurPoints = null;
         let htOppGoals = null;
         let htOppPoints = null;
-        let gameType = 'gaelic'; // 'gaelic' or 'soccer'
-
         // License State
         let isPremium = false;
         let isTrialActive = false;
@@ -1666,9 +1657,6 @@
             document.getElementById('newGameModal').classList.add('active');
             document.getElementById('team1Name').value = team1Name;
             document.getElementById('team2Name').value = team2Name;
-
-            // Set game type dropdown
-            document.getElementById('gameTypeSelect').value = gameType;
 
             // Copy current descriptors to temp for editing
             tempDescriptors = [...descriptors];
@@ -2496,11 +2484,6 @@
             };
         }
 
-        function updateGameType() {
-            const selectedType = document.getElementById('gameTypeSelect').value;
-            gameType = selectedType;
-        }
-
         function updateGameName() {
             const t1 = document.getElementById('team1Name').value || 'Team 1';
             const t2 = document.getElementById('team2Name').value || 'Team 2';
@@ -2523,7 +2506,6 @@
 
             team1Name = document.getElementById('team1Name').value || 'Team 1';
             team2Name = document.getElementById('team2Name').value || 'Team 2';
-            gameType = document.getElementById('gameTypeSelect').value;
 
             // Apply descriptor changes
             descriptors = [...tempDescriptors];
@@ -2569,8 +2551,7 @@
                 htOurGoals: htOurGoals,
                 htOurPoints: htOurPoints,
                 htOppGoals: htOppGoals,
-                htOppPoints: htOppPoints,
-                gameType: gameType
+                htOppPoints: htOppPoints
             };
 
             const saves = JSON.parse(localStorage.getItem('gameSaves') || '[]');
@@ -2599,11 +2580,10 @@
                 const date = new Date(save.timestamp);
                 const timeStr = date.toLocaleString();
                 const saveType = save.isFinalGame ? 'full game' : 'in-progress game';
-                const sportType = save.gameType === 'soccer' ? 'Soccer' : 'Gaelic';
 
                 item.innerHTML = `
                     <div class="saved-game-info">
-                        <strong>${save.gameName || 'Game'}</strong> <span style="color: #666;">[${sportType} - ${saveType}]</span><br>
+                        <strong>${save.gameName || 'Game'}</strong> <span style="color: #666;">[${saveType}]</span><br>
                         ${timeStr} (${save.eventCount} events)
                     </div>
                     <div class="save-actions">
@@ -2640,9 +2620,8 @@
             htOurPoints = save.htOurPoints !== undefined ? save.htOurPoints : null;
             htOppGoals = save.htOppGoals !== undefined ? save.htOppGoals : null;
             htOppPoints = save.htOppPoints !== undefined ? save.htOppPoints : null;
-            gameType = save.gameType || 'gaelic';
 
-            // Rebuild buttons for loaded game type
+            // Rebuild buttons
             createButtons();
 
             // Update UI labels
@@ -2735,20 +2714,8 @@
             ckGrid.innerHTML = '';
             oppGrid.innerHTML = '';
 
-            let formation, subs;
-
-            if (gameType === 'soccer') {
-                // Soccer 4-4-2 Formation
-                formation = [
-                    [1],              // Goalkeeper
-                    [2, 3, 4, 5],     // Defenders (4)
-                    [6, 7, 8, 9],     // Midfielders (4)
-                    [10, 11]          // Forwards (2)
-                ];
-                subs = [12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22]; // 11 substitutes
-            } else {
-                // GAA Formation: [goalkeeper, fullbacks, halfbacks, midfield, halfforwards, fullforwards]
-                formation = [
+            // GAA Formation: [goalkeeper, fullbacks, halfbacks, midfield, halfforwards, fullforwards]
+            const formation = [
                     [1],           // Goalkeeper
                     [2, 3, 4],     // Full backs
                     [5, 6, 7],     // Half backs
@@ -2756,8 +2723,7 @@
                     [10, 11, 12],  // Half forwards
                     [13, 14, 15]   // Full forwards
                 ];
-                subs = [16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26]; // 11 substitutes
-            }
+            const subs = [16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26]; // 11 substitutes
 
             // OUR buttons in formation
             const ckFormation = document.createElement('div');
@@ -2883,19 +2849,11 @@
         }
 
         function getCurrentCategories() {
-            if (gameType === 'soccer') {
-                return ['OUR 1', 'OUR 2', 'OUR 3', 'OUR 4', 'OUR 5', 'OUR 6', 'OUR 7', 'OUR 8', 'OUR 9', 'OUR 10', 'OUR 11', 'OUR 12', 'OUR 13', 'OUR 14', 'OUR 15', 'OUR 16', 'OUR 17', 'OUR 18', 'OUR 19', 'OUR 20', 'OUR 21', 'OUR 22'];
-            } else {
-                return categories;
-            }
+            return categories;
         }
 
         function getCurrentOpponents() {
-            if (gameType === 'soccer') {
-                return ['OPP 1', 'OPP 2', 'OPP 3', 'OPP 4', 'OPP 5', 'OPP 6', 'OPP 7', 'OPP 8', 'OPP 9', 'OPP 10', 'OPP 11', 'OPP 12', 'OPP 13', 'OPP 14', 'OPP 15', 'OPP 16', 'OPP 17', 'OPP 18', 'OPP 19', 'OPP 20', 'OPP 21', 'OPP 22'];
-            } else {
-                return opponents;
-            }
+            return opponents;
         }
 
         function buildMatrix() {
@@ -3124,38 +3082,23 @@
                 }
             });
 
-            // Display score based on game type
-            if (gameType === 'soccer') {
-                // Soccer: show only goals
-                document.getElementById('ckScore').textContent = ckGoals;
-                document.getElementById('oppScore').textContent = oppGoals;
-            } else {
-                // Gaelic: show goals:points
-                document.getElementById('ckScore').textContent = ckGoals + ':' + ckPoints;
-                document.getElementById('oppScore').textContent = oppGoals + ':' + oppPoints;
-            }
+            // Display score (Gaelic format: goals:points)
+            document.getElementById('ckScore').textContent = ckGoals + ':' + ckPoints;
+            document.getElementById('oppScore').textContent = oppGoals + ':' + oppPoints;
 
             // Update half-time scores if they exist
             const ckHT = document.getElementById('ckHalfTime');
             const oppHT = document.getElementById('oppHalfTime');
 
             if (htOurGoals !== null && htOurPoints !== null) {
-                if (gameType === 'soccer') {
-                    ckHT.textContent = 'HT: ' + htOurGoals;
-                } else {
-                    ckHT.textContent = 'HT: ' + htOurGoals + ':' + htOurPoints;
-                }
+                ckHT.textContent = 'HT: ' + htOurGoals + ':' + htOurPoints;
                 ckHT.style.display = 'block';
             } else {
                 ckHT.style.display = 'none';
             }
 
             if (htOppGoals !== null && htOppPoints !== null) {
-                if (gameType === 'soccer') {
-                    oppHT.textContent = 'HT: ' + htOppGoals;
-                } else {
-                    oppHT.textContent = 'HT: ' + htOppGoals + ':' + htOppPoints;
-                }
+                oppHT.textContent = 'HT: ' + htOppGoals + ':' + htOppPoints;
                 oppHT.style.display = 'block';
             } else {
                 oppHT.style.display = 'none';
