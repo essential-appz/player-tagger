@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Player Tagger - Track Player Events During Live Games</title>
-    <meta name="description" content="Mobile-friendly web app for tracking player events during Gaelic Games and Soccer matches. Real-time statistics, analytics, and multi-sport support.">
+    <title>Player Tagger - Track Player Events During GAA Games</title>
+    <meta name="description" content="Mobile-friendly web app for tracking player events during Gaelic Games (GAA) matches. Real-time statistics, analytics, and comprehensive game reports.">
     <style>
         * {
             margin: 0;
@@ -415,11 +415,11 @@
         <div class="container">
             <div class="logo">
                 Player Tagger
-                <span class="version-badge">v1.0</span>
+                <span class="version-badge">v1.2</span>
             </div>
             <nav>
                 <a href="#features">Features</a>
-                <a href="#sports">Sports</a>
+                <a href="#sports">GAA</a>
                 <a href="#pricing">Pricing</a>
                 <a href="#guide">Quick Start</a>
                 <a href="player-app.html" class="launch-btn">Launch App</a>
@@ -431,7 +431,7 @@
     <section class="hero">
         <div class="container">
             <h1>Track Every Play, Master Every Game</h1>
-            <p>Professional-grade player event tracking for Gaelic Games and Soccer. Real-time statistics, comprehensive analytics, and offline capability — all in one powerful mobile app.</p>
+            <p>Professional-grade player event tracking for Gaelic Games (GAA). Real-time statistics, comprehensive analytics, and offline capability — all in one powerful mobile app.</p>
             <div class="cta-buttons">
                 <a href="player-app.html" class="btn btn-primary">Launch App →</a>
                 <a href="#guide" class="btn btn-secondary">Quick Start Guide</a>
@@ -445,9 +445,9 @@
             <h2 class="section-title">Powerful Features for Game Day</h2>
             <div class="features-grid">
                 <div class="feature-card">
-                    <div class="feature-icon">⚽</div>
-                    <h3>Multi-Sport Support</h3>
-                    <p>Track Gaelic Games (GAA) with traditional 15-player formation or Soccer with 4-4-2 formation. Sport-specific layouts and player configurations.</p>
+                    <div class="feature-icon">🏐</div>
+                    <h3>GAA Formation</h3>
+                    <p>Track Gaelic Games with traditional 15-player formation plus 11 substitutes. Intuitive layout with Goalkeeper, Full Backs, Half Backs, Midfield, Half Forwards, and Full Forwards.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">📊</div>
@@ -478,14 +478,14 @@
         </div>
     </section>
 
-    <!-- Sports Section -->
+    <!-- GAA Details Section -->
     <section class="sports" id="sports">
         <div class="container">
-            <h2 class="section-title">Supports Your Sport</h2>
+            <h2 class="section-title">Built for Gaelic Games</h2>
             <div class="sports-grid">
                 <div class="sport-card">
-                    <h3>🏐 Gaelic Games (GAA)</h3>
-                    <p>Traditional formation with 26 total players</p>
+                    <h3>🏐 Traditional GAA Formation</h3>
+                    <p>26 total players in authentic Gaelic Games layout</p>
                     <ul class="sport-details">
                         <li>1 Goalkeeper</li>
                         <li>3 Full Backs (positions 2-4)</li>
@@ -497,14 +497,16 @@
                     </ul>
                 </div>
                 <div class="sport-card">
-                    <h3>⚽ Soccer</h3>
-                    <p>4-4-2 Formation with 22 total players</p>
+                    <h3>📊 GAA Scoring System</h3>
+                    <p>Optimized for Gaelic football and hurling</p>
                     <ul class="sport-details">
-                        <li>1 Goalkeeper (position 1)</li>
-                        <li>4 Defenders (positions 2-5)</li>
-                        <li>4 Midfielders (positions 6-9)</li>
-                        <li>2 Forwards (positions 10-11)</li>
-                        <li>11 Substitutes (positions 12-22)</li>
+                        <li>Goals (3 points each)</li>
+                        <li>Points (1 point each)</li>
+                        <li>2 Pointers (2 points each)</li>
+                        <li>Score format: Goals:Points</li>
+                        <li>Half-time score tracking</li>
+                        <li>Real-time scoreboard updates</li>
+                        <li>Possession & kickout analytics</li>
                     </ul>
                 </div>
             </div>
@@ -563,7 +565,7 @@
                     <div class="step-number">1</div>
                     <div class="step-content">
                         <h3>Start a New Game</h3>
-                        <p>Click Settings → Select your sport (Gaelic Games or Soccer) → Enter team names → Click "New Game". Player layout automatically adjusts to match your sport.</p>
+                        <p>Click Settings → Enter team names → Click "New Game". The GAA formation with 26 players appears ready for tracking.</p>
                     </div>
                 </div>
                 <div class="step">
@@ -601,8 +603,8 @@
     <!-- Footer -->
     <footer>
         <div class="container">
-            <p><strong>Player Tagger v1.0</strong></p>
-            <p style="margin-top: 15px;">Professional player event tracking for Gaelic Games and Soccer</p>
+            <p><strong>Player Tagger v1.2</strong></p>
+            <p style="margin-top: 15px;">Professional player event tracking for Gaelic Games (GAA)</p>
             <p style="margin-top: 15px;">
                 <a href="player-app.html">Launch App</a> |
                 <a href="https://github.com/essential-appz/player-tagger" target="_blank">GitHub</a> |
