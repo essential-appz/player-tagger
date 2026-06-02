@@ -1,0 +1,21 @@
+# License files - DO NOT COMMIT
+licenses.csv
+license-*.txt
+license-*.csv
+
+# Node modules (if added in future)
+node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temporary files
+*.tmp
+*.log
