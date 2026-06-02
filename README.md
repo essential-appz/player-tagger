@@ -49,32 +49,34 @@ Try all premium features free for 14 days! Click the Premium badge in the app to
 - **Player Selection**: Track 26 players per team (OUR and OPP)
   - 15 starters in traditional GAA formation
   - 11 substitutes (positions 16-26)
-- **Default Event Descriptors** (FREE): Record multiple event types per touch:
-  - Touch (automatically included)
-  - Shot
-  - Goal
-  - 2 Pointer
-  - Point
-  - T/O Won (Turnover Won)
-  - Own KO Won
-  - Own KO Lost
+- **Default Event Descriptors** (FREE): Intelligent auto-save for quick event logging:
+  - Touch (automatically included with every event)
+  - Shot (multi-select: requires Goal, Point, or 2 Pointer)
+  - Goal, Point, 2 Pointer (auto-adds Shot, one at a time)
+  - T/O Won, Own KO Won, Own KO Lost (auto-save immediately)
+- **Smart Event Workflow**:
+  - **Quick events**: Click descriptor → saves instantly with Touch
+  - **Shots**: Click Shot → select ONE scoring type → auto-saves when next player selected
+  - No manual save button needed - everything auto-saves intelligently
 - **Custom Event Descriptors** (⭐ PREMIUM): Create, edit, and manage your own event types
   - Add unlimited custom descriptors (e.g., "Assist", "Block", "Foul")
   - Delete unused descriptors
   - Reset to default set at any time
   - Changes applied when starting a new game (protects data integrity)
   - Custom descriptors saved in browser and persist across sessions
-- **Manual Save Event**: Manually save player actions from Match Events panel
-- **Recent Events Panel**: View last 10 events with individual delete buttons
+- **Recent Events Panel**: View last 10 meaningful events with individual delete buttons
   - Quick visual reference of recent game activity
   - Delete any recent event (not just the last one)
   - Shows game time, player, and descriptors for each event
+  - Hides Touch-only events for cleaner display (still tracked in matrix)
 - **Automatic Timestamps**: Every event recorded with game time and period
 
 ### Data Visualization
 - **Event Matrix** (FREE): Interactive tables showing event counts by player and descriptor
 - **Sortable Columns** (FREE): Click column headers to sort players by any event type
-- **Recent Events** (FREE): Shows last 10 events with delete buttons for quick corrections
+- **Recent Events** (FREE): Shows last 10 meaningful events with delete buttons for quick corrections
+  - Automatically hides Touch-only events for cleaner display
+  - Touch-only events still tracked in matrix for possession statistics
 - **Timeline** (FREE): Chronological scoring timeline in modal view
   - Player and event type for each score
   - Running score display for both teams
@@ -182,10 +184,20 @@ Try all premium features free for 14 days! Click the Premium badge in the app to
 1. Click **Start 1st Half** to begin the game timer
 2. Select a player from the formation (e.g., "OUR 1" or "OPP 15")
    - Touch is automatically added
-3. Add additional event descriptors as needed (Shot, Goal, etc.)
-4. Click **Manual Save Event** or select another player to auto-save
-5. Check **Recent Events** panel to review and delete any mistakes
-6. Repeat for all events during the game
+
+**For quick single events (T/O Won, Own KO Won, etc.):**
+3. Click the descriptor button → **Event saves immediately**
+4. Ready for next event
+
+**For shots with scoring:**
+3. Click **Shot** button
+4. Optionally click **ONE** of: Goal, Point, or 2 Pointer
+5. Select next player → **Previous shot event auto-saves**
+
+**Managing events:**
+- Check **Recent Events** panel to review and delete any mistakes
+- Touch-only events are hidden from recent panel but tracked in matrix for possession stats
+- Repeat for all events during the game
 
 ### Managing Periods
 
@@ -413,6 +425,12 @@ Works best on modern browsers:
 ## Recent Updates
 
 ### v1.2 (Latest)
+- ⚡ **Smart Auto-Save Event Logging**: Intelligent workflow for faster event tracking
+  - Quick events (T/O Won, kickouts) save instantly when clicked
+  - Shots require one scoring type (Goal/Point/2 Pointer), auto-save on next player
+  - Removed Manual Save button - everything auto-saves appropriately
+  - Recent Events panel hides Touch-only events for cleaner display
+  - Touch-only events still tracked in matrix for possession statistics
 - 🏐 **GAA-Only Focus**: Streamlined for Gaelic Games exclusively
   - Removed multisport selection to simplify workflow
   - Hardcoded to traditional GAA 15-player formation + 11 subs
