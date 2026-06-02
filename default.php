@@ -450,6 +450,11 @@
                     <p>Track Gaelic Games with traditional 15-player formation plus 11 substitutes. Intuitive layout with Goalkeeper, Full Backs, Half Backs, Midfield, Half Forwards, and Full Forwards.</p>
                 </div>
                 <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Smart Auto-Save</h3>
+                    <p>Intelligent event logging with instant auto-save for quick actions. Shots get multi-select for scoring types. No manual save button needed - everything saves automatically.</p>
+                </div>
+                <div class="feature-card">
                     <div class="feature-icon">📊</div>
                     <h3>Real-Time Analytics</h3>
                     <p>Live scoreboard, event matrices, and sortable statistics update instantly. Track possessions, shot conversion, and kickout success rates.</p>
@@ -524,6 +529,7 @@
                     <ul class="features-list">
                         <li>Full game logging</li>
                         <li>Unlimited players & events</li>
+                        <li>Smart auto-save event tracking</li>
                         <li>Default event descriptors (7 types)</li>
                         <li>Live scoreboard & game clock</li>
                         <li>Event matrices & statistics</li>
@@ -572,14 +578,14 @@
                     <div class="step-number">2</div>
                     <div class="step-content">
                         <h3>Begin Tracking</h3>
-                        <p>Click "Start 1st Half" to begin the game timer. Select a player from the formation, add event descriptors (Shot, Goal, Point, etc.), and events are saved automatically.</p>
+                        <p>Click "Start 1st Half" to begin the game timer. Select a player, then click a descriptor. Quick events (T/O Won, kickouts) save instantly. For shots, select Goal/Point/2 Pointer, then the next player auto-saves it.</p>
                     </div>
                 </div>
                 <div class="step">
                     <div class="step-number">3</div>
                     <div class="step-content">
                         <h3>Monitor Real-Time Stats</h3>
-                        <p>View live scoreboard, game clock, and event matrices updating in real-time. Check Recent Events panel to review or delete any mistakes.</p>
+                        <p>View live scoreboard, game clock, and event matrices updating in real-time. Recent Events panel shows your last 10 meaningful events (Touch-only events hidden for clarity).</p>
                     </div>
                 </div>
                 <div class="step">
