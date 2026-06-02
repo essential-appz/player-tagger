@@ -1619,17 +1619,6 @@
                 descGrid.appendChild(btn);
             });
 
-            // Add Manual Save Event button
-            const saveBtn = document.createElement('button');
-            saveBtn.className = 'descriptor-btn';
-            saveBtn.textContent = 'Manual Save Event';
-            saveBtn.style.background = '#ff9800';
-            saveBtn.style.color = 'white';
-            saveBtn.style.borderColor = '#ff9800';
-            saveBtn.disabled = true;
-            saveBtn.onclick = () => saveCurrentEvent();
-            descGrid.appendChild(saveBtn);
-
             // Re-enable buttons if category is selected
             if (currentType && currentCategory) {
                 document.querySelectorAll('.descriptor-btn').forEach(b => {
@@ -3307,6 +3296,66 @@
         function toggleDesc(btn, desc) {
             if (!currentType) return;
 
+            // Handle scoring descriptors (Goal, Point, 2 Pointer) - require Shot
+            if (desc === 'Goal' || desc === 'Point' || desc === '2 Pointer') {
+                // Auto-add Shot if not already selected
+                if (!selectedDescriptors.includes('Shot')) {
+                    selectedDescriptors.push('Shot');
+                    const shotBtn = Array.from(document.querySelectorAll('.descriptor-btn')).find(b => b.textContent === 'Shot');
+                    if (shotBtn) shotBtn.classList.add('selected');
+                }
+
+                // Remove other scoring descriptors (only one can be selected)
+                const scoringTypes = ['Goal', 'Point', '2 Pointer'];
+                scoringTypes.forEach(type => {
+                    if (type !== desc) {
+                        const idx = selectedDescriptors.indexOf(type);
+                        if (idx > -1) selectedDescriptors.splice(idx, 1);
+                        const typeBtn = Array.from(document.querySelectorAll('.descriptor-btn')).find(b => b.textContent === type);
+                        if (typeBtn) typeBtn.classList.remove('selected');
+                    }
+                });
+
+                // Toggle the selected scoring descriptor
+                if (btn.classList.contains('selected')) {
+                    btn.classList.remove('selected');
+                    let idx = selectedDescriptors.indexOf(desc);
+                    if (idx > -1) selectedDescriptors.splice(idx, 1);
+                } else {
+                    btn.classList.add('selected');
+                    selectedDescriptors.push(desc);
+                }
+
+                document.getElementById('status').textContent =
+                    currentType + ': ' + currentCategory + ' | ' + selectedDescriptors.join(', ');
+                return;
+            }
+
+            // Handle Shot - just toggle, don't auto-save
+            if (desc === 'Shot') {
+                if (btn.classList.contains('selected')) {
+                    btn.classList.remove('selected');
+                    let idx = selectedDescriptors.indexOf(desc);
+                    if (idx > -1) selectedDescriptors.splice(idx, 1);
+
+                    // Also remove any scoring descriptors if Shot is removed
+                    ['Goal', 'Point', '2 Pointer'].forEach(type => {
+                        const idx = selectedDescriptors.indexOf(type);
+                        if (idx > -1) selectedDescriptors.splice(idx, 1);
+                        const typeBtn = Array.from(document.querySelectorAll('.descriptor-btn')).find(b => b.textContent === type);
+                        if (typeBtn) typeBtn.classList.remove('selected');
+                    });
+                } else {
+                    btn.classList.add('selected');
+                    selectedDescriptors.push(desc);
+                }
+
+                document.getElementById('status').textContent =
+                    currentType + ': ' + currentCategory + ' | ' + selectedDescriptors.join(', ');
+                return;
+            }
+
+            // All other descriptors - toggle and auto-save immediately
             if (btn.classList.contains('selected')) {
                 btn.classList.remove('selected');
                 let idx = selectedDescriptors.indexOf(desc);
@@ -3314,6 +3363,23 @@
             } else {
                 btn.classList.add('selected');
                 selectedDescriptors.push(desc);
+
+                // Auto-save immediately for non-Shot descriptors
+                saveEvent();
+
+                // Reset selection
+                currentType = null;
+                currentCategory = null;
+                selectedDescriptors = [];
+
+                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
+                document.querySelectorAll('.descriptor-btn').forEach(b => {
+                    b.disabled = true;
+                    b.classList.remove('selected');
+                });
+
+                document.getElementById('status').textContent = 'Ready - Select a category';
+                return;
             }
 
             document.getElementById('status').textContent =
@@ -3342,27 +3408,6 @@
             document.getElementById('eventCount').textContent = events.length;
         }
 
-        function saveCurrentEvent() {
-            if (!currentType) {
-                alert('Select a category first!');
-                return;
-            }
-
-            saveEvent();
-
-            currentType = null;
-            currentCategory = null;
-            selectedDescriptors = [];
-
-            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
-            document.querySelectorAll('.descriptor-btn').forEach(b => {
-                b.disabled = true;
-                b.classList.remove('selected');
-            });
-
-            document.getElementById('status').textContent = 'Ready - Select a category';
-        }
-
         function updateRecentEvents() {
             const recentEventsList = document.getElementById('recentEventsList');
 
@@ -3371,13 +3416,20 @@
                 return;
             }
 
-            // Show last 10 events in reverse order (most recent first)
-            const recentEvents = events.slice(-10).reverse();
+            // Filter out Touch-only events and show last 10 in reverse order (most recent first)
+            const filteredEvents = events.filter(e => e.descriptors !== 'Touch');
+
+            if (filteredEvents.length === 0) {
+                recentEventsList.innerHTML = '<div class="no-recent-events">No events yet</div>';
+                return;
+            }
+
+            const recentEvents = filteredEvents.slice(-10).reverse();
 
             let html = '';
-            recentEvents.forEach((event, index) => {
-                // Calculate actual index in events array
-                const actualIndex = events.length - 1 - index;
+            recentEvents.forEach(event => {
+                // Find actual index in original events array
+                const actualIndex = events.indexOf(event);
                 const playerNum = event.category.replace('OUR ', '').replace('OPP ', '');
 
                 html += `
