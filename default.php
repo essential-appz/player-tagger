@@ -422,6 +422,7 @@
                 <a href="#sports">GAA</a>
                 <a href="#pricing">Pricing</a>
                 <a href="#guide">Quick Start</a>
+                <a href="#signup">Sign Up</a>
                 <a href="player-app.html" class="launch-btn">Launch App</a>
             </nav>
         </div>
@@ -603,6 +604,25 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </section>
+
+    <!-- Signup Section -->
+    <section class="pricing" id="signup" style="background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%); color: white;">
+        <div class="container" style="text-align: center;">
+            <h2 class="section-title" style="color: white;">Ready to Get Started?</h2>
+            <p style="font-size: 18px; max-width: 600px; margin: 0 auto 30px; opacity: 0.95;">
+                Sign up for Player Tagger today and take your game tracking to the next level.
+                Send us an email to get your license key and start your free trial.
+            </p>
+            <a href="mailto:playertagger@pm.me?subject=Player%20Tagger%20Signup&body=Hi,%0A%0AI'd%20like%20to%20sign%20up%20for%20Player%20Tagger.%0A%0AName:%0ATeam/Organization:%0A"
+               class="btn btn-primary"
+               style="font-size: 18px; padding: 18px 40px;">
+                📧 Email Us to Sign Up
+            </a>
+            <p style="margin-top: 25px; font-size: 14px; opacity: 0.8;">
+                Contact: <a href="mailto:playertagger@pm.me" style="color: white; text-decoration: underline;">playertagger@pm.me</a>
+            </p>
         </div>
     </section>
 
