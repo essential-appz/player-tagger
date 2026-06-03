@@ -366,6 +366,55 @@
             color: #666;
         }
 
+        /* Screenshots Section */
+        .screenshots {
+            padding: 80px 0;
+            background: white;
+        }
+
+        .screenshots-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 40px;
+            margin-top: 40px;
+        }
+
+        .screenshot-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .screenshot-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .screenshot-card img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-bottom: 3px solid #2196F3;
+        }
+
+        .screenshot-title {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .screenshot-title h3 {
+            font-size: 20px;
+            color: #2196F3;
+            margin-bottom: 8px;
+        }
+
+        .screenshot-title p {
+            font-size: 14px;
+            color: #666;
+        }
+
         /* Footer */
         footer {
             background: #2c3e50;
@@ -398,6 +447,7 @@
             }
 
             .features-grid,
+            .screenshots-grid,
             .sports-grid,
             .pricing-grid {
                 grid-template-columns: 1fr;
@@ -419,6 +469,7 @@
             </div>
             <nav>
                 <a href="#features">Features</a>
+                <a href="#screenshots">Screenshots</a>
                 <a href="#sports">GAA</a>
                 <a href="#pricing">Pricing</a>
                 <a href="#guide">Quick Start</a>
@@ -479,6 +530,43 @@
                     <div class="feature-icon">🔌</div>
                     <h3>Offline Capable</h3>
                     <p>Works completely offline. All data stored locally in your browser. No internet required during games.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Screenshots Section -->
+    <section class="screenshots" id="screenshots">
+        <div class="container">
+            <h2 class="section-title">See It In Action</h2>
+            <div class="screenshots-grid">
+                <div class="screenshot-card">
+                    <img src="screenshots/01-main-app.png" alt="Player Tagger Main App Interface">
+                    <div class="screenshot-title">
+                        <h3>Main App Interface</h3>
+                        <p>Clean GAA formation layout with 26 players per team, ready to track your game</p>
+                    </div>
+                </div>
+                <div class="screenshot-card">
+                    <img src="screenshots/02-game-in-progress.png" alt="Game In Progress">
+                    <div class="screenshot-title">
+                        <h3>Game In Progress</h3>
+                        <p>Live scoreboard, event matrices, and real-time statistics during an active match</p>
+                    </div>
+                </div>
+                <div class="screenshot-card">
+                    <img src="screenshots/03-timeline-view.png" alt="Timeline View">
+                    <div class="screenshot-title">
+                        <h3>Timeline View</h3>
+                        <p>Chronological match timeline showing all scoring events in order</p>
+                    </div>
+                </div>
+                <div class="screenshot-card">
+                    <img src="screenshots/04-reports-view.png" alt="Game Reports">
+                    <div class="screenshot-title">
+                        <h3>Game Reports</h3>
+                        <p>Detailed analytics including possession stats, shot conversion, and top performers</p>
+                    </div>
                 </div>
             </div>
         </div>
