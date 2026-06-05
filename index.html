@@ -957,6 +957,104 @@
             font-weight: bold;
             margin-right: 5px;
         }
+
+        /* PWA Install Button */
+        .install-prompt {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 30px;
+            box-shadow: 0 4px 20px rgba(33, 150, 243, 0.4);
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: none;
+        }
+
+        .install-prompt:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(33, 150, 243, 0.5);
+        }
+
+        .install-prompt.show {
+            display: flex;
+        }
+
+        .install-prompt .close-btn {
+            margin-left: 10px;
+            opacity: 0.8;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .install-prompt .close-btn:hover {
+            opacity: 1;
+        }
+
+        /* iOS Install Instructions Modal */
+        .ios-install-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 10001;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ios-install-modal.active {
+            display: flex;
+        }
+
+        .ios-install-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 400px;
+            margin: 20px;
+            text-align: center;
+        }
+
+        .ios-install-content h3 {
+            color: #2196F3;
+            margin-bottom: 20px;
+        }
+
+        .ios-install-steps {
+            text-align: left;
+            margin: 20px 0;
+            line-height: 1.8;
+        }
+
+        .ios-install-steps li {
+            margin-bottom: 10px;
+            padding-left: 10px;
+        }
+
+        .ios-install-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .install-prompt {
+                bottom: 80px;
+                right: 10px;
+                left: 10px;
+                justify-content: center;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1081,6 +1179,31 @@
         <h3>Recent Events</h3>
         <div class="recent-events-list" id="recentEventsList">
             <div class="no-recent-events">No events yet</div>
+        </div>
+    </div>
+
+    <!-- PWA Install Prompt -->
+    <button id="installButton" class="install-prompt" onclick="handleInstallClick()">
+        <span>📱 Install App</span>
+        <span class="close-btn" onclick="dismissInstallPrompt(event)">×</span>
+    </button>
+
+    <!-- iOS Install Instructions Modal -->
+    <div id="iosInstallModal" class="ios-install-modal" onclick="closeIOSInstructions()">
+        <div class="ios-install-content" onclick="event.stopPropagation()">
+            <div class="ios-install-icon">📱</div>
+            <h3>Install Player Tagger</h3>
+            <p>Add this app to your home screen for a better experience!</p>
+            <ol class="ios-install-steps">
+                <li>Tap the <strong>Share</strong> button <span style="font-size: 18px;">⎋</span> (at the bottom or top of Safari)</li>
+                <li>Scroll down and tap <strong>"Add to Home Screen"</strong> <span style="font-size: 18px;">➕</span></li>
+                <li>Tap <strong>"Add"</strong> in the top right</li>
+                <li>Open the app from your home screen!</li>
+            </ol>
+            <p style="color: #666; font-size: 13px; margin-top: 15px;">
+                The app will work offline and look like a native app.
+            </p>
+            <button class="modal-btn primary" onclick="closeIOSInstructions()" style="margin-top: 20px; width: 100%;">Got it!</button>
         </div>
     </div>
 
@@ -3883,38 +4006,87 @@
         // ============================================
 
         let deferredPrompt;
+        const installButton = document.getElementById('installButton');
+        const iosInstallModal = document.getElementById('iosInstallModal');
 
+        // Detect platform
+        function isIOS() {
+            return /iPhone|iPad|iPod/.test(navigator.userAgent) && !window.MSStream;
+        }
+
+        function isStandalone() {
+            return window.matchMedia('(display-mode: standalone)').matches ||
+                   window.navigator.standalone === true;
+        }
+
+        // Show install button on iOS or when install prompt available
+        function showInstallButton() {
+            if (!isStandalone() && !localStorage.getItem('installPromptDismissed')) {
+                setTimeout(() => {
+                    installButton.classList.add('show');
+                }, 3000); // Show after 3 seconds
+            }
+        }
+
+        // Handle beforeinstallprompt (Android/Desktop)
         window.addEventListener('beforeinstallprompt', (e) => {
-            // Prevent the mini-infobar from appearing on mobile
             e.preventDefault();
-            // Stash the event so it can be triggered later
             deferredPrompt = e;
-
-            // Show install button/banner (optional - you can add UI for this)
             console.log('[PWA] Install prompt available');
-
-            // Optional: Show a custom install button
-            // showInstallPromotion();
+            showInstallButton();
         });
 
+        // Handle appinstalled event
         window.addEventListener('appinstalled', () => {
             console.log('[PWA] App installed successfully');
             deferredPrompt = null;
+            installButton.classList.remove('show');
         });
 
-        // Function to trigger install prompt (call this from a button if needed)
-        function installPWA() {
-            if (deferredPrompt) {
+        // Handle install button click
+        function handleInstallClick() {
+            if (isIOS()) {
+                // Show iOS instructions
+                iosInstallModal.classList.add('active');
+            } else if (deferredPrompt) {
+                // Trigger native install prompt (Android/Desktop)
                 deferredPrompt.prompt();
                 deferredPrompt.userChoice.then((choiceResult) => {
                     if (choiceResult.outcome === 'accepted') {
                         console.log('[PWA] User accepted install');
+                        installButton.classList.remove('show');
                     } else {
                         console.log('[PWA] User dismissed install');
                     }
                     deferredPrompt = null;
                 });
+            } else {
+                // Fallback - no prompt available
+                console.log('[PWA] No install prompt available');
+                alert('To install this app:\n\nAndroid: Look for "Add to Home Screen" in your browser menu\n\niOS: Use Safari and tap Share → Add to Home Screen');
             }
+        }
+
+        // Dismiss install prompt
+        function dismissInstallPrompt(event) {
+            event.stopPropagation();
+            installButton.classList.remove('show');
+            localStorage.setItem('installPromptDismissed', 'true');
+        }
+
+        // Close iOS instructions modal
+        function closeIOSInstructions() {
+            iosInstallModal.classList.remove('active');
+        }
+
+        // Legacy function for backwards compatibility
+        function installPWA() {
+            handleInstallClick();
+        }
+
+        // Show install button on iOS after page load
+        if (isIOS() && !isStandalone()) {
+            showInstallButton();
         }
 
         // ============================================
