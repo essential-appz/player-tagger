@@ -1086,7 +1086,7 @@
 
             <div class="price-info">
                 <h3>Unlock Premium Features</h3>
-                <div class="price">€79.99 / year</div>
+                <div class="price">€79 / year</div>
                 <p>One license, all features, 1 year access</p>
             </div>
 
@@ -1099,7 +1099,12 @@
             </ul>
 
             <div style="text-align: center; padding: 15px 0; background: #f8f9fa; border-radius: 8px; margin: 20px 0;">
-                <p style="margin-bottom: 10px; color: #666; font-size: 14px;">Don't have a license key?</p>
+                <p style="margin-bottom: 10px; color: #666; font-size: 14px;">Want to try it first?</p>
+                <a href="mailto:playertagger@pm.me?subject=Player%20Tagger%20-%207-Day%20Free%20Trial%20Request&body=Hi,%0A%0AI'd%20like%20to%20request%20a%207-day%20free%20trial%20for%20Player%20Tagger.%0A%0AThanks!"
+                   style="display: inline-block; background: #ff9800; color: white; padding: 10px 20px; border-radius: 20px; text-decoration: none; font-weight: bold; font-size: 14px; margin-bottom: 10px;">
+                    🎁 Get 7-Day Free Trial
+                </a>
+                <p style="margin-top: 15px; margin-bottom: 10px; color: #666; font-size: 14px;">Ready to purchase?</p>
                 <a href="mailto:playertagger@pm.me?subject=Premium%20License%20Request&body=Hi,%0A%0AI'd%20like%20to%20purchase%20a%20Premium%20license%20for%20Player%20Tagger.%0A%0AName:%0ATeam/Organization:%0A"
                    style="display: inline-block; background: #2196F3; color: white; padding: 10px 20px; border-radius: 20px; text-decoration: none; font-weight: bold; font-size: 14px;">
                     📧 Email Us to Get a License
@@ -1108,17 +1113,11 @@
 
             <div class="form-group">
                 <label for="licenseKeyInput">Enter License Key:</label>
-                <input type="text" id="licenseKeyInput" class="license-key-input" placeholder="XXXX-XXXX-XXXX-XXXX" maxlength="19">
-            </div>
-
-            <div class="trial-info" id="trialInfo" style="display: none;">
-                <p><strong>14-Day Free Trial Active!</strong></p>
-                <p>All premium features unlocked. <span id="trialDaysLeft"></span></p>
+                <input type="text" id="licenseKeyInput" class="license-key-input" placeholder="TRIAL-XXXX-XXXX-7D or PRO-XXXX-XXXX-XXXX" maxlength="24">
             </div>
 
             <div class="modal-buttons">
                 <button class="modal-btn primary" onclick="activateLicense()">Activate License</button>
-                <button class="modal-btn" style="background: #ff9800;" onclick="startTrial()" id="startTrialBtn">Start Free Trial</button>
             </div>
         </div>
     </div>
@@ -1348,50 +1347,81 @@
 
         function checkLicenseStatus() {
             const license = localStorage.getItem('premiumLicense');
-            const trialStart = localStorage.getItem('trialStartDate');
+            const licenseData = localStorage.getItem('licenseData');
 
-            if (license) {
-                if (validateLicenseKey(license)) {
+            // Check for full PRO license or old PTAG license
+            if (license && validateLicenseKey(license)) {
+                if (license.startsWith('PRO-') || license.startsWith('PTAG-')) {
                     isPremium = true;
                     isTrialActive = false;
                     return;
                 }
-            }
 
-            if (trialStart) {
-                const trialStartDate = new Date(trialStart);
-                const now = new Date();
-                const daysSinceStart = Math.floor((now - trialStartDate) / (1000 * 60 * 60 * 24));
-                trialDaysRemaining = 14 - daysSinceStart;
+                // Check for TRIAL license
+                if (license.startsWith('TRIAL-') && licenseData) {
+                    const data = JSON.parse(licenseData);
+                    const activatedDate = new Date(data.activatedAt);
+                    const expiryDate = new Date(data.expiresAt);
+                    const now = new Date();
 
-                if (trialDaysRemaining > 0) {
-                    isPremium = true;
-                    isTrialActive = true;
-                    return;
+                    if (now < expiryDate) {
+                        // Trial still active
+                        const daysLeft = Math.ceil((expiryDate - now) / (1000 * 60 * 60 * 24));
+                        trialDaysRemaining = daysLeft;
+                        isPremium = true;
+                        isTrialActive = true;
+                        return;
+                    } else {
+                        // Trial expired
+                        isPremium = false;
+                        isTrialActive = false;
+                        trialDaysRemaining = 0;
+                        return;
+                    }
                 }
             }
 
             isPremium = false;
             isTrialActive = false;
+            trialDaysRemaining = 0;
         }
 
         function validateLicenseKey(key) {
             if (!key) return false;
 
-            // Format: PTAG-XXXX-XXXX-XXXX
-            const pattern = /^PTAG-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/;
-            if (!pattern.test(key)) return false;
-
-            // Simple checksum validation
-            const parts = key.split('-');
-            const checksum = parts.slice(1, 3).join('');
-            let sum = 0;
-            for (let char of checksum) {
-                sum += char.charCodeAt(0);
+            // Format: TRIAL-XXXX-XXXX-7D (trial keys)
+            const trialPattern = /^TRIAL-[A-Z0-9]{4}-[A-Z0-9]{4}-7D$/;
+            if (trialPattern.test(key)) {
+                return true; // Trial keys are always valid format-wise
             }
 
-            // Valid keys have checksum divisible by 7
-            return sum % 7 === 0;
+            // Format: PRO-XXXX-XXXX-XXXX (full license keys)
+            const proPattern = /^PRO-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/;
+            if (proPattern.test(key)) {
+                // Simple checksum validation for PRO keys
+                const parts = key.split('-');
+                const checksum = parts.slice(1, 3).join('');
+                let sum = 0;
+                for (let char of checksum) {
+                    sum += char.charCodeAt(0);
+                }
+                // Valid keys have checksum divisible by 7
+                return sum % 7 === 0;
+            }
+
+            // Backward compatibility: Old PTAG-XXXX-XXXX-XXXX format
+            const oldPattern = /^PTAG-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/;
+            if (oldPattern.test(key)) {
+                const parts = key.split('-');
+                const checksum = parts.slice(1, 3).join('');
+                let sum = 0;
+                for (let char of checksum) {
+                    sum += char.charCodeAt(0);
+                }
+                return sum % 7 === 0;
+            }
+
+            return false;
         }
 
         function updatePremiumUI() {
@@ -1420,42 +1450,19 @@
 
         function updateLicenseModalContent() {
             const statusDiv = document.getElementById('licenseStatusDiv');
-            const trialInfo = document.getElementById('trialInfo');
-            const startTrialBtn = document.getElementById('startTrialBtn');
 
             if (isPremium && !isTrialActive) {
                 statusDiv.innerHTML = '<div class="license-info"><strong>✓ Premium Active</strong><br>Thank you for supporting Player Tagger!</div>';
-                trialInfo.style.display = 'none';
-                startTrialBtn.style.display = 'none';
             } else if (isTrialActive) {
-                statusDiv.innerHTML = '';
-                trialInfo.style.display = 'block';
-                document.getElementById('trialDaysLeft').textContent = `${trialDaysRemaining} days remaining.`;
-                startTrialBtn.style.display = 'none';
+                statusDiv.innerHTML = `<div class="license-info trial"><strong>🎁 Trial Active</strong><br>${trialDaysRemaining} days remaining</div>`;
             } else {
-                const existingTrial = localStorage.getItem('trialStartDate');
-                if (existingTrial) {
-                    statusDiv.innerHTML = '<div class="license-info expired"><strong>Trial Expired</strong><br>Enter a license key to continue using premium features.</div>';
-                    startTrialBtn.style.display = 'none';
+                const license = localStorage.getItem('premiumLicense');
+                if (license && license.startsWith('TRIAL-')) {
+                    statusDiv.innerHTML = '<div class="license-info expired"><strong>⏰ Trial Expired</strong><br>Upgrade to a full license to continue using premium features.</div>';
                 } else {
                     statusDiv.innerHTML = '';
-                    startTrialBtn.style.display = 'inline-block';
                 }
-                trialInfo.style.display = 'none';
             }
-        }
-
-        function startTrial() {
-            if (localStorage.getItem('trialStartDate')) {
-                alert('Trial already used! Enter a license key to unlock premium features.');
-                return;
-            }
-
-            localStorage.setItem('trialStartDate', new Date().toISOString());
-            checkLicenseStatus();
-            updatePremiumUI();
-            updateLicenseModalContent();
-            alert('14-day free trial activated! All premium features are now unlocked.');
         }
 
         function activateLicense() {
@@ -1467,23 +1474,56 @@
                 return;
             }
 
-            if (validateLicenseKey(key)) {
-                localStorage.setItem('premiumLicense', key);
+            if (!validateLicenseKey(key)) {
+                alert('Invalid license key format!\n\nPlease check your key and try again.\n\nValid formats:\n• Trial: TRIAL-XXXX-XXXX-7D\n• Full: PRO-XXXX-XXXX-XXXX');
+                return;
+            }
+
+            localStorage.setItem('premiumLicense', key);
+
+            // Handle trial keys
+            if (key.startsWith('TRIAL-')) {
+                const now = new Date();
+                const expiryDate = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 days from now
+
+                const licenseData = {
+                    key: key,
+                    type: 'trial',
+                    activatedAt: now.toISOString(),
+                    expiresAt: expiryDate.toISOString()
+                };
+
+                localStorage.setItem('licenseData', JSON.stringify(licenseData));
+                checkLicenseStatus();
+                updatePremiumUI();
+                updateLicenseModalContent();
+                alert(`✓ Trial license activated!\n\nAll premium features unlocked for 7 days.\n\nExpires: ${expiryDate.toLocaleDateString()}`);
+                input.value = '';
+                return;
+            }
+
+            // Handle full PRO keys or old PTAG keys
+            if (key.startsWith('PRO-') || key.startsWith('PTAG-')) {
+                const licenseData = {
+                    key: key,
+                    type: 'full',
+                    activatedAt: new Date().toISOString(),
+                    expiresAt: null // Never expires
+                };
+
+                localStorage.setItem('licenseData', JSON.stringify(licenseData));
                 checkLicenseStatus();
                 updatePremiumUI();
                 updateLicenseModalContent();
                 alert('✓ Premium license activated successfully!\n\nAll features are now unlocked. Thank you for your support!');
                 input.value = '';
-            } else {
-                alert('Invalid license key format!\n\nPlease check your key and try again.\nFormat: PTAG-XXXX-XXXX-XXXX');
             }
         }
 
         function requirePremium(featureName) {
             if (isPremium) return true;
 
-            const daysText = isTrialActive ? ` (${trialDaysRemaining} days left)` : '';
-            alert(`🔒 Premium Feature: ${featureName}\n\nThis feature requires a premium license${daysText}.\n\nPrice: €79.99/year\n\nClick the Premium badge to learn more or start your free 14-day trial!`);
+            alert(`🔒 Premium Feature: ${featureName}\n\nThis feature requires a premium license.\n\nPrice: €79/year\n\nClick the Premium badge to get a 7-day free trial or purchase a license!`);
             return false;
         }
 

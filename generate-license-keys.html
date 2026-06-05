@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>License Key Generator - Player Tagger</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2196F3;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .section h2 {
+            margin-top: 0;
+            color: #333;
+        }
+        button {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        button:hover {
+            background: #1976D2;
+        }
+        button.trial {
+            background: #ff9800;
+        }
+        button.trial:hover {
+            background: #f57c00;
+        }
+        .output {
+            margin-top: 15px;
+            padding: 15px;
+            background: white;
+            border: 2px solid #2196F3;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            display: none;
+        }
+        .output.show {
+            display: block;
+        }
+        .copy-btn {
+            margin-top: 10px;
+            background: #4CAF50;
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+        .copy-btn:hover {
+            background: #45a049;
+        }
+        .info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2196F3;
+        }
+        .info ul {
+            margin: 10px 0 0 0;
+            padding-left: 20px;
+        }
+        .info li {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔑 License Key Generator</h1>
+        <p class="subtitle">Generate trial and full license keys for Player Tagger</p>
+
+        <div class="info">
+            <strong>📧 Email Workflow:</strong>
+            <ul>
+                <li><strong>Trial Request:</strong> User emails → Generate TRIAL key → Reply with key</li>
+                <li><strong>Purchase Request:</strong> User emails → Receive payment → Generate PRO key → Reply with key</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>🎁 7-Day Trial Key</h2>
+            <p>Generate a trial key that expires 7 days after activation.</p>
+            <button class="trial" onclick="generateTrialKey()">Generate Trial Key</button>
+            <div id="trialOutput" class="output"></div>
+        </div>
+
+        <div class="section">
+            <h2>⭐ Premium License Key</h2>
+            <p>Generate a full license key with no expiration (€79/year).</p>
+            <button onclick="generateProKey()">Generate PRO Key</button>
+            <div id="proOutput" class="output"></div>
+        </div>
+
+        <div class="info">
+            <strong>💡 Key Formats:</strong>
+            <ul>
+                <li><strong>Trial:</strong> TRIAL-XXXX-XXXX-7D (valid for 7 days)</li>
+                <li><strong>PRO:</strong> PRO-XXXX-XXXX-XXXX (valid forever)</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function generateRandomSegment(length = 4) {
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Exclude confusing chars
+            let result = '';
+            for (let i = 0; i < length; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
+        }
+
+        function generateTrialKey() {
+            const seg1 = generateRandomSegment();
+            const seg2 = generateRandomSegment();
+            const key = `TRIAL-${seg1}-${seg2}-7D`;
+
+            const output = document.getElementById('trialOutput');
+            output.innerHTML = `
+                ${key}
+                <br>
+                <button class="copy-btn" onclick="copyToClipboard('${key}')">📋 Copy to Clipboard</button>
+            `;
+            output.classList.add('show');
+        }
+
+        function generateProKey() {
+            let key;
+            let isValid = false;
+
+            // Generate until we get a valid checksum
+            while (!isValid) {
+                const seg1 = generateRandomSegment();
+                const seg2 = generateRandomSegment();
+                const seg3 = generateRandomSegment();
+
+                // Validate checksum (first two segments must sum to divisible by 7)
+                const checksum = seg1 + seg2;
+                let sum = 0;
+                for (let char of checksum) {
+                    sum += char.charCodeAt(0);
+                }
+
+                if (sum % 7 === 0) {
+                    key = `PRO-${seg1}-${seg2}-${seg3}`;
+                    isValid = true;
+                }
+            }
+
+            const output = document.getElementById('proOutput');
+            output.innerHTML = `
+                ${key}
+                <br>
+                <button class="copy-btn" onclick="copyToClipboard('${key}')">📋 Copy to Clipboard</button>
+            `;
+            output.classList.add('show');
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('✓ License key copied to clipboard!\n\nKey: ' + text);
+            }).catch(() => {
+                // Fallback for older browsers
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert('✓ License key copied to clipboard!\n\nKey: ' + text);
+            });
+        }
+    </script>
+</body>
+</html>
