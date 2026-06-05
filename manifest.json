@@ -2,7 +2,7 @@
   "name": "Player Tagger",
   "short_name": "Player Tagger",
   "description": "Professional player event tracking for Gaelic Games (GAA). Real-time statistics and offline capability.",
-  "start_url": "./index.html",
+  "start_url": "./player-app.html",
   "display": "standalone",
   "background_color": "#f5f5f5",
   "theme_color": "#2196F3",
