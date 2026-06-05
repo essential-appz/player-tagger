@@ -1,0 +1,41 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="512" height="512" fill="#2196F3" rx="80"/>
+
+  <!-- GAA Field Lines (simplified) -->
+  <g stroke="#FFFFFF" stroke-width="4" fill="none" opacity="0.3">
+    <!-- Outer rectangle -->
+    <rect x="80" y="80" width="352" height="352" rx="10"/>
+    <!-- Center line -->
+    <line x1="256" y1="80" x2="256" y2="432"/>
+    <!-- Goal areas -->
+    <rect x="80" y="160" width="60" height="192"/>
+    <rect x="372" y="160" width="60" height="192"/>
+  </g>
+
+  <!-- Player icon (simplified person) -->
+  <g fill="#FFFFFF">
+    <!-- Head -->
+    <circle cx="256" cy="200" r="30"/>
+    <!-- Body -->
+    <rect x="236" y="235" width="40" height="60" rx="5"/>
+    <!-- Arms -->
+    <rect x="186" y="245" width="50" height="15" rx="7" transform="rotate(-20 211 252)"/>
+    <rect x="276" y="245" width="50" height="15" rx="7" transform="rotate(20 301 252)"/>
+    <!-- Legs -->
+    <rect x="236" y="295" width="18" height="50" rx="9"/>
+    <rect x="258" y="295" width="18" height="50" rx="9"/>
+  </g>
+
+  <!-- Tally/Stats marks (representing tracking) -->
+  <g fill="#FFC107">
+    <circle cx="140" cy="140" r="8"/>
+    <circle cx="180" cy="140" r="8"/>
+    <circle cx="372" cy="140" r="8"/>
+    <circle cx="140" cy="372" r="8"/>
+    <circle cx="372" cy="372" r="8"/>
+  </g>
+
+  <!-- App Title -->
+  <text x="256" y="470" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="#FFFFFF" text-anchor="middle">PT</text>
+</svg>
