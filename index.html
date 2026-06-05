@@ -4183,10 +4183,10 @@
             if (isStandalone()) {
                 splashScreen.classList.add('show');
 
-                // Auto-dismiss after 2 seconds
+                // Auto-dismiss after 2 seconds (accounting for 300ms fade-out)
                 setTimeout(() => {
                     dismissSplash();
-                }, 2000);
+                }, 1700); // 1.7s + 0.3s fade = 2s total
             }
         }
 
