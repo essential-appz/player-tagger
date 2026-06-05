@@ -17,7 +17,7 @@ Player Tagger offers a **free tier** with core game logging features, plus a **p
 - ✅ Period tracking & game management
 - ✅ Offline PWA capability
 
-### **Premium Features (€79.99/year):**
+### **Premium Features (€79/year):**
 - ⭐ **Game Reports** - Detailed analytics with top performers, shot conversion, and kickout statistics
 - ⭐ **Video Sync** - Generate FFmpeg commands to extract video clips of game events
 - ⭐ **Custom Descriptors** - Create unlimited custom event types
@@ -26,8 +26,8 @@ Player Tagger offers a **free tier** with core game logging features, plus a **p
 - ⭐ **Load Saved Games** - Restore any previous game state
 - ⭐ **Download Saved Games** - Export individual checkpoints as CSV
 
-### **14-Day Free Trial:**
-Try all premium features free for 14 days! Click the Premium badge in the app to activate your trial.
+### **7-Day Free Trial:**
+Try all premium features free for 7 days! Click the Premium badge in the app and request your trial key via email.
 
 ## Features
 
@@ -321,14 +321,19 @@ Try all premium features free for 14 days! Click the Premium badge in the app to
 
 1. Click the **Premium badge** in the app header
 2. Choose one of:
-   - **Start Free Trial** (14 days, no payment)
-   - **Enter License Key** (if you've purchased)
-3. If entering a key:
+   - **Get 7-Day Free Trial** - Opens email to request trial key
+   - **Enter License Key** - If you've received a trial or PRO key
+3. If requesting trial:
+   - Email opens with pre-filled message
+   - Send email to playertagger@pm.me
+   - Receive trial key (TRIAL-XXXX-XXXX-7D) within 24 hours
+   - Return to app and enter key
+4. If entering a key:
    - Type or paste your license key
-   - Format: PTAG-XXXX-XXXX-XXXX
+   - Format: TRIAL-XXXX-XXXX-7D or PRO-XXXX-XXXX-XXXX
    - Click "Activate License"
-4. Confirmation message appears
-5. Premium features unlock immediately
+5. Confirmation message appears
+6. Premium features unlock immediately
 
 ## Data Storage
 
@@ -390,36 +395,39 @@ Works best on modern browsers:
 
 ### **How to Get Premium:**
 
-1. **Start Free Trial** (14 days)
+1. **Request Free Trial** (7 days)
    - Click the Premium badge in the app header
-   - Click "Start Free Trial" button
-   - All premium features unlock immediately
+   - Click "Get 7-Day Free Trial" email link
+   - Send the email to request your trial key
+   - Receive trial key within 24 hours
+   - Enter key to unlock all premium features for 7 days
    - No payment required
 
 2. **Purchase License Key**
-   - Price: **€79.99 per year**
+   - Price: **€79 per year**
+   - Email us to purchase a license
+   - Receive your PRO license key
    - One license unlocks all premium features
    - Works offline after activation
    - Valid for 1 year from purchase date
 
 3. **Activate License**
    - Click the Premium badge
-   - Enter your license key (format: PTAG-XXXX-XXXX-XXXX)
+   - Enter your license key (format: TRIAL-XXXX-XXXX-7D or PRO-XXXX-XXXX-XXXX)
    - Click "Activate License"
    - Premium features unlock immediately
 
-### **License Key Details:**
+### **License Key Formats:**
+- **Trial:** TRIAL-XXXX-XXXX-7D (7 days from activation)
+- **Full License:** PRO-XXXX-XXXX-XXXX (1 year subscription)
 - Works completely offline (no internet required after activation)
-- One key per user
-- Annual subscription model
 - All data stored locally on your device
-- No recurring payments needed during active license period
 
 ### **What Happens When Trial/License Expires:**
 - Free features remain fully functional
 - Premium features become locked
 - Your saved games are preserved (but cannot load/save new ones without premium)
-- Custom descriptors revert to default 9 descriptors
+- Custom descriptors revert to default 7 descriptors
 - You can purchase a license key anytime to regain access
 
 ## Recent Updates
@@ -455,7 +463,7 @@ Works best on modern browsers:
 - 🔑 Freemium model with premium licensing
 - 🎁 14-day free trial for all premium features
 - ⭐ Premium badge showing license status
-- 💶 €79.99/year pricing for premium access
+- 💶 €79/year pricing for premium access
 - 📊 **Match Timeline**: Chronological scoring timeline with running scores
   - Half-Time and Full-Time summary rows
   - Color-coded by score type (Goals=green, 2 Pointers=amber)
@@ -508,8 +516,8 @@ Planned features may include:
 
 ## Support & Purchase
 
-- **Free Trial**: Start your 14-day trial directly in the app
-- **Purchase License**: Contact us for license key purchase (€79.99/year)
+- **Free Trial**: Request your 7-day trial key via email (click Premium badge in app)
+- **Purchase License**: Email playertagger@pm.me for license key purchase (€79/year)
 - **Technical Support**: Report issues via GitHub Issues
 - **Feature Requests**: Submit suggestions via GitHub Issues
 

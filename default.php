@@ -631,8 +631,8 @@
                 <div class="pricing-card premium">
                     <div class="popular-badge">Most Popular</div>
                     <h3>Premium</h3>
-                    <div class="price">€79.99<span>/year</span></div>
-                    <p style="color: #4CAF50; font-weight: bold; margin-bottom: 15px;">14-Day Free Trial</p>
+                    <div class="price">€79<span>/year</span></div>
+                    <p style="color: #4CAF50; font-weight: bold; margin-bottom: 15px;">7-Day Free Trial</p>
                     <ul class="features-list">
                         <li><strong>All Free features, plus:</strong></li>
                         <li>📊 Detailed Game Reports & Analytics</li>
@@ -700,13 +700,18 @@
         <div class="container" style="text-align: center;">
             <h2 class="section-title" style="color: white;">Ready to Get Started?</h2>
             <p style="font-size: 18px; max-width: 600px; margin: 0 auto 30px; opacity: 0.95;">
-                Sign up for Player Tagger today and take your game tracking to the next level.
-                Send us an email to get your license key and start your free trial.
+                Start tracking your games today with a 7-day free trial or purchase a full license.
+                Email us to get your license key.
             </p>
-            <a href="mailto:playertagger@pm.me?subject=Player%20Tagger%20Signup&body=Hi,%0A%0AI'd%20like%20to%20sign%20up%20for%20Player%20Tagger.%0A%0AName:%0ATeam/Organization:%0A"
+            <a href="mailto:playertagger@pm.me?subject=Player%20Tagger%20-%207-Day%20Free%20Trial%20Request&body=Hi,%0A%0AI'd%20like%20to%20request%20a%207-day%20free%20trial%20for%20Player%20Tagger.%0A%0AThanks!"
+               class="btn btn-secondary"
+               style="font-size: 18px; padding: 18px 40px; margin-right: 15px; background: #ff9800; border-color: #ff9800;">
+                🎁 Get 7-Day Free Trial
+            </a>
+            <a href="mailto:playertagger@pm.me?subject=Premium%20License%20Request&body=Hi,%0A%0AI'd%20like%20to%20purchase%20a%20Premium%20license%20for%20Player%20Tagger.%0A%0AName:%0ATeam/Organization:%0A"
                class="btn btn-primary"
                style="font-size: 18px; padding: 18px 40px;">
-                📧 Email Us to Sign Up
+                📧 Purchase License (€79/year)
             </a>
             <p style="margin-top: 25px; font-size: 14px; opacity: 0.8;">
                 Contact: <a href="mailto:playertagger@pm.me" style="color: white; text-decoration: underline;">playertagger@pm.me</a>
