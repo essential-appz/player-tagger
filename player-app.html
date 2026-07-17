@@ -1878,9 +1878,10 @@
                 const btn = document.createElement('button');
                 btn.className = 'descriptor-btn';
                 btn.textContent = desc;
-                // KO buttons and Update are always enabled (no player selection needed)
+                // KO buttons and Update are enabled when period is active (no player selection needed)
                 const isTeamEvent = desc.includes('KO Won') || desc.includes('KO Lost') || desc === 'Update';
-                btn.disabled = !isTeamEvent;
+                const hasActivePeriod = currentPeriod === '1st Half Started' || currentPeriod === '2nd Half Started';
+                btn.disabled = isTeamEvent ? !hasActivePeriod : true;
                 btn.onclick = () => toggleDesc(btn, desc);
                 descGrid.appendChild(btn);
             });
@@ -3456,6 +3457,9 @@
             // Update button states
             updatePeriodButtons();
 
+            // Rebuild descriptor buttons to update KO/Update button states
+            rebuildDescriptorButtons();
+
             // Handle timer based on period
             if (period === '1st Half Started') {
                 startTimer(0);
@@ -3567,6 +3571,12 @@
 
             // Handle team events (Own/Opp KO Won/Lost, Update)
             if (isTeamEvent) {
+                // Check if game has started
+                if (currentPeriod !== '1st Half Started' && currentPeriod !== '2nd Half Started') {
+                    alert('Please start 1st Half or 2nd Half before recording events!');
+                    return;
+                }
+
                 // Determine team type from descriptor
                 let teamType = null;
                 if (desc.includes('Own KO')) {
