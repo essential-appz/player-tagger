@@ -1878,7 +1878,9 @@
                 const btn = document.createElement('button');
                 btn.className = 'descriptor-btn';
                 btn.textContent = desc;
-                btn.disabled = true;
+                // KO buttons and Update are always enabled (no player selection needed)
+                const isTeamEvent = desc.includes('KO Won') || desc.includes('KO Lost') || desc === 'Update';
+                btn.disabled = !isTeamEvent;
                 btn.onclick = () => toggleDesc(btn, desc);
                 descGrid.appendChild(btn);
             });
@@ -3558,7 +3560,49 @@
         }
 
         function toggleDesc(btn, desc) {
-            if (!currentType) return;
+            // Check if this is a team event (KO or Update) that doesn't need player selection
+            const isTeamEvent = desc.includes('KO Won') || desc.includes('KO Lost') || desc === 'Update';
+
+            if (!currentType && !isTeamEvent) return;
+
+            // Handle team events (Own/Opp KO Won/Lost, Update)
+            if (isTeamEvent) {
+                // Determine team type from descriptor
+                let teamType = null;
+                if (desc.includes('Own KO')) {
+                    teamType = 'OUR';
+                } else if (desc.includes('Opp KO')) {
+                    teamType = 'OPP';
+                }
+
+                // Save team event immediately
+                const minutes = Math.floor(timerSeconds / 60);
+                const seconds = timerSeconds % 60;
+                const gameTime = String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
+
+                let event = {
+                    timestamp: new Date().toISOString(),
+                    time: gameTime,
+                    period: currentPeriod,
+                    type: teamType || 'TEAM',
+                    category: 'Team Event',
+                    descriptors: desc
+                };
+
+                events.push(event);
+                saveToStorage();
+                updateMatrix();
+                updateRecentEvents();
+                document.getElementById('eventCount').textContent = events.length;
+
+                // Flash the button to show it was recorded
+                btn.style.backgroundColor = '#4CAF50';
+                setTimeout(() => {
+                    btn.style.backgroundColor = '';
+                }, 200);
+
+                return;
+            }
 
             // Handle scoring descriptors (Goal, Point, 2 Pointer) - require Shot
             if (desc === 'Goal' || desc === 'Point' || desc === '2 Pointer') {
