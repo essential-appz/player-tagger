@@ -3713,7 +3713,31 @@
                     return;
                 }
 
-                // For Update button - save immediately
+                // For Update button - repeat the last event
+                if (events.length === 0) {
+                    alert('No events to repeat. Record an event first.');
+                    return;
+                }
+
+                const lastEvent = events[events.length - 1];
+
+                // Check if last event was a kickout event
+                if (lastEvent.descriptors && (lastEvent.descriptors.includes('KO Won') || lastEvent.descriptors.includes('KO Lost'))) {
+                    // Open pitch map modal for kickout
+                    pendingKickoutDescriptor = lastEvent.descriptors;
+                    document.getElementById('pitchMapTitle').textContent = lastEvent.descriptors + ' - Click Landing Position';
+                    document.getElementById('pitchMapModal').style.display = 'block';
+
+                    // Flash the button to show it was registered
+                    btn.style.backgroundColor = '#2196F3';
+                    setTimeout(() => {
+                        btn.style.backgroundColor = '';
+                    }, 200);
+
+                    return;
+                }
+
+                // Otherwise, repeat the player event
                 const minutes = Math.floor(timerSeconds / 60);
                 const seconds = timerSeconds % 60;
                 const gameTime = String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
@@ -3722,9 +3746,9 @@
                     timestamp: new Date().toISOString(),
                     time: gameTime,
                     period: currentPeriod,
-                    type: 'TEAM',
-                    category: 'Team Event',
-                    descriptors: desc
+                    type: lastEvent.type,
+                    category: lastEvent.category,
+                    descriptors: lastEvent.descriptors
                 };
 
                 events.push(event);
