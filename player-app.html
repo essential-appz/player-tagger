@@ -3713,58 +3713,24 @@
                     return;
                 }
 
-                // For Update button - save currently selected descriptors (if any)
-                // or repeat the last event if nothing is selected
-                if (!currentType && events.length === 0) {
-                    alert('Please select a player and descriptor, or have a previous event to repeat.');
+                // For Update button - save currently selected descriptors
+                if (!currentType || selectedDescriptors.length === 0) {
+                    alert('Please select a player and descriptor first.');
                     return;
                 }
 
-                // If descriptors are currently selected, save them
-                if (currentType && selectedDescriptors.length > 0) {
-                    saveEvent();
+                saveEvent();
 
-                    // Reset selection
-                    currentType = null;
-                    currentCategory = null;
-                    selectedDescriptors = [];
-                    document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
-                    document.querySelectorAll('.descriptor-btn').forEach(b => {
-                        b.disabled = true;
-                        b.classList.remove('selected');
-                    });
-                    document.getElementById('status').textContent = 'Ready - Select a category';
-
-                    // Flash the button to show it was recorded
-                    btn.style.backgroundColor = '#4CAF50';
-                    setTimeout(() => {
-                        btn.style.backgroundColor = '';
-                    }, 200);
-
-                    return;
-                }
-
-                // Otherwise, repeat the last event
-                const lastEvent = events[events.length - 1];
-
-                const minutes = Math.floor(timerSeconds / 60);
-                const seconds = timerSeconds % 60;
-                const gameTime = String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
-
-                let event = {
-                    timestamp: new Date().toISOString(),
-                    time: gameTime,
-                    period: currentPeriod,
-                    type: lastEvent.type,
-                    category: lastEvent.category,
-                    descriptors: lastEvent.descriptors
-                };
-
-                events.push(event);
-                saveToStorage();
-                updateMatrix();
-                updateRecentEvents();
-                document.getElementById('eventCount').textContent = events.length;
+                // Reset selection
+                currentType = null;
+                currentCategory = null;
+                selectedDescriptors = [];
+                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
+                document.querySelectorAll('.descriptor-btn').forEach(b => {
+                    b.disabled = true;
+                    b.classList.remove('selected');
+                });
+                document.getElementById('status').textContent = 'Ready - Select a category';
 
                 // Flash the button to show it was recorded
                 btn.style.backgroundColor = '#4CAF50';
