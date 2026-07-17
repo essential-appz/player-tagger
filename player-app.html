@@ -1517,7 +1517,7 @@
         // Configuration
         const categories = ['OUR 1', 'OUR 2', 'OUR 3', 'OUR 4', 'OUR 5', 'OUR 6', 'OUR 7', 'OUR 8', 'OUR 9', 'OUR 10', 'OUR 11', 'OUR 12', 'OUR 13', 'OUR 14', 'OUR 15', 'OUR 16', 'OUR 17', 'OUR 18', 'OUR 19', 'OUR 20', 'OUR 21', 'OUR 22', 'OUR 23', 'OUR 24', 'OUR 25', 'OUR 26'];
         const opponents = ['OPP 1', 'OPP 2', 'OPP 3', 'OPP 4', 'OPP 5', 'OPP 6', 'OPP 7', 'OPP 8', 'OPP 9', 'OPP 10', 'OPP 11', 'OPP 12', 'OPP 13', 'OPP 14', 'OPP 15', 'OPP 16', 'OPP 17', 'OPP 18', 'OPP 19', 'OPP 20', 'OPP 21', 'OPP 22', 'OPP 23', 'OPP 24', 'OPP 25', 'OPP 26'];
-        const defaultDescriptors = ['Shot', 'Goal', '2 Pointer', 'Point', 'T/O Won', 'Own KO Won', 'Own KO Lost'];
+        const defaultDescriptors = ['Shot', 'Goal', '2 Pointer', 'Point', 'T/O Lost', 'Own KO Won', 'Own KO Lost', 'Opp KO Won', 'Opp KO Lost'];
         let descriptors = [];
         let allDescriptors = [];
         let tempDescriptors = []; // Temporary descriptors while editing in modal
@@ -1819,7 +1819,7 @@
         function resetDescriptors() {
             if (!requirePremium('Custom Descriptors')) return;
 
-            if (!confirm('Reset to default descriptors?\n\nThis will restore:\n• Shot\n• Goal\n• 2 Pointer\n• Point\n• T/O Won\n• Own KO Won\n• Own KO Lost\n\nCustom descriptors will be removed.')) {
+            if (!confirm('Reset to default descriptors?\n\nThis will restore:\n• Shot\n• Goal\n• 2 Pointer\n• Point\n• T/O Lost\n• Own KO Won\n• Own KO Lost\n• Opp KO Won\n• Opp KO Lost\n\nCustom descriptors will be removed.')) {
                 return;
             }
 
