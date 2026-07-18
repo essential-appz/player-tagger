@@ -1955,10 +1955,9 @@
                 const btn = document.createElement('button');
                 btn.className = 'descriptor-btn';
                 btn.textContent = desc;
-                // KO buttons are enabled when period is active (no player selection needed)
+                // KO buttons are always enabled (team events, no player selection needed)
                 const isTeamEvent = desc.includes('KO Won') || desc.includes('KO Lost');
-                const hasActivePeriod = currentPeriod === '1st Half Started' || currentPeriod === '2nd Half Started';
-                btn.disabled = isTeamEvent ? !hasActivePeriod : true;
+                btn.disabled = isTeamEvent ? false : true;
                 btn.onclick = () => toggleDesc(btn, desc);
                 descGrid.appendChild(btn);
             });
