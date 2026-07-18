@@ -3956,10 +3956,12 @@
                 return;
             }
 
-            let csv = 'Event#,Timestamp,Game Time,Period,Type,Category,Descriptors\n';
+            let csv = 'Event#,Timestamp,Game Time,Period,Type,Category,Descriptors,KickoutX,KickoutY\n';
             events.forEach((e, i) => {
+                const kickoutX = e.kickoutX !== undefined ? e.kickoutX.toFixed(2) : '';
+                const kickoutY = e.kickoutY !== undefined ? e.kickoutY.toFixed(2) : '';
                 csv += (i + 1) + ',' + e.timestamp + ',' + e.time + ',' + e.period + ',' +
-                       e.type + ',' + e.category + ',"' + e.descriptors + '"\n';
+                       e.type + ',' + e.category + ',"' + e.descriptors + '",' + kickoutX + ',' + kickoutY + '\n';
             });
 
             let blob = new Blob([csv], { type: 'text/csv' });
