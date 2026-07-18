@@ -1192,6 +1192,7 @@
         <button class="control-btn warning" onclick="openReportsModal()">Reports</button>
         <button class="control-btn warning" onclick="openKOMapModal()">KO Map</button>
         <button class="control-btn warning" onclick="openVideoModal()">Video</button>
+        <button class="control-btn" onclick="runTest1()" style="background: #9C27B0;">Run Test 1</button>
     </div>
 
     <input type="file" id="csvImport" accept=".csv" style="display: none;" onchange="importCSV(event)">
@@ -3199,6 +3200,108 @@
                 // Keep game visible for review
                 loadSavedGamesList();
             }
+        }
+
+        function runTest1() {
+            console.log('=== Running Test 1 ===');
+
+            // Step 1: Clear existing data
+            clearData(true);
+            console.log('✓ Cleared existing data');
+
+            // Step 2: Initialize new game
+            team1Name = 'Test Team';
+            team2Name = 'Opposition';
+            gameName = 'Test Game 1';
+            events = [];
+            timerSeconds = 0;
+            currentPeriod = 'Not Started';
+            console.log('✓ Initialized new game');
+
+            // Step 3: Start 1st Half
+            currentPeriod = '1st Half Started';
+            startTimer(0);
+            updateClockDisplay();
+            console.log('✓ Started 1st Half');
+
+            // Advance timer by 5 seconds to simulate time passing
+            timerSeconds = 5;
+
+            // Step 4: Touch by OUR 8
+            currentType = 'OUR';
+            currentCategory = 'OUR 8';
+            selectedDescriptors = ['Touch'];
+            saveEvent();
+            console.log('✓ Touch by OUR 8');
+
+            // Step 5: Touch by OUR 11
+            currentType = 'OUR';
+            currentCategory = 'OUR 11';
+            selectedDescriptors = ['Touch'];
+            saveEvent();
+            console.log('✓ Touch by OUR 11');
+
+            // Step 6: Select OUR 14
+            currentType = 'OUR';
+            currentCategory = 'OUR 14';
+            selectedDescriptors = ['Touch'];
+            console.log('✓ Selected OUR 14');
+
+            // Step 7: Click 2-Pointer (should auto-create Shot + 2-Pointer events)
+            const twoPointerBtn = Array.from(document.querySelectorAll('.descriptor-btn')).find(b => b.textContent === '2 Pointer');
+            if (twoPointerBtn) {
+                toggleDesc(twoPointerBtn, '2 Pointer');
+                console.log('✓ Clicked 2-Pointer');
+            }
+
+            // Validation
+            let results = [];
+            results.push('=== Test Results ===');
+            results.push(`Total events logged: ${events.length}`);
+
+            // Should have 5 events: Touch (OUR 8), Touch (OUR 11), Touch (OUR 14), Shot (OUR 14), 2 Pointer (OUR 14)
+            if (events.length === 5) {
+                results.push('✓ PASS: 5 events logged (expected: 5)');
+            } else {
+                results.push(`✗ FAIL: ${events.length} events logged (expected: 5)`);
+            }
+
+            // Check for Shot event
+            const shotEvent = events.find(e => e.descriptors === 'Shot' && e.category === 'OUR 14');
+            if (shotEvent) {
+                results.push('✓ PASS: Shot event logged for OUR 14');
+            } else {
+                results.push('✗ FAIL: Shot event not found for OUR 14');
+            }
+
+            // Check for 2 Pointer event
+            const twoPointerEvent = events.find(e => e.descriptors === '2 Pointer' && e.category === 'OUR 14');
+            if (twoPointerEvent) {
+                results.push('✓ PASS: 2 Pointer event logged for OUR 14');
+            } else {
+                results.push('✗ FAIL: 2 Pointer event not found for OUR 14');
+            }
+
+            // Check KO buttons are enabled
+            const koButtons = Array.from(document.querySelectorAll('.descriptor-btn')).filter(b =>
+                b.textContent.includes('KO Won') || b.textContent.includes('KO Lost')
+            );
+            const allKOEnabled = koButtons.every(btn => !btn.disabled);
+            if (allKOEnabled) {
+                results.push('✓ PASS: KO buttons are enabled');
+            } else {
+                results.push('✗ FAIL: Some KO buttons are disabled');
+            }
+
+            // Display results
+            console.log(results.join('\n'));
+            alert(results.join('\n'));
+
+            // Update UI
+            updateMatrix();
+            updateRecentEvents();
+            document.getElementById('eventCount').textContent = events.length;
+            createButtons();
         }
 
         function createButtons() {
