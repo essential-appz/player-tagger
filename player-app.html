@@ -3886,7 +3886,9 @@
                     selectedDescriptors = [];
                     document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
                     document.querySelectorAll('.descriptor-btn').forEach(b => {
-                        b.disabled = true;
+                        // Keep KO buttons enabled
+                        const isKOButton = b.textContent.includes('KO Won') || b.textContent.includes('KO Lost');
+                        b.disabled = !isKOButton;
                         b.classList.remove('selected');
                     });
                     document.getElementById('status').textContent = 'Ready - Select a category';
@@ -3910,7 +3912,9 @@
                     selectedDescriptors = [];
                     document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
                     document.querySelectorAll('.descriptor-btn').forEach(b => {
-                        b.disabled = true;
+                        // Keep KO buttons enabled
+                        const isKOButton = b.textContent.includes('KO Won') || b.textContent.includes('KO Lost');
+                        b.disabled = !isKOButton;
                         b.classList.remove('selected');
                     });
                     document.getElementById('status').textContent = 'Ready - Select a category';
@@ -4027,7 +4031,9 @@
                 selectedDescriptors = [];
                 document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
                 document.querySelectorAll('.descriptor-btn').forEach(b => {
-                    b.disabled = true;
+                    // Keep KO buttons enabled
+                    const isKOButton = b.textContent.includes('KO Won') || b.textContent.includes('KO Lost');
+                    b.disabled = !isKOButton;
                     b.classList.remove('selected');
                 });
                 document.getElementById('status').textContent = 'Ready - Select a category';
@@ -4076,7 +4082,9 @@
                 selectedDescriptors = [];
                 document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
                 document.querySelectorAll('.descriptor-btn').forEach(b => {
-                    b.disabled = true;
+                    // Keep KO buttons enabled
+                    const isKOButton = b.textContent.includes('KO Won') || b.textContent.includes('KO Lost');
+                    b.disabled = !isKOButton;
                     b.classList.remove('selected');
                 });
                 document.getElementById('status').textContent = 'Ready - Select a category';
@@ -4133,7 +4141,9 @@
 
                 document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
                 document.querySelectorAll('.descriptor-btn').forEach(b => {
-                    b.disabled = true;
+                    // Keep KO buttons enabled
+                    const isKOButton = b.textContent.includes('KO Won') || b.textContent.includes('KO Lost');
+                    b.disabled = !isKOButton;
                     b.classList.remove('selected');
                 });
 
@@ -4265,7 +4275,9 @@
 
             document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
             document.querySelectorAll('.descriptor-btn').forEach(b => {
-                b.disabled = true;
+                // Keep KO buttons enabled
+                const isKOButton = b.textContent.includes('KO Won') || b.textContent.includes('KO Lost');
+                b.disabled = !isKOButton;
                 b.classList.remove('selected');
             });
             document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
