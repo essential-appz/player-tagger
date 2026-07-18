@@ -3868,8 +3868,20 @@
                 return;
             }
 
-            // Handle No Score button - log Shot event only
+            // Handle No Score button - log Touch + Shot events
             if (desc === 'No Score') {
+                // Save Touch event first
+                const touchEvent = {
+                    timestamp: new Date().toISOString(),
+                    time: getFormattedGameTime(),
+                    period: currentPeriod,
+                    type: currentType,
+                    category: currentCategory,
+                    descriptors: 'Touch'
+                };
+                events.push(touchEvent);
+
+                // Save Shot event
                 const shotEvent = {
                     timestamp: new Date().toISOString(),
                     time: getFormattedGameTime(),
@@ -3907,9 +3919,20 @@
                 return;
             }
 
-            // Handle scoring descriptors (Goal, Point, 2 Pointer) - auto-log shot + score events
+            // Handle scoring descriptors (Goal, Point, 2 Pointer) - auto-log touch + shot + score events
             if (desc === 'Goal' || desc === 'Point' || desc === '2 Pointer') {
-                // Save Shot event first
+                // Save Touch event first
+                const touchEvent = {
+                    timestamp: new Date().toISOString(),
+                    time: getFormattedGameTime(),
+                    period: currentPeriod,
+                    type: currentType,
+                    category: currentCategory,
+                    descriptors: 'Touch'
+                };
+                events.push(touchEvent);
+
+                // Save Shot event
                 const shotEvent = {
                     timestamp: new Date().toISOString(),
                     time: getFormattedGameTime(),
