@@ -3862,38 +3862,52 @@
                 return;
             }
 
-            // Handle scoring descriptors (Goal, Point, 2 Pointer) - require Shot
+            // Handle scoring descriptors (Goal, Point, 2 Pointer) - auto-log shot + score events
             if (desc === 'Goal' || desc === 'Point' || desc === '2 Pointer') {
-                // Auto-add Shot if not already selected
-                if (!selectedDescriptors.includes('Shot')) {
-                    selectedDescriptors.push('Shot');
-                    const shotBtn = Array.from(document.querySelectorAll('.descriptor-btn')).find(b => b.textContent === 'Shot');
-                    if (shotBtn) shotBtn.classList.add('selected');
-                }
+                // Save Shot event first
+                const shotEvent = {
+                    timestamp: new Date().toISOString(),
+                    time: getFormattedGameTime(),
+                    period: currentPeriod,
+                    type: currentType,
+                    category: currentCategory,
+                    descriptors: 'Shot'
+                };
+                events.push(shotEvent);
 
-                // Remove other scoring descriptors (only one can be selected)
-                const scoringTypes = ['Goal', 'Point', '2 Pointer'];
-                scoringTypes.forEach(type => {
-                    if (type !== desc) {
-                        const idx = selectedDescriptors.indexOf(type);
-                        if (idx > -1) selectedDescriptors.splice(idx, 1);
-                        const typeBtn = Array.from(document.querySelectorAll('.descriptor-btn')).find(b => b.textContent === type);
-                        if (typeBtn) typeBtn.classList.remove('selected');
-                    }
+                // Save Score event immediately after
+                const scoreEvent = {
+                    timestamp: new Date().toISOString(),
+                    time: getFormattedGameTime(),
+                    period: currentPeriod,
+                    type: currentType,
+                    category: currentCategory,
+                    descriptors: desc
+                };
+                events.push(scoreEvent);
+
+                saveToStorage();
+                updateMatrix();
+                updateRecentEvents();
+                document.getElementById('eventCount').textContent = events.length;
+
+                // Reset selection
+                currentType = null;
+                currentCategory = null;
+                selectedDescriptors = [];
+                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
+                document.querySelectorAll('.descriptor-btn').forEach(b => {
+                    b.disabled = true;
+                    b.classList.remove('selected');
                 });
+                document.getElementById('status').textContent = 'Ready - Select a category';
 
-                // Toggle the selected scoring descriptor
-                if (btn.classList.contains('selected')) {
-                    btn.classList.remove('selected');
-                    let idx = selectedDescriptors.indexOf(desc);
-                    if (idx > -1) selectedDescriptors.splice(idx, 1);
-                } else {
-                    btn.classList.add('selected');
-                    selectedDescriptors.push(desc);
-                }
+                // Flash the button
+                btn.style.backgroundColor = '#4CAF50';
+                setTimeout(() => {
+                    btn.style.backgroundColor = '';
+                }, 200);
 
-                document.getElementById('status').textContent =
-                    currentType + ': ' + currentCategory + ' | ' + selectedDescriptors.join(', ');
                 return;
             }
 
@@ -3952,10 +3966,14 @@
                 currentType + ': ' + currentCategory + ' | ' + selectedDescriptors.join(', ');
         }
 
-        function saveEvent() {
+        function getFormattedGameTime() {
             const minutes = Math.floor(timerSeconds / 60);
             const seconds = timerSeconds % 60;
-            const gameTime = String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
+            return String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
+        }
+
+        function saveEvent() {
+            const gameTime = getFormattedGameTime();
 
             let event = {
                 timestamp: new Date().toISOString(),
