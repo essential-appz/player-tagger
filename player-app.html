@@ -3877,12 +3877,18 @@
                 const actualIndex = events.indexOf(event);
                 const playerNum = event.category.replace('OUR ', '').replace('OPP ', '');
 
+                // Add coordinates if this is a kickout event
+                let coordsDisplay = '';
+                if (event.kickoutX !== undefined && event.kickoutY !== undefined) {
+                    coordsDisplay = ` <span style="color: #888; font-size: 0.9em;">(${event.kickoutX.toFixed(0)}, ${event.kickoutY.toFixed(0)})</span>`;
+                }
+
                 html += `
                     <div class="recent-event-item">
                         <div class="recent-event-info">
                             <span class="recent-event-time">${event.time}</span>
                             <span class="recent-event-player">${event.type} ${playerNum}</span>
-                            <span class="recent-event-desc">${event.descriptors}</span>
+                            <span class="recent-event-desc">${event.descriptors}${coordsDisplay}</span>
                         </div>
                         <button class="delete-event-btn" onclick="deleteEvent(${actualIndex})" title="Delete this event">&times;</button>
                     </div>
