@@ -3254,21 +3254,67 @@
                 console.log('✓ Clicked 2-Pointer');
             }
 
+            // Advance timer
+            timerSeconds = 10;
+
+            // Step 8: Opp KO Won - simulate kickout event with coordinates
+            pendingKickoutDescriptor = 'Opp KO Won';
+            const kickoutEvent = {
+                timestamp: new Date().toISOString(),
+                time: getFormattedGameTime(),
+                period: currentPeriod,
+                type: 'OPP',
+                category: 'Team Event',
+                descriptors: 'Opp KO Won',
+                kickoutX: 200,
+                kickoutY: 300
+            };
+            events.push(kickoutEvent);
+            saveToStorage();
+            pendingKickoutDescriptor = null;
+            console.log('✓ Opp KO Won (with coordinates)');
+
+            // Advance timer
+            timerSeconds = 15;
+
+            // Step 9: Touch by OPP 8
+            currentType = 'OPP';
+            currentCategory = 'OPP 8';
+            selectedDescriptors = ['Touch'];
+            saveEvent();
+            console.log('✓ Touch by OPP 8');
+
+            // Step 10: Touch by OPP 13
+            currentType = 'OPP';
+            currentCategory = 'OPP 13';
+            selectedDescriptors = ['Touch'];
+            saveEvent();
+            console.log('✓ Touch by OPP 13');
+
+            // Step 11: Click Point (should auto-create Shot + Point events)
+            const pointBtn = Array.from(document.querySelectorAll('.descriptor-btn')).find(b => b.textContent === 'Point');
+            if (pointBtn) {
+                toggleDesc(pointBtn, 'Point');
+                console.log('✓ Clicked Point for OPP 13');
+            }
+
             // Validation
             let results = [];
             results.push('=== Test Results ===');
             results.push(`Total events logged: ${events.length}`);
 
-            // Should have 5 events: Touch (OUR 8), Touch (OUR 11), Touch (OUR 14), Shot (OUR 14), 2 Pointer (OUR 14)
-            if (events.length === 5) {
-                results.push('✓ PASS: 5 events logged (expected: 5)');
+            // Should have 11 events:
+            // Touch (OUR 8), Touch (OUR 11), Touch (OUR 14), Shot (OUR 14), 2 Pointer (OUR 14)
+            // Opp KO Won, Touch (OPP 8), Touch (OPP 13), Shot (OPP 13), Point (OPP 13)
+            if (events.length === 11) {
+                results.push('✓ PASS: 11 events logged (expected: 11)');
             } else {
-                results.push(`✗ FAIL: ${events.length} events logged (expected: 5)`);
+                results.push(`✗ FAIL: ${events.length} events logged (expected: 11)`);
             }
 
-            // Check for Shot event
-            const shotEvent = events.find(e => e.descriptors === 'Shot' && e.category === 'OUR 14');
-            if (shotEvent) {
+            // Check for OUR Shot event
+            const ourShotEvent = events.find(e => e.descriptors === 'Shot' && e.category === 'OUR 14');
+            if (ourShotEvent) {
                 results.push('✓ PASS: Shot event logged for OUR 14');
             } else {
                 results.push('✗ FAIL: Shot event not found for OUR 14');
@@ -3280,6 +3326,30 @@
                 results.push('✓ PASS: 2 Pointer event logged for OUR 14');
             } else {
                 results.push('✗ FAIL: 2 Pointer event not found for OUR 14');
+            }
+
+            // Check for Opp KO Won event
+            const oppKOEvent = events.find(e => e.descriptors === 'Opp KO Won' && e.kickoutX && e.kickoutY);
+            if (oppKOEvent) {
+                results.push('✓ PASS: Opp KO Won event logged with coordinates');
+            } else {
+                results.push('✗ FAIL: Opp KO Won event not found or missing coordinates');
+            }
+
+            // Check for OPP Shot event
+            const oppShotEvent = events.find(e => e.descriptors === 'Shot' && e.category === 'OPP 13');
+            if (oppShotEvent) {
+                results.push('✓ PASS: Shot event logged for OPP 13');
+            } else {
+                results.push('✗ FAIL: Shot event not found for OPP 13');
+            }
+
+            // Check for Point event
+            const pointEvent = events.find(e => e.descriptors === 'Point' && e.category === 'OPP 13');
+            if (pointEvent) {
+                results.push('✓ PASS: Point event logged for OPP 13');
+            } else {
+                results.push('✗ FAIL: Point event not found for OPP 13');
             }
 
             // Check KO buttons are enabled
@@ -3298,10 +3368,12 @@
             alert(results.join('\n'));
 
             // Update UI
+            document.getElementById('currentPeriod').textContent = currentPeriod;
             updateMatrix();
             updateRecentEvents();
             document.getElementById('eventCount').textContent = events.length;
             createButtons();
+            saveToStorage();
         }
 
         function createButtons() {
