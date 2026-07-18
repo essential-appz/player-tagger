@@ -1592,7 +1592,7 @@
         // Configuration
         const categories = ['OUR 1', 'OUR 2', 'OUR 3', 'OUR 4', 'OUR 5', 'OUR 6', 'OUR 7', 'OUR 8', 'OUR 9', 'OUR 10', 'OUR 11', 'OUR 12', 'OUR 13', 'OUR 14', 'OUR 15', 'OUR 16', 'OUR 17', 'OUR 18', 'OUR 19', 'OUR 20', 'OUR 21', 'OUR 22', 'OUR 23', 'OUR 24', 'OUR 25', 'OUR 26'];
         const opponents = ['OPP 1', 'OPP 2', 'OPP 3', 'OPP 4', 'OPP 5', 'OPP 6', 'OPP 7', 'OPP 8', 'OPP 9', 'OPP 10', 'OPP 11', 'OPP 12', 'OPP 13', 'OPP 14', 'OPP 15', 'OPP 16', 'OPP 17', 'OPP 18', 'OPP 19', 'OPP 20', 'OPP 21', 'OPP 22', 'OPP 23', 'OPP 24', 'OPP 25', 'OPP 26'];
-        const defaultDescriptors = ['Shot', 'Goal', '2 Pointer', 'Point', 'T/O Lost', 'Own KO Won', 'Own KO Lost', 'Update', 'Opp KO Won', 'Opp KO Lost'];
+        const defaultDescriptors = ['Shot', 'Goal', '2 Pointer', 'Point', 'No Score', 'Own KO Won', 'Own KO Lost', 'T/O Lost', 'Opp KO Won', 'Opp KO Lost'];
         let descriptors = [];
         let allDescriptors = [];
         let tempDescriptors = []; // Temporary descriptors while editing in modal
@@ -1896,7 +1896,7 @@
         function resetDescriptors() {
             if (!requirePremium('Custom Descriptors')) return;
 
-            if (!confirm('Reset to default descriptors?\n\nThis will restore:\n• Shot\n• Goal\n• 2 Pointer\n• Point\n• T/O Lost\n• Own KO Won\n• Own KO Lost\n• Update\n• Opp KO Won\n• Opp KO Lost\n\nCustom descriptors will be removed.')) {
+            if (!confirm('Reset to default descriptors?\n\nThis will restore:\n• Shot\n• Goal\n• 2 Pointer\n• Point\n• No Score\n• Own KO Won\n• Own KO Lost\n• T/O Lost\n• Opp KO Won\n• Opp KO Lost\n\nCustom descriptors will be removed.')) {
                 return;
             }
 
@@ -1955,8 +1955,8 @@
                 const btn = document.createElement('button');
                 btn.className = 'descriptor-btn';
                 btn.textContent = desc;
-                // KO buttons and Update are enabled when period is active (no player selection needed)
-                const isTeamEvent = desc.includes('KO Won') || desc.includes('KO Lost') || desc === 'Update';
+                // KO buttons are enabled when period is active (no player selection needed)
+                const isTeamEvent = desc.includes('KO Won') || desc.includes('KO Lost');
                 const hasActivePeriod = currentPeriod === '1st Half Started' || currentPeriod === '2nd Half Started';
                 btn.disabled = isTeamEvent ? !hasActivePeriod : true;
                 btn.onclick = () => toggleDesc(btn, desc);
@@ -3803,12 +3803,12 @@
         }
 
         function toggleDesc(btn, desc) {
-            // Check if this is a team event (KO or Update) that doesn't need player selection
-            const isTeamEvent = desc.includes('KO Won') || desc.includes('KO Lost') || desc === 'Update';
+            // Check if this is a team event (KO) that doesn't need player selection
+            const isTeamEvent = desc.includes('KO Won') || desc.includes('KO Lost');
 
             if (!currentType && !isTeamEvent) return;
 
-            // Handle team events (Own/Opp KO Won/Lost, Update)
+            // Handle team events (Own/Opp KO Won/Lost)
             if (isTeamEvent) {
                 // Check if game has started
                 if (currentPeriod !== '1st Half Started' && currentPeriod !== '2nd Half Started') {
@@ -3816,31 +3816,36 @@
                     return;
                 }
 
-                // Check if this is a KO event (needs pitch map) or Update button (immediate save)
-                const isKickoutEvent = desc.includes('KO Won') || desc.includes('KO Lost');
+                // Store the descriptor and open pitch map modal
+                pendingKickoutDescriptor = desc;
+                document.getElementById('pitchMapTitle').textContent = desc + ' - Click Landing Position';
+                document.getElementById('pitchMapModal').style.display = 'block';
 
-                if (isKickoutEvent) {
-                    // Store the descriptor and open pitch map modal
-                    pendingKickoutDescriptor = desc;
-                    document.getElementById('pitchMapTitle').textContent = desc + ' - Click Landing Position';
-                    document.getElementById('pitchMapModal').style.display = 'block';
+                // Flash the button to show it was registered
+                btn.style.backgroundColor = '#2196F3';
+                setTimeout(() => {
+                    btn.style.backgroundColor = '';
+                }, 200);
 
-                    // Flash the button to show it was registered
-                    btn.style.backgroundColor = '#2196F3';
-                    setTimeout(() => {
-                        btn.style.backgroundColor = '';
-                    }, 200);
+                return;
+            }
 
-                    return;
-                }
+            // Handle No Score button - log Shot event only
+            if (desc === 'No Score') {
+                const shotEvent = {
+                    timestamp: new Date().toISOString(),
+                    time: getFormattedGameTime(),
+                    period: currentPeriod,
+                    type: currentType,
+                    category: currentCategory,
+                    descriptors: 'Shot'
+                };
+                events.push(shotEvent);
 
-                // For Update button - save currently selected descriptors
-                if (!currentType || selectedDescriptors.length === 0) {
-                    alert('Please select a player and descriptor first.');
-                    return;
-                }
-
-                saveEvent();
+                saveToStorage();
+                updateMatrix();
+                updateRecentEvents();
+                document.getElementById('eventCount').textContent = events.length;
 
                 // Reset selection
                 currentType = null;
@@ -3853,7 +3858,7 @@
                 });
                 document.getElementById('status').textContent = 'Ready - Select a category';
 
-                // Flash the button to show it was recorded
+                // Flash the button
                 btn.style.backgroundColor = '#4CAF50';
                 setTimeout(() => {
                     btn.style.backgroundColor = '';
