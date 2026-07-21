@@ -870,6 +870,38 @@
             color: #333;
         }
 
+        .collapsible-header {
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 0;
+        }
+
+        .collapsible-header:hover {
+            opacity: 0.8;
+        }
+
+        .collapsible-icon {
+            font-size: 14px;
+            transition: transform 0.3s;
+        }
+
+        .collapsible-icon.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .collapsible-content {
+            max-height: 1000px;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .collapsible-content.collapsed {
+            max-height: 0;
+        }
+
         .report-table {
             width: 100%;
             border-collapse: collapse;
@@ -1211,6 +1243,7 @@
         <button class="control-btn warning" onclick="openTimeline()">Timeline</button>
         <button class="control-btn warning" onclick="openReportsModal()">Reports</button>
         <button class="control-btn warning" onclick="openKOMapModal()">KO Map</button>
+        <button class="control-btn warning" onclick="openTOMapModal()">T/O Map</button>
         <button class="control-btn warning" onclick="openVideoModal()">Video</button>
     </div>
 
@@ -1378,6 +1411,17 @@
                 <button class="modal-close" onclick="closeKOMapModal()">&times;</button>
             </div>
             <div id="koMapContent"></div>
+        </div>
+    </div>
+
+    <!-- T/O Map Modal -->
+    <div id="toMapModal" class="modal">
+        <div class="modal-content timeline-modal">
+            <div class="modal-header">
+                <h2>Turnover Distribution Map</h2>
+                <button class="modal-close" onclick="closeTOMapModal()">&times;</button>
+            </div>
+            <div id="toMapContent"></div>
         </div>
     </div>
 
@@ -1640,6 +1684,8 @@
         let isTrialActive = false;
         // Kickout pitch map state
         let pendingKickoutDescriptor = null;
+        // Turnover pitch map state
+        let pendingTurnoverEvent = null;
         let trialDaysRemaining = 0;
 
         // Initialize
@@ -2162,6 +2208,112 @@
             `;
         }
 
+        function openTOMapModal() {
+            // Filter turnover events with coordinates
+            const turnovers = events.filter(e =>
+                e.turnoverX !== undefined &&
+                e.turnoverY !== undefined &&
+                e.descriptors.includes('T/O Lost')
+            );
+
+            if (turnovers.length === 0) {
+                alert('No turnover location data to display!');
+                return;
+            }
+
+            generateTOMap(turnovers);
+            document.getElementById('toMapModal').classList.add('active');
+        }
+
+        function closeTOMapModal() {
+            document.getElementById('toMapModal').classList.remove('active');
+        }
+
+        function generateTOMap(turnovers) {
+            const toMapContent = document.getElementById('toMapContent');
+
+            // Separate turnovers by team
+            const ourTurnovers = turnovers.filter(e => e.type === 'OUR');
+            const oppTurnovers = turnovers.filter(e => e.type === 'OPP');
+
+            let html = `
+                <div style="padding: 20px;">
+                    <h3 style="text-align: center; margin-bottom: 20px;">${team1Name} Turnovers Lost (${ourTurnovers.length})</h3>
+                    ${generateTurnoverPitchSVG(ourTurnovers)}
+
+                    <hr style="margin: 40px 0; border: none; border-top: 2px solid #e0e0e0;">
+
+                    <h3 style="text-align: center; margin-bottom: 20px;">${team2Name} Turnovers Lost (${oppTurnovers.length})</h3>
+                    ${generateTurnoverPitchSVG(oppTurnovers)}
+                </div>
+            `;
+
+            toMapContent.innerHTML = html;
+        }
+
+        function generateTurnoverPitchSVG(turnovers) {
+            // Generate individual markers for each turnover
+            const markers = turnovers.map((event) => {
+                const x = event.turnoverX;
+                const y = event.turnoverY;
+
+                if (!x || !y) return '';
+
+                // Use red color for turnovers lost
+                const color = '#f44336';
+
+                return `<circle cx="${x}" cy="${y}" r="8" fill="${color}" stroke="white" stroke-width="2" opacity="0.8"/>`;
+            }).join('\n');
+
+            return `
+                <svg viewBox="0 0 400 600" style="width: 100%; max-width: 400px; margin: 0 auto; display: block;">
+                    <!-- Field background -->
+                    <rect width="400" height="600" fill="#4CAF50"/>
+
+                    <!-- Field lines -->
+                    <rect x="10" y="10" width="380" height="580" fill="none" stroke="white" stroke-width="3"/>
+
+                    <!-- Goal areas -->
+                    <rect x="130" y="10" width="140" height="60" fill="none" stroke="white" stroke-width="2"/>
+                    <rect x="130" y="530" width="140" height="60" fill="none" stroke="white" stroke-width="2"/>
+
+                    <!-- Small rectangles (goal box) -->
+                    <rect x="170" y="10" width="60" height="30" fill="none" stroke="white" stroke-width="2"/>
+                    <rect x="170" y="560" width="60" height="30" fill="none" stroke="white" stroke-width="2"/>
+
+                    <!-- Halfway line -->
+                    <line x1="10" y1="300" x2="390" y2="300" stroke="white" stroke-width="2" stroke-dasharray="10,5"/>
+
+                    <!-- 45m lines -->
+                    <line x1="10" y1="200" x2="390" y2="200" stroke="white" stroke-width="2"/>
+                    <line x1="10" y1="400" x2="390" y2="400" stroke="white" stroke-width="2"/>
+
+                    <!-- 21m arcs -->
+                    <path d="M 80 70 Q 200 100 320 70" fill="none" stroke="white" stroke-width="2"/>
+                    <path d="M 80 530 Q 200 500 320 530" fill="none" stroke="white" stroke-width="2"/>
+
+                    <!-- Goals -->
+                    <rect x="185" y="5" width="30" height="10" fill="white" stroke="black" stroke-width="1"/>
+                    <rect x="185" y="585" width="30" height="10" fill="white" stroke="black" stroke-width="1"/>
+
+                    <!-- Individual turnover markers -->
+                    ${markers}
+
+                    <!-- Direction arrow -->
+                    <g transform="translate(360, 300)">
+                        <line x1="0" y1="60" x2="0" y2="-60" stroke="white" stroke-width="3" opacity="0.7"/>
+                        <polygon points="0,-60 -8,-50 8,-50" fill="white" opacity="0.7"/>
+                    </g>
+
+                    <!-- Legend -->
+                    <g transform="translate(20, 560)">
+                        <circle cx="0" cy="0" r="8" fill="#f44336" opacity="0.8"/>
+                        <text x="15" y="5" fill="white" font-size="12" font-weight="bold">T/O Lost</text>
+                    </g>
+                </svg>
+            `;
+        }
+
         function openVideoModal() {
             if (!requirePremium('Video Sync')) return;
 
@@ -2381,10 +2533,11 @@
         function closePitchMapModal() {
             document.getElementById('pitchMapModal').style.display = 'none';
             pendingKickoutDescriptor = null;
+            pendingTurnoverEvent = null;
         }
 
         function handlePitchMapClick(event) {
-            if (!pendingKickoutDescriptor) return;
+            if (!pendingKickoutDescriptor && !pendingTurnoverEvent) return;
 
             const svg = document.getElementById('pitchMapSvg');
             const rect = svg.getBoundingClientRect();
@@ -2397,31 +2550,70 @@
             const viewBoxX = (x / rect.width) * 400;
             const viewBoxY = (y / rect.height) * 600;
 
-            // Determine team type from descriptor
-            let teamType = null;
-            if (pendingKickoutDescriptor.includes('Own KO')) {
-                teamType = 'OUR';
-            } else if (pendingKickoutDescriptor.includes('Opp KO')) {
-                teamType = 'OPP';
-            }
-
-            // Create and save the kickout event with coordinates
             const minutes = Math.floor(timerSeconds / 60);
             const seconds = timerSeconds % 60;
             const gameTime = String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
 
-            let kickoutEvent = {
-                timestamp: new Date().toISOString(),
-                time: gameTime,
-                period: currentPeriod,
-                type: teamType || 'TEAM',
-                category: 'Team Event',
-                descriptors: pendingKickoutDescriptor,
-                kickoutX: viewBoxX,
-                kickoutY: viewBoxY
-            };
+            if (pendingKickoutDescriptor) {
+                // Handle kickout event
+                let teamType = null;
+                if (pendingKickoutDescriptor.includes('Own KO')) {
+                    teamType = 'OUR';
+                } else if (pendingKickoutDescriptor.includes('Opp KO')) {
+                    teamType = 'OPP';
+                }
 
-            events.push(kickoutEvent);
+                let kickoutEvent = {
+                    timestamp: new Date().toISOString(),
+                    time: gameTime,
+                    period: currentPeriod,
+                    type: teamType || 'TEAM',
+                    category: 'Team Event',
+                    descriptors: pendingKickoutDescriptor,
+                    kickoutX: viewBoxX,
+                    kickoutY: viewBoxY
+                };
+
+                events.push(kickoutEvent);
+            } else if (pendingTurnoverEvent) {
+                // Handle turnover event (player event with location)
+                // Save Touch event first
+                const touchEvent = {
+                    timestamp: new Date().toISOString(),
+                    time: gameTime,
+                    period: currentPeriod,
+                    type: pendingTurnoverEvent.type,
+                    category: pendingTurnoverEvent.category,
+                    descriptors: 'Touch'
+                };
+                events.push(touchEvent);
+
+                // Save T/O Lost event with coordinates
+                const turnoverEvent = {
+                    timestamp: new Date().toISOString(),
+                    time: gameTime,
+                    period: currentPeriod,
+                    type: pendingTurnoverEvent.type,
+                    category: pendingTurnoverEvent.category,
+                    descriptors: pendingTurnoverEvent.descriptor,
+                    turnoverX: viewBoxX,
+                    turnoverY: viewBoxY
+                };
+                events.push(turnoverEvent);
+
+                // Reset selection after T/O Lost
+                currentType = null;
+                currentCategory = null;
+                selectedDescriptors = [];
+                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
+                document.querySelectorAll('.descriptor-btn').forEach(b => {
+                    const isKOButton = b.textContent.includes('KO Won') || b.textContent.includes('KO Lost');
+                    b.disabled = !isKOButton;
+                    b.classList.remove('selected');
+                });
+                document.getElementById('status').textContent = 'Ready - Select a category';
+            }
+
             saveToStorage();
             updateMatrix();
             updateRecentEvents();
@@ -2686,49 +2878,6 @@
             html += '</table>';
             html += '</div>';
 
-            // Possession
-            const possessionStats1st = getPossessionStats('1st');
-            const possessionStats2nd = getPossessionStats('2nd');
-            const possessionStatsTotal = getPossessionStats();
-            html += '<div class="report-section">';
-            html += '<h3>Possession</h3>';
-            html += '<table class="report-table">';
-            html += '<tr><th rowspan="2">Team</th><th colspan="2">1st Half</th><th colspan="2" style="border-left: 2px solid #ddd">2nd Half</th><th colspan="2" style="border-left: 2px solid #ddd">Total</th></tr>';
-            html += '<tr><th>Time</th><th>%</th><th style="border-left: 2px solid #ddd">Time</th><th>%</th><th style="border-left: 2px solid #ddd">Time</th><th>%</th></tr>';
-            html += '<tr>';
-            html += '<td>' + team1Name + '</td>';
-            html += '<td>' + possessionStats1st.ourTimeFormatted + '</td>';
-            html += '<td>' + possessionStats1st.ourPercent + '%</td>';
-            html += '<td style="border-left: 2px solid #ddd">' + possessionStats2nd.ourTimeFormatted + '</td>';
-            html += '<td>' + possessionStats2nd.ourPercent + '%</td>';
-            html += '<td style="border-left: 2px solid #ddd">' + possessionStatsTotal.ourTimeFormatted + '</td>';
-            html += '<td>' + possessionStatsTotal.ourPercent + '%</td>';
-            html += '</tr>';
-            html += '<tr>';
-            html += '<td>' + team2Name + '</td>';
-            html += '<td>' + possessionStats1st.oppTimeFormatted + '</td>';
-            html += '<td>' + possessionStats1st.oppPercent + '%</td>';
-            html += '<td style="border-left: 2px solid #ddd">' + possessionStats2nd.oppTimeFormatted + '</td>';
-            html += '<td>' + possessionStats2nd.oppPercent + '%</td>';
-            html += '<td style="border-left: 2px solid #ddd">' + possessionStatsTotal.oppTimeFormatted + '</td>';
-            html += '<td>' + possessionStatsTotal.oppPercent + '%</td>';
-            html += '</tr>';
-            html += '</table>';
-            html += '</div>';
-
-            // Top 3 Possessions - OUR
-            const ourStats = getPlayerStats('OUR');
-            html += '<div class="report-section">';
-            html += '<h3>' + team1Name + ' - Top 3 Possessions</h3>';
-            html += '<table class="report-table">';
-            html += '<tr><th>Player Number</th><th>Possessions</th></tr>';
-            ourStats.slice(0, 3).forEach(player => {
-                const playerNum = player.category.replace('OUR ', '');
-                html += '<tr><td>' + playerNum + '</td><td>' + player.touches + '</td></tr>';
-            });
-            html += '</table>';
-            html += '</div>';
-
             // Top 3 Scorers - OUR
             const ourScorers = getPlayerStats('OUR')
                 .filter(p => p.goals > 0 || p.points > 0 || p.twoPointers > 0)
@@ -2749,19 +2898,6 @@
             if (ourScorers.length === 0) {
                 html += '<tr><td colspan="5" style="text-align: center; color: #999;">No scoring events</td></tr>';
             }
-            html += '</table>';
-            html += '</div>';
-
-            // Top 3 Possessions - OPP
-            const oppStats = getPlayerStats('OPP');
-            html += '<div class="report-section">';
-            html += '<h3>' + team2Name + ' - Top 3 Possessions</h3>';
-            html += '<table class="report-table">';
-            html += '<tr><th>Player Number</th><th>Possessions</th></tr>';
-            oppStats.slice(0, 3).forEach(player => {
-                const playerNum = player.category.replace('OPP ', '');
-                html += '<tr><td>' + playerNum + '</td><td>' + player.touches + '</td></tr>';
-            });
             html += '</table>';
             html += '</div>';
 
@@ -2786,6 +2922,77 @@
                 html += '<tr><td colspan="5" style="text-align: center; color: #999;">No scoring events</td></tr>';
             }
             html += '</table>';
+            html += '</div>';
+
+            // Possession
+            const possessionStats1st = getPossessionStats('1st');
+            const possessionStats2nd = getPossessionStats('2nd');
+            const possessionStatsTotal = getPossessionStats();
+            html += '<div class="report-section">';
+            html += '<div class="collapsible-header" onclick="toggleCollapsible(this)">';
+            html += '<h3 style="margin: 0;">Possession</h3>';
+            html += '<span class="collapsible-icon collapsed">▼</span>';
+            html += '</div>';
+            html += '<div class="collapsible-content collapsed">';
+            html += '<table class="report-table">';
+            html += '<tr><th rowspan="2">Team</th><th colspan="2">1st Half</th><th colspan="2" style="border-left: 2px solid #ddd">2nd Half</th><th colspan="2" style="border-left: 2px solid #ddd">Total</th></tr>';
+            html += '<tr><th>Time</th><th>%</th><th style="border-left: 2px solid #ddd">Time</th><th>%</th><th style="border-left: 2px solid #ddd">Time</th><th>%</th></tr>';
+            html += '<tr>';
+            html += '<td>' + team1Name + '</td>';
+            html += '<td>' + possessionStats1st.ourTimeFormatted + '</td>';
+            html += '<td>' + possessionStats1st.ourPercent + '%</td>';
+            html += '<td style="border-left: 2px solid #ddd">' + possessionStats2nd.ourTimeFormatted + '</td>';
+            html += '<td>' + possessionStats2nd.ourPercent + '%</td>';
+            html += '<td style="border-left: 2px solid #ddd">' + possessionStatsTotal.ourTimeFormatted + '</td>';
+            html += '<td>' + possessionStatsTotal.ourPercent + '%</td>';
+            html += '</tr>';
+            html += '<tr>';
+            html += '<td>' + team2Name + '</td>';
+            html += '<td>' + possessionStats1st.oppTimeFormatted + '</td>';
+            html += '<td>' + possessionStats1st.oppPercent + '%</td>';
+            html += '<td style="border-left: 2px solid #ddd">' + possessionStats2nd.oppTimeFormatted + '</td>';
+            html += '<td>' + possessionStats2nd.oppPercent + '%</td>';
+            html += '<td style="border-left: 2px solid #ddd">' + possessionStatsTotal.oppTimeFormatted + '</td>';
+            html += '<td>' + possessionStatsTotal.oppPercent + '%</td>';
+            html += '</tr>';
+            html += '</table>';
+            html += '</div>';
+            html += '</div>';
+
+            // Top 3 Possessions - OUR
+            const ourStats = getPlayerStats('OUR');
+            html += '<div class="report-section">';
+            html += '<div class="collapsible-header" onclick="toggleCollapsible(this)">';
+            html += '<h3 style="margin: 0;">' + team1Name + ' - Top 3 Possessions</h3>';
+            html += '<span class="collapsible-icon collapsed">▼</span>';
+            html += '</div>';
+            html += '<div class="collapsible-content collapsed">';
+            html += '<table class="report-table">';
+            html += '<tr><th>Player Number</th><th>Possessions</th></tr>';
+            ourStats.slice(0, 3).forEach(player => {
+                const playerNum = player.category.replace('OUR ', '');
+                html += '<tr><td>' + playerNum + '</td><td>' + player.touches + '</td></tr>';
+            });
+            html += '</table>';
+            html += '</div>';
+            html += '</div>';
+
+            // Top 3 Possessions - OPP
+            const oppStats = getPlayerStats('OPP');
+            html += '<div class="report-section">';
+            html += '<div class="collapsible-header" onclick="toggleCollapsible(this)">';
+            html += '<h3 style="margin: 0;">' + team2Name + ' - Top 3 Possessions</h3>';
+            html += '<span class="collapsible-icon collapsed">▼</span>';
+            html += '</div>';
+            html += '<div class="collapsible-content collapsed">';
+            html += '<table class="report-table">';
+            html += '<tr><th>Player Number</th><th>Possessions</th></tr>';
+            oppStats.slice(0, 3).forEach(player => {
+                const playerNum = player.category.replace('OPP ', '');
+                html += '<tr><td>' + playerNum + '</td><td>' + player.touches + '</td></tr>';
+            });
+            html += '</table>';
+            html += '</div>';
             html += '</div>';
 
             reportsContent.innerHTML = html;
@@ -3011,6 +3218,14 @@
                 ourPercent: ourPercent,
                 oppPercent: oppPercent
             };
+        }
+
+        function toggleCollapsible(headerElement) {
+            const content = headerElement.nextElementSibling;
+            const icon = headerElement.querySelector('.collapsible-icon');
+
+            content.classList.toggle('collapsed');
+            icon.classList.toggle('collapsed');
         }
 
         function updateGameName() {
@@ -3912,6 +4127,26 @@
 
                 // Flash the button
                 btn.style.backgroundColor = '#4CAF50';
+                setTimeout(() => {
+                    btn.style.backgroundColor = '';
+                }, 200);
+
+                return;
+            }
+
+            // Handle T/O Lost - log with location
+            if (desc === 'T/O Lost') {
+                // Store event details and open pitch map modal
+                pendingTurnoverEvent = {
+                    descriptor: desc,
+                    type: currentType,
+                    category: currentCategory
+                };
+                document.getElementById('pitchMapTitle').textContent = 'T/O Lost - Click Location';
+                document.getElementById('pitchMapModal').style.display = 'block';
+
+                // Flash the button to show it was registered
+                btn.style.backgroundColor = '#2196F3';
                 setTimeout(() => {
                     btn.style.backgroundColor = '';
                 }, 200);
