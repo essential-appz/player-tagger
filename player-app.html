@@ -1243,6 +1243,7 @@
         <button class="control-btn warning" onclick="openTimeline()">Timeline</button>
         <button class="control-btn warning" onclick="openReportsModal()">Reports</button>
         <button class="control-btn warning" onclick="openKOMapModal()">KO Map</button>
+        <button class="control-btn warning" onclick="openShotMapModal()">Shot Map</button>
         <button class="control-btn warning" onclick="openTOMapModal()">T/O Map</button>
         <button class="control-btn warning" onclick="openVideoModal()">Video</button>
     </div>
@@ -1422,6 +1423,17 @@
                 <button class="modal-close" onclick="closeTOMapModal()">&times;</button>
             </div>
             <div id="toMapContent"></div>
+        </div>
+    </div>
+
+    <!-- Shot Map Modal -->
+    <div id="shotMapModal" class="modal">
+        <div class="modal-content timeline-modal">
+            <div class="modal-header">
+                <h2>Shot Distribution Map</h2>
+                <button class="modal-close" onclick="closeShotMapModal()">&times;</button>
+            </div>
+            <div id="shotMapContent"></div>
         </div>
     </div>
 
@@ -1686,6 +1698,8 @@
         let pendingKickoutDescriptor = null;
         // Turnover pitch map state
         let pendingTurnoverEvent = null;
+        // Shot pitch map state
+        let pendingShotEvent = null;
         let trialDaysRemaining = 0;
 
         // Initialize
@@ -2314,6 +2328,134 @@
             `;
         }
 
+        function openShotMapModal() {
+            // Filter shot events with coordinates
+            const shots = events.filter(e =>
+                e.shotX !== undefined &&
+                e.shotY !== undefined &&
+                e.descriptors === 'Shot'
+            );
+
+            if (shots.length === 0) {
+                alert('No shot location data to display!');
+                return;
+            }
+
+            generateShotMap(shots);
+            document.getElementById('shotMapModal').classList.add('active');
+        }
+
+        function closeShotMapModal() {
+            document.getElementById('shotMapModal').classList.remove('active');
+        }
+
+        function generateShotMap(shots) {
+            const shotMapContent = document.getElementById('shotMapContent');
+
+            // Separate shots by team
+            const ourShots = shots.filter(e => e.type === 'OUR');
+            const oppShots = shots.filter(e => e.type === 'OPP');
+
+            let html = `
+                <div style="padding: 20px;">
+                    <h3 style="text-align: center; margin-bottom: 20px;">${team1Name} Shots (${ourShots.length})</h3>
+                    ${generateShotPitchSVG(ourShots)}
+
+                    <hr style="margin: 40px 0; border: none; border-top: 2px solid #e0e0e0;">
+
+                    <h3 style="text-align: center; margin-bottom: 20px;">${team2Name} Shots (${oppShots.length})</h3>
+                    ${generateShotPitchSVG(oppShots)}
+                </div>
+            `;
+
+            shotMapContent.innerHTML = html;
+        }
+
+        function generateShotPitchSVG(shots) {
+            // Generate individual markers for each shot
+            const markers = shots.map((shot) => {
+                const x = shot.shotX;
+                const y = shot.shotY;
+
+                if (!x || !y) return '';
+
+                // Determine color based on shot result
+                // Check the next event to see what happened
+                const shotIndex = events.indexOf(shot);
+                let color = '#f44336'; // Default: No Score (red)
+
+                if (shotIndex < events.length - 1) {
+                    const nextEvent = events[shotIndex + 1];
+                    if (nextEvent.descriptors === 'Goal') {
+                        color = '#4CAF50'; // Goal (green)
+                    } else if (nextEvent.descriptors === 'Point') {
+                        color = '#ffffff'; // Point (white)
+                    } else if (nextEvent.descriptors === '2 Pointer') {
+                        color = '#ff9800'; // 2 Pointer (orange)
+                    }
+                }
+
+                return `<circle cx="${x}" cy="${y}" r="8" fill="${color}" stroke="white" stroke-width="2" opacity="0.8"/>`;
+            }).join('\n');
+
+            return `
+                <svg viewBox="0 0 400 600" style="width: 100%; max-width: 400px; margin: 0 auto; display: block;">
+                    <!-- Field background -->
+                    <rect width="400" height="600" fill="#4CAF50"/>
+
+                    <!-- Field lines -->
+                    <rect x="10" y="10" width="380" height="580" fill="none" stroke="white" stroke-width="3"/>
+
+                    <!-- Goal areas -->
+                    <rect x="130" y="10" width="140" height="60" fill="none" stroke="white" stroke-width="2"/>
+                    <rect x="130" y="530" width="140" height="60" fill="none" stroke="white" stroke-width="2"/>
+
+                    <!-- Small rectangles (goal box) -->
+                    <rect x="170" y="10" width="60" height="30" fill="none" stroke="white" stroke-width="2"/>
+                    <rect x="170" y="560" width="60" height="30" fill="none" stroke="white" stroke-width="2"/>
+
+                    <!-- Halfway line -->
+                    <line x1="10" y1="300" x2="390" y2="300" stroke="white" stroke-width="2" stroke-dasharray="10,5"/>
+
+                    <!-- 45m lines -->
+                    <line x1="10" y1="200" x2="390" y2="200" stroke="white" stroke-width="2"/>
+                    <line x1="10" y1="400" x2="390" y2="400" stroke="white" stroke-width="2"/>
+
+                    <!-- 21m arcs -->
+                    <path d="M 80 70 Q 200 100 320 70" fill="none" stroke="white" stroke-width="2"/>
+                    <path d="M 80 530 Q 200 500 320 530" fill="none" stroke="white" stroke-width="2"/>
+
+                    <!-- Goals -->
+                    <rect x="185" y="5" width="30" height="10" fill="white" stroke="black" stroke-width="1"/>
+                    <rect x="185" y="585" width="30" height="10" fill="white" stroke="black" stroke-width="1"/>
+
+                    <!-- Individual shot markers -->
+                    ${markers}
+
+                    <!-- Direction arrow -->
+                    <g transform="translate(360, 300)">
+                        <line x1="0" y1="60" x2="0" y2="-60" stroke="white" stroke-width="3" opacity="0.7"/>
+                        <polygon points="0,-60 -8,-50 8,-50" fill="white" opacity="0.7"/>
+                    </g>
+
+                    <!-- Legend -->
+                    <g transform="translate(20, 540)">
+                        <circle cx="0" cy="0" r="8" fill="#4CAF50" opacity="0.8"/>
+                        <text x="15" y="5" fill="white" font-size="12" font-weight="bold">Goal</text>
+
+                        <circle cx="70" cy="0" r="8" fill="#ff9800" opacity="0.8"/>
+                        <text x="85" y="5" fill="white" font-size="12" font-weight="bold">2-Ptr</text>
+
+                        <circle cx="0" cy="20" r="8" fill="#ffffff" opacity="0.8"/>
+                        <text x="15" y="25" fill="white" font-size="12" font-weight="bold">Point</text>
+
+                        <circle cx="70" cy="20" r="8" fill="#f44336" opacity="0.8"/>
+                        <text x="85" y="25" fill="white" font-size="12" font-weight="bold">No Score</text>
+                    </g>
+                </svg>
+            `;
+        }
+
         function openVideoModal() {
             if (!requirePremium('Video Sync')) return;
 
@@ -2534,10 +2676,11 @@
             document.getElementById('pitchMapModal').style.display = 'none';
             pendingKickoutDescriptor = null;
             pendingTurnoverEvent = null;
+            pendingShotEvent = null;
         }
 
         function handlePitchMapClick(event) {
-            if (!pendingKickoutDescriptor && !pendingTurnoverEvent) return;
+            if (!pendingKickoutDescriptor && !pendingTurnoverEvent && !pendingShotEvent) return;
 
             const svg = document.getElementById('pitchMapSvg');
             const rect = svg.getBoundingClientRect();
@@ -2602,6 +2745,56 @@
                 events.push(turnoverEvent);
 
                 // Reset selection after T/O Lost
+                currentType = null;
+                currentCategory = null;
+                selectedDescriptors = [];
+                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
+                document.querySelectorAll('.descriptor-btn').forEach(b => {
+                    const isKOButton = b.textContent.includes('KO Won') || b.textContent.includes('KO Lost');
+                    b.disabled = !isKOButton;
+                    b.classList.remove('selected');
+                });
+                document.getElementById('status').textContent = 'Ready - Select a category';
+            } else if (pendingShotEvent) {
+                // Handle shot event (player event with location)
+                // Save Touch event first
+                const touchEvent = {
+                    timestamp: new Date().toISOString(),
+                    time: gameTime,
+                    period: currentPeriod,
+                    type: pendingShotEvent.type,
+                    category: pendingShotEvent.category,
+                    descriptors: 'Touch'
+                };
+                events.push(touchEvent);
+
+                // Save Shot event with coordinates
+                const shotEvent = {
+                    timestamp: new Date().toISOString(),
+                    time: gameTime,
+                    period: currentPeriod,
+                    type: pendingShotEvent.type,
+                    category: pendingShotEvent.category,
+                    descriptors: 'Shot',
+                    shotX: viewBoxX,
+                    shotY: viewBoxY
+                };
+                events.push(shotEvent);
+
+                // If there's a score descriptor, save it
+                if (pendingShotEvent.scoreDescriptor) {
+                    const scoreEvent = {
+                        timestamp: new Date().toISOString(),
+                        time: gameTime,
+                        period: currentPeriod,
+                        type: pendingShotEvent.type,
+                        category: pendingShotEvent.category,
+                        descriptors: pendingShotEvent.scoreDescriptor
+                    };
+                    events.push(scoreEvent);
+                }
+
+                // Reset selection after shot
                 currentType = null;
                 currentCategory = null;
                 selectedDescriptors = [];
@@ -4083,50 +4276,19 @@
                 return;
             }
 
-            // Handle No Score button - log Touch + Shot events
+            // Handle No Score button - open pitch map to capture shot location
             if (desc === 'No Score') {
-                // Save Touch event first
-                const touchEvent = {
-                    timestamp: new Date().toISOString(),
-                    time: getFormattedGameTime(),
-                    period: currentPeriod,
+                // Store event details and open pitch map modal
+                pendingShotEvent = {
                     type: currentType,
                     category: currentCategory,
-                    descriptors: 'Touch'
+                    scoreDescriptor: null // No score
                 };
-                events.push(touchEvent);
+                document.getElementById('pitchMapTitle').textContent = 'No Score - Click Shot Location';
+                document.getElementById('pitchMapModal').style.display = 'block';
 
-                // Save Shot event
-                const shotEvent = {
-                    timestamp: new Date().toISOString(),
-                    time: getFormattedGameTime(),
-                    period: currentPeriod,
-                    type: currentType,
-                    category: currentCategory,
-                    descriptors: 'Shot'
-                };
-                events.push(shotEvent);
-
-                saveToStorage();
-                updateMatrix();
-                updateRecentEvents();
-                document.getElementById('eventCount').textContent = events.length;
-
-                // Reset selection
-                currentType = null;
-                currentCategory = null;
-                selectedDescriptors = [];
-                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
-                document.querySelectorAll('.descriptor-btn').forEach(b => {
-                    // Keep KO buttons enabled
-                    const isKOButton = b.textContent.includes('KO Won') || b.textContent.includes('KO Lost');
-                    b.disabled = !isKOButton;
-                    b.classList.remove('selected');
-                });
-                document.getElementById('status').textContent = 'Ready - Select a category';
-
-                // Flash the button
-                btn.style.backgroundColor = '#4CAF50';
+                // Flash the button to show it was registered
+                btn.style.backgroundColor = '#2196F3';
                 setTimeout(() => {
                     btn.style.backgroundColor = '';
                 }, 200);
@@ -4154,61 +4316,19 @@
                 return;
             }
 
-            // Handle scoring descriptors (Goal, Point, 2 Pointer) - auto-log touch + shot + score events
+            // Handle scoring descriptors (Goal, Point, 2 Pointer) - open pitch map to capture shot location
             if (desc === 'Goal' || desc === 'Point' || desc === '2 Pointer') {
-                // Save Touch event first
-                const touchEvent = {
-                    timestamp: new Date().toISOString(),
-                    time: getFormattedGameTime(),
-                    period: currentPeriod,
+                // Store event details and open pitch map modal
+                pendingShotEvent = {
                     type: currentType,
                     category: currentCategory,
-                    descriptors: 'Touch'
+                    scoreDescriptor: desc // Goal, Point, or 2 Pointer
                 };
-                events.push(touchEvent);
+                document.getElementById('pitchMapTitle').textContent = desc + ' - Click Shot Location';
+                document.getElementById('pitchMapModal').style.display = 'block';
 
-                // Save Shot event
-                const shotEvent = {
-                    timestamp: new Date().toISOString(),
-                    time: getFormattedGameTime(),
-                    period: currentPeriod,
-                    type: currentType,
-                    category: currentCategory,
-                    descriptors: 'Shot'
-                };
-                events.push(shotEvent);
-
-                // Save Score event immediately after
-                const scoreEvent = {
-                    timestamp: new Date().toISOString(),
-                    time: getFormattedGameTime(),
-                    period: currentPeriod,
-                    type: currentType,
-                    category: currentCategory,
-                    descriptors: desc
-                };
-                events.push(scoreEvent);
-
-                saveToStorage();
-                updateMatrix();
-                updateRecentEvents();
-                document.getElementById('eventCount').textContent = events.length;
-
-                // Reset selection
-                currentType = null;
-                currentCategory = null;
-                selectedDescriptors = [];
-                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
-                document.querySelectorAll('.descriptor-btn').forEach(b => {
-                    // Keep KO buttons enabled
-                    const isKOButton = b.textContent.includes('KO Won') || b.textContent.includes('KO Lost');
-                    b.disabled = !isKOButton;
-                    b.classList.remove('selected');
-                });
-                document.getElementById('status').textContent = 'Ready - Select a category';
-
-                // Flash the button
-                btn.style.backgroundColor = '#4CAF50';
+                // Flash the button to show it was registered
+                btn.style.backgroundColor = '#2196F3';
                 setTimeout(() => {
                     btn.style.backgroundColor = '';
                 }, 200);
