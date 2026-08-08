@@ -159,10 +159,11 @@
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
+            justify-content: center;
         }
 
         .button-grid button {
-            flex: 0 1 calc(20% - 8px);
+            flex: 0 1 calc(16.666% - 8px);
             min-width: 55px;
             padding: 15px 5px;
             font-size: 14px;
@@ -271,7 +272,7 @@
             flex-direction: column;
             align-items: center;
             gap: 4px;
-            flex: 0 1 calc(20% - 8px);
+            flex: 0 1 calc(16.666% - 8px);
             min-width: 55px;
         }
 
@@ -1668,7 +1669,7 @@
         // Configuration
         const categories = ['OUR 1', 'OUR 2', 'OUR 3', 'OUR 4', 'OUR 5', 'OUR 6', 'OUR 7', 'OUR 8', 'OUR 9', 'OUR 10', 'OUR 11', 'OUR 12', 'OUR 13', 'OUR 14', 'OUR 15', 'OUR 16', 'OUR 17', 'OUR 18', 'OUR 19', 'OUR 20', 'OUR 21', 'OUR 22', 'OUR 23', 'OUR 24', 'OUR 25', 'OUR 26'];
         const opponents = ['OPP 1', 'OPP 2', 'OPP 3', 'OPP 4', 'OPP 5', 'OPP 6', 'OPP 7', 'OPP 8', 'OPP 9', 'OPP 10', 'OPP 11', 'OPP 12', 'OPP 13', 'OPP 14', 'OPP 15', 'OPP 16', 'OPP 17', 'OPP 18', 'OPP 19', 'OPP 20', 'OPP 21', 'OPP 22', 'OPP 23', 'OPP 24', 'OPP 25', 'OPP 26'];
-        const defaultDescriptors = ['Shot', 'Goal', '2 Pointer', 'Point', 'No Score', 'Own KO Won', 'Own KO Lost', 'T/O Lost', 'Opp KO Won', 'Opp KO Lost'];
+        const defaultDescriptors = ['Shot', 'Goal', '2 Pointer', 'Point', 'Wide', 'Save/Short/45', 'Own KO Won', 'Own KO Lost', 'T/O Lost', 'Opp KO Won', 'Opp KO Lost'];
         let descriptors = [];
         let allDescriptors = [];
         let tempDescriptors = []; // Temporary descriptors while editing in modal
@@ -1976,7 +1977,7 @@
         function resetDescriptors() {
             if (!requirePremium('Custom Descriptors')) return;
 
-            if (!confirm('Reset to default descriptors?\n\nThis will restore:\n• Shot\n• Goal\n• 2 Pointer\n• Point\n• No Score\n• Own KO Won\n• Own KO Lost\n• T/O Lost\n• Opp KO Won\n• Opp KO Lost\n\nCustom descriptors will be removed.')) {
+            if (!confirm('Reset to default descriptors?\n\nThis will restore:\n• Shot\n• Goal\n• 2 Pointer\n• Point\n• Wide\n• Save/Short/45\n• Own KO Won\n• Own KO Lost\n• T/O Lost\n• Opp KO Won\n• Opp KO Lost\n\nCustom descriptors will be removed.')) {
                 return;
             }
 
@@ -2382,7 +2383,7 @@
                 // Determine color based on shot result
                 // Check the next event to see what happened
                 const shotIndex = events.indexOf(shot);
-                let color = '#f44336'; // Default: No Score (red)
+                let color = '#f44336'; // Default: Save/Short/45 (red)
 
                 if (shotIndex < events.length - 1) {
                     const nextEvent = events[shotIndex + 1];
@@ -2392,6 +2393,10 @@
                         color = '#ffffff'; // Point (white)
                     } else if (nextEvent.descriptors === '2 Pointer') {
                         color = '#ff9800'; // 2 Pointer (orange)
+                    } else if (nextEvent.descriptors === 'Wide') {
+                        color = '#9C27B0'; // Wide (purple)
+                    } else if (nextEvent.descriptors === 'Save/Short/45') {
+                        color = '#f44336'; // Save/Short/45 (red)
                     }
                 }
 
@@ -2439,7 +2444,7 @@
                     </g>
 
                     <!-- Legend -->
-                    <g transform="translate(20, 540)">
+                    <g transform="translate(20, 520)">
                         <circle cx="0" cy="0" r="8" fill="#4CAF50" opacity="0.8"/>
                         <text x="15" y="5" fill="white" font-size="12" font-weight="bold">Goal</text>
 
@@ -2449,8 +2454,11 @@
                         <circle cx="0" cy="20" r="8" fill="#ffffff" opacity="0.8"/>
                         <text x="15" y="25" fill="white" font-size="12" font-weight="bold">Point</text>
 
-                        <circle cx="70" cy="20" r="8" fill="#f44336" opacity="0.8"/>
-                        <text x="85" y="25" fill="white" font-size="12" font-weight="bold">No Score</text>
+                        <circle cx="70" cy="20" r="8" fill="#9C27B0" opacity="0.8"/>
+                        <text x="85" y="25" fill="white" font-size="12" font-weight="bold">Wide</text>
+
+                        <circle cx="0" cy="40" r="8" fill="#f44336" opacity="0.8"/>
+                        <text x="15" y="45" fill="white" font-size="11" font-weight="bold">Save/Short/45</text>
                     </g>
                 </svg>
             `;
@@ -4276,15 +4284,35 @@
                 return;
             }
 
-            // Handle No Score button - open pitch map to capture shot location
-            if (desc === 'No Score') {
+            // Handle Wide button - open pitch map to capture shot location
+            if (desc === 'Wide') {
                 // Store event details and open pitch map modal
                 pendingShotEvent = {
                     type: currentType,
                     category: currentCategory,
-                    scoreDescriptor: null // No score
+                    scoreDescriptor: 'Wide'
                 };
-                document.getElementById('pitchMapTitle').textContent = 'No Score - Click Shot Location';
+                document.getElementById('pitchMapTitle').textContent = 'Wide - Click Shot Location';
+                document.getElementById('pitchMapModal').style.display = 'block';
+
+                // Flash the button to show it was registered
+                btn.style.backgroundColor = '#2196F3';
+                setTimeout(() => {
+                    btn.style.backgroundColor = '';
+                }, 200);
+
+                return;
+            }
+
+            // Handle Save/Short/45 button - open pitch map to capture shot location
+            if (desc === 'Save/Short/45') {
+                // Store event details and open pitch map modal
+                pendingShotEvent = {
+                    type: currentType,
+                    category: currentCategory,
+                    scoreDescriptor: 'Save/Short/45'
+                };
+                document.getElementById('pitchMapTitle').textContent = 'Save/Short/45 - Click Shot Location';
                 document.getElementById('pitchMapModal').style.display = 'block';
 
                 // Flash the button to show it was registered
