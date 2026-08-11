@@ -248,6 +248,290 @@
             background: white;
         }
 
+        /* Compact layout for Post-Match mode */
+        .compact-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .compact-row {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .compact-btn {
+            flex: 0 0 70px;
+            padding: 16px 8px;
+            font-size: 18px;
+            min-width: 60px;
+        }
+
+        @media (max-width: 768px) {
+            .compact-btn {
+                flex: 0 0 60px;
+                padding: 14px 6px;
+                font-size: 16px;
+            }
+        }
+
+        /* Video Player Styles */
+        .video-container {
+            display: flex;
+            gap: 15px;
+            background: #000;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .video-player-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .video-controls-sidebar {
+            width: 280px;
+            background: #1a1a1a;
+            border-radius: 8px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            overflow-y: auto;
+            max-height: 500px;
+        }
+
+        .control-section {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .control-section h4 {
+            color: #2196F3;
+            font-size: 13px;
+            margin: 0;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #333;
+        }
+
+        .control-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .control-group label {
+            color: #999;
+            font-size: 12px;
+            min-width: 70px;
+        }
+
+        .control-group input[type="text"] {
+            width: 60px;
+            padding: 6px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
+            text-align: center;
+        }
+
+        .control-group input[type="range"] {
+            flex: 1;
+            min-width: 100px;
+        }
+
+        .video-container.zoomed {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 10000;
+            border-radius: 0;
+            padding: 20px;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .video-container.zoomed .match-video {
+            max-height: calc(100vh - 200px);
+            width: auto;
+            max-width: 100vw;
+        }
+
+        .video-container.zoomed .video-controls-sidebar {
+            display: none;
+        }
+
+        .video-container.zoomed .video-controls-top {
+            display: none;
+        }
+
+        .zoom-exit-overlay {
+            display: none;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10001;
+            gap: 10px;
+        }
+
+        .video-container.zoomed .zoom-exit-overlay {
+            display: flex;
+        }
+
+        .zoom-exit-btn {
+            background: rgba(33, 150, 243, 0.95);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transition: all 0.2s;
+        }
+
+        .zoom-exit-btn:hover {
+            background: rgba(25, 118, 210, 0.95);
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 1024px) {
+            .video-container {
+                flex-direction: column;
+            }
+
+            .video-controls-sidebar {
+                width: 100%;
+                max-height: 300px;
+            }
+        }
+
+        .video-controls-top {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .video-url-input {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .btn-load-video {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-load-video:hover {
+            background: #45a049;
+        }
+
+        .match-video {
+            width: 100%;
+            max-height: 450px;
+            border-radius: 6px;
+            background: #000;
+        }
+
+        .video-btn {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: bold;
+            flex: 1;
+            min-width: 60px;
+        }
+
+        .video-btn:hover {
+            background: #1976D2;
+        }
+
+        .speed-select {
+            padding: 8px;
+            border-radius: 6px;
+            border: 2px solid #ddd;
+            background: white;
+            font-size: 13px;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .video-time {
+            color: white;
+            font-size: 13px;
+            font-weight: bold;
+            text-align: center;
+            padding: 5px;
+            background: #000;
+            border-radius: 4px;
+        }
+
+        .possession-info {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px;
+            background: #000;
+            border-radius: 4px;
+        }
+
+        .possession-label {
+            font-size: 11px;
+            color: #999;
+        }
+
+        .possession-team {
+            font-size: 13px;
+            font-weight: bold;
+            color: #4CAF50 !important;
+        }
+
+        .possession-team.none {
+            color: #999 !important;
+            font-style: italic;
+        }
+
+        .filter-value {
+            color: white;
+            font-size: 12px;
+            min-width: 45px;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .video-btn.secondary {
+            background: #555;
+        }
+
+        .video-btn.secondary:hover {
+            background: #666;
+        }
+
         .category-btn.selected {
             background: #2196F3;
             color: white;
@@ -603,6 +887,49 @@
             background: #999;
         }
 
+        .mode-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f0f7ff;
+            border-radius: 8px;
+            border: 2px solid #2196F3;
+        }
+
+        .mode-option {
+            flex: 1;
+            text-align: center;
+            padding: 12px;
+            border-radius: 6px;
+            background: white;
+            border: 2px solid #ddd;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .mode-option:hover {
+            border-color: #2196F3;
+        }
+
+        .mode-option.active {
+            background: #2196F3;
+            color: white;
+            border-color: #2196F3;
+        }
+
+        .mode-option .mode-title {
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .mode-option .mode-desc {
+            font-size: 11px;
+            opacity: 0.8;
+            font-weight: normal;
+        }
+
         .saved-games-list {
             max-height: 150px;
             overflow-y: auto;
@@ -832,6 +1159,54 @@
 
         .recent-event-desc {
             color: #666;
+        }
+
+        .recent-event-actions {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .view-event-btn {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            line-height: 1;
+            min-width: 32px;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .view-event-btn:hover {
+            background: #1976D2;
+            transform: scale(1.05);
+        }
+
+        .edit-event-btn {
+            background: #FF9800;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            line-height: 1;
+            min-width: 32px;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .edit-event-btn:hover {
+            background: #F57C00;
+            transform: scale(1.05);
+        }
+
+        .recent-event-item.editing {
+            background: #FFF3E0;
+            border: 2px solid #FF9800;
+            box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
         }
 
         .delete-event-btn {
@@ -1261,6 +1636,100 @@
         </div>
     </div>
 
+    <!-- Video Player Section (Post-Match Mode Only) -->
+    <div id="videoSection" class="section" style="display: none;">
+        <h2>Match Video</h2>
+        <div class="video-container" id="videoContainer">
+            <!-- Video Player -->
+            <div class="video-player-wrapper">
+                <div class="video-controls-top">
+                    <input type="text" id="videoUrlInput" placeholder="Enter video URL (MP4, YouTube, etc.)" class="video-url-input">
+                    <button onclick="loadVideoFromUrl()" class="btn-load-video">Load Video</button>
+                    <button onclick="document.getElementById('videoFileInput').click()" class="btn-load-video">📁 Load File</button>
+                </div>
+                <video id="matchVideo" class="match-video" controls controlsList="nodownload">
+                    <source id="videoSource" src="" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <input type="file" id="videoFileInput" accept="video/*" style="display: none;" onchange="loadVideoFile(event)">
+            </div>
+
+            <!-- Video Controls Sidebar -->
+            <div class="video-controls-sidebar">
+                <div class="control-section">
+                    <h4>Playback</h4>
+                    <div class="control-group">
+                        <button onclick="skipBackward()" class="video-btn">⏪ -5s</button>
+                        <button onclick="togglePlayPause()" class="video-btn" id="playPauseBtn">▶️ Play</button>
+                        <button onclick="skipForward()" class="video-btn">⏩ +5s</button>
+                    </div>
+                    <div class="control-group">
+                        <button onclick="toggleVideoZoom()" class="video-btn secondary" id="zoomBtn">🔍 Zoom</button>
+                        <select id="playbackSpeed" onchange="changeSpeed()" class="speed-select">
+                            <option value="0.25">0.25x</option>
+                            <option value="0.5">0.5x</option>
+                            <option value="0.75">0.75x</option>
+                            <option value="1" selected>1x</option>
+                            <option value="1.25">1.25x</option>
+                            <option value="1.5">1.5x</option>
+                            <option value="2">2x</option>
+                        </select>
+                    </div>
+                    <span id="videoTime" class="video-time">00:00 / 00:00</span>
+                </div>
+
+                <div class="control-section" id="editEventSection" style="display: none;">
+                    <h4 style="color: #FF9800;">Editing Event</h4>
+                    <p style="font-size: 11px; color: #999; margin-bottom: 8px;">Adjust video position, then update timestamp</p>
+                    <button class="video-btn" onclick="updateEventTimestamp()" style="width: 100%; background: #FF9800;">💾 Update Event Timestamp</button>
+                    <button class="video-btn secondary" onclick="cancelEditingEvent()" style="width: 100%; margin-top: 5px;">Cancel</button>
+                </div>
+
+                <div class="control-section">
+                    <h4>Possession</h4>
+                    <div class="possession-info">
+                        <span class="possession-label">Current:</span>
+                        <span class="possession-team none" id="possessionTeam">No possession</span>
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h4>Half Markers</h4>
+                    <div class="control-group">
+                        <label>1st Half:</label>
+                        <input type="text" id="firstHalfOffset" placeholder="00:00" value="00:00" onchange="updateFirstHalfOffset()">
+                        <button class="video-btn" onclick="playFromFirstHalf()">▶️</button>
+                    </div>
+                    <div class="control-group">
+                        <label>2nd Half:</label>
+                        <input type="text" id="secondHalfOffset" placeholder="30:00" value="" onchange="updateSecondHalfOffset()">
+                        <button class="video-btn" onclick="playFromSecondHalf()">▶️</button>
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h4>Filters</h4>
+                    <div class="control-group">
+                        <label>Brightness:</label>
+                        <input type="range" id="brightnessSlider" min="50" max="150" value="100" step="5" oninput="updateVideoFilters()">
+                        <span id="brightnessValue" class="filter-value">100%</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Contrast:</label>
+                        <input type="range" id="contrastSlider" min="50" max="150" value="100" step="5" oninput="updateVideoFilters()">
+                        <span id="contrastValue" class="filter-value">100%</span>
+                    </div>
+                    <button class="video-btn secondary" onclick="resetVideoFilters()" style="width: 100%;">Reset Filters</button>
+                </div>
+            </div>
+
+            <!-- Zoom Exit Overlay (visible only when zoomed) -->
+            <div class="zoom-exit-overlay">
+                <button class="zoom-exit-btn" onclick="toggleVideoZoom()">🔍 Exit Zoom</button>
+            </div>
+        </div>
+    </div>
+
     <div class="teams-container">
         <div class="team-panel">
             <h2>Our Players</h2>
@@ -1276,6 +1745,13 @@
     <div class="section">
         <h2>Match Events</h2>
         <div class="button-grid" id="descGrid"></div>
+    </div>
+
+    <div class="recent-events">
+        <h3>Recent Events</h3>
+        <div class="recent-events-list" id="recentEventsList">
+            <div class="no-recent-events">No events yet</div>
+        </div>
     </div>
 
     <div class="section">
@@ -1311,13 +1787,6 @@
                 <tbody id="oppMatrixBody">
                 </tbody>
             </table>
-        </div>
-    </div>
-
-    <div class="recent-events">
-        <h3>Recent Events</h3>
-        <div class="recent-events-list" id="recentEventsList">
-            <div class="no-recent-events">No events yet</div>
         </div>
     </div>
 
@@ -1557,6 +2026,18 @@
             </div>
             <p style="font-size: 13px; color: #666; margin: -10px 0 20px 0;">Configure settings for a new game</p>
 
+            <h3>Game Mode</h3>
+            <div class="mode-selector">
+                <div class="mode-option active" id="inMatchMode" onclick="setGameMode('in-match')">
+                    <div class="mode-title">In-Match</div>
+                    <div class="mode-desc">Track events during live game</div>
+                </div>
+                <div class="mode-option" id="postMatchMode" onclick="setGameMode('post-match')">
+                    <div class="mode-title">Post-Match</div>
+                    <div class="mode-desc">Analyze after the game</div>
+                </div>
+            </div>
+
             <h3>Start New Game</h3>
             <div class="form-group">
                 <label for="team1Name">Team 1 Name:</label>
@@ -1688,6 +2169,7 @@
         let gameName = '';
         let team1Name = 'Us';
         let team2Name = 'Opposition';
+        let gameMode = 'in-match'; // 'in-match' or 'post-match'
         let htOurGoals = null;
         let htOurPoints = null;
         let htOppGoals = null;
@@ -1707,6 +2189,7 @@
         function init() {
             checkLicenseStatus();
             loadCustomDescriptors();
+            loadGameMode();
             createButtons();
             buildMatrix();
             loadEvents();
@@ -2089,6 +2572,9 @@
             // Copy current descriptors to temp for editing
             tempDescriptors = [...descriptors];
 
+            // Update mode UI
+            updateModeUI();
+
             updateGameName();
             loadSavedGamesList();
             updateDescriptorsList();
@@ -2096,6 +2582,412 @@
 
         function closeNewGameModal() {
             document.getElementById('newGameModal').classList.remove('active');
+        }
+
+        function setGameMode(mode) {
+            gameMode = mode;
+            updateModeUI();
+            updateVideoVisibility();
+            saveGameMode();
+
+            // Rebuild player buttons with new layout
+            createButtons();
+        }
+
+        function updateModeUI() {
+            const inMatchBtn = document.getElementById('inMatchMode');
+            const postMatchBtn = document.getElementById('postMatchMode');
+
+            if (gameMode === 'in-match') {
+                inMatchBtn.classList.add('active');
+                postMatchBtn.classList.remove('active');
+            } else {
+                inMatchBtn.classList.remove('active');
+                postMatchBtn.classList.add('active');
+            }
+        }
+
+        function updateVideoVisibility() {
+            const videoSection = document.getElementById('videoSection');
+            if (gameMode === 'post-match') {
+                videoSection.style.display = 'block';
+            } else {
+                videoSection.style.display = 'none';
+            }
+        }
+
+        function saveGameMode() {
+            localStorage.setItem('gameMode', gameMode);
+        }
+
+        function loadGameMode() {
+            const saved = localStorage.getItem('gameMode');
+            if (saved) {
+                gameMode = saved;
+            }
+            updateVideoVisibility();
+            loadVideoSettings();
+        }
+
+        function loadVideoSettings() {
+            // Load saved video offsets
+            const firstHalfOffset = localStorage.getItem('videoFirstHalfOffset');
+            const secondHalfOffset = localStorage.getItem('videoSecondHalfOffset');
+
+            if (firstHalfOffset) {
+                videoFirstHalfOffset = parseInt(firstHalfOffset);
+                document.getElementById('firstHalfOffset').value = formatVideoTime(videoFirstHalfOffset);
+            }
+
+            if (secondHalfOffset) {
+                videoSecondHalfOffset = parseInt(secondHalfOffset);
+                document.getElementById('secondHalfOffset').value = formatVideoTime(videoSecondHalfOffset);
+            }
+        }
+
+        // ============================================
+        // VIDEO PLAYER CONTROLS
+        // ============================================
+
+        let videoFirstHalfOffset = 0;
+        let videoSecondHalfOffset = 0;
+        let currentPossessionTeam = null;
+        let editingEventIndex = null; // Track which event is being edited
+
+        function loadVideoFromUrl() {
+            const url = document.getElementById('videoUrlInput').value.trim();
+            if (!url) {
+                alert('Please enter a video URL');
+                return;
+            }
+
+            const video = document.getElementById('matchVideo');
+            const source = document.getElementById('videoSource');
+
+            // Handle YouTube URLs
+            if (url.includes('youtube.com') || url.includes('youtu.be')) {
+                alert('YouTube videos require embedding. Please use a direct video URL (MP4, WebM, etc.)');
+                return;
+            }
+
+            source.src = url;
+            video.load();
+            video.play();
+
+            setupVideoEventListeners();
+        }
+
+        function loadVideoFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const video = document.getElementById('matchVideo');
+            const url = URL.createObjectURL(file);
+            video.src = url;
+            video.load();
+            video.play();
+
+            setupVideoEventListeners();
+        }
+
+        function setupVideoEventListeners() {
+            const video = document.getElementById('matchVideo');
+            video.addEventListener('timeupdate', updateVideoTime);
+            video.addEventListener('loadedmetadata', updateVideoTime);
+
+            // Load saved filter settings
+            loadVideoFilters();
+        }
+
+        function togglePlayPause() {
+            const video = document.getElementById('matchVideo');
+            const btn = document.getElementById('playPauseBtn');
+
+            if (video.paused) {
+                video.play();
+                btn.textContent = '⏸️ Pause';
+            } else {
+                video.pause();
+                btn.textContent = '▶️ Play';
+            }
+        }
+
+        function skipBackward() {
+            const video = document.getElementById('matchVideo');
+            video.currentTime = Math.max(0, video.currentTime - 5);
+        }
+
+        function skipForward() {
+            const video = document.getElementById('matchVideo');
+            video.currentTime = Math.min(video.duration, video.currentTime + 5);
+        }
+
+        function changeSpeed() {
+            const video = document.getElementById('matchVideo');
+            const speed = document.getElementById('playbackSpeed').value;
+            video.playbackRate = parseFloat(speed);
+        }
+
+        function toggleVideoZoom() {
+            const container = document.getElementById('videoContainer');
+            const btn = document.getElementById('zoomBtn');
+
+            if (container.classList.contains('zoomed')) {
+                container.classList.remove('zoomed');
+                btn.textContent = '🔍 Zoom';
+                document.removeEventListener('keydown', handleZoomEscape);
+            } else {
+                container.classList.add('zoomed');
+                btn.textContent = '🔍 Exit Zoom';
+                document.addEventListener('keydown', handleZoomEscape);
+            }
+        }
+
+        function handleZoomEscape(event) {
+            if (event.key === 'Escape') {
+                const container = document.getElementById('videoContainer');
+                if (container.classList.contains('zoomed')) {
+                    toggleVideoZoom();
+                }
+            }
+        }
+
+        function updateFirstHalfOffset() {
+            const input = document.getElementById('firstHalfOffset').value;
+            videoFirstHalfOffset = parseTimeToSeconds(input);
+            localStorage.setItem('videoFirstHalfOffset', videoFirstHalfOffset);
+        }
+
+        function updateSecondHalfOffset() {
+            const input = document.getElementById('secondHalfOffset').value;
+            videoSecondHalfOffset = parseTimeToSeconds(input);
+            localStorage.setItem('videoSecondHalfOffset', videoSecondHalfOffset);
+        }
+
+        function playFromFirstHalf() {
+            const video = document.getElementById('matchVideo');
+            if (!video.duration) {
+                alert('Please load a video first!');
+                return;
+            }
+            video.currentTime = videoFirstHalfOffset;
+            video.play();
+        }
+
+        function playFromSecondHalf() {
+            const video = document.getElementById('matchVideo');
+            if (!video.duration) {
+                alert('Please load a video first!');
+                return;
+            }
+            if (videoSecondHalfOffset === 0) {
+                alert('Please set the 2nd Half Start offset first!');
+                return;
+            }
+            video.currentTime = videoSecondHalfOffset;
+            video.play();
+        }
+
+        function parseTimeToSeconds(timeStr) {
+            const parts = timeStr.split(':').map(p => parseInt(p) || 0);
+            if (parts.length === 2) {
+                return parts[0] * 60 + parts[1];
+            }
+            return 0;
+        }
+
+        function updateVideoFilters() {
+            const brightness = document.getElementById('brightnessSlider').value;
+            const contrast = document.getElementById('contrastSlider').value;
+
+            // Update display values
+            document.getElementById('brightnessValue').textContent = brightness + '%';
+            document.getElementById('contrastValue').textContent = contrast + '%';
+
+            // Apply CSS filters to video
+            const video = document.getElementById('matchVideo');
+            const brightnessDecimal = brightness / 100;
+            const contrastDecimal = contrast / 100;
+            video.style.filter = `brightness(${brightnessDecimal}) contrast(${contrastDecimal})`;
+
+            // Save to localStorage
+            localStorage.setItem('videoBrightness', brightness);
+            localStorage.setItem('videoContrast', contrast);
+        }
+
+        function resetVideoFilters() {
+            document.getElementById('brightnessSlider').value = 100;
+            document.getElementById('contrastSlider').value = 100;
+            updateVideoFilters();
+        }
+
+        function loadVideoFilters() {
+            const brightness = localStorage.getItem('videoBrightness') || 100;
+            const contrast = localStorage.getItem('videoContrast') || 100;
+
+            document.getElementById('brightnessSlider').value = brightness;
+            document.getElementById('contrastSlider').value = contrast;
+            updateVideoFilters();
+        }
+
+        function updateVideoTime() {
+            const video = document.getElementById('matchVideo');
+            const timeDisplay = document.getElementById('videoTime');
+
+            const current = formatVideoTime(video.currentTime);
+            const duration = formatVideoTime(video.duration);
+
+            timeDisplay.textContent = `${current} / ${duration}`;
+        }
+
+        function formatVideoTime(seconds) {
+            if (isNaN(seconds)) return '00:00';
+
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+
+        function updatePossessionDisplay() {
+            const possessionTeamEl = document.getElementById('possessionTeam');
+
+            if (currentPossessionTeam === null) {
+                possessionTeamEl.textContent = 'No possession';
+                possessionTeamEl.className = 'possession-team none';
+            } else {
+                const teamName = currentPossessionTeam === 'OUR' ? team1Name : team2Name;
+                possessionTeamEl.textContent = teamName;
+                possessionTeamEl.className = 'possession-team';
+            }
+        }
+
+        function updatePossessionFromEvent(eventDescriptors, eventType) {
+            // Update possession based on event type
+            // Kickout won = possession gained
+            if (eventDescriptors.includes('Own KO Won')) {
+                currentPossessionTeam = 'OUR';
+            } else if (eventDescriptors.includes('Opp KO Won')) {
+                currentPossessionTeam = 'OPP';
+            } else if (eventDescriptors.includes('T/O Lost')) {
+                // Turnover lost means opposition gains possession
+                currentPossessionTeam = eventType === 'OUR' ? 'OPP' : 'OUR';
+            } else if (eventDescriptors.includes('Goal') || eventDescriptors.includes('Point') ||
+                       eventDescriptors.includes('2 Pointer') || eventDescriptors.includes('Wide') ||
+                       eventDescriptors.includes('Save/Short/45')) {
+                // Shots end possession
+                currentPossessionTeam = null;
+            }
+
+            updatePossessionDisplay();
+        }
+
+        function seekToEventTime(videoTime) {
+            const video = document.getElementById('matchVideo');
+
+            if (!video || !video.duration) {
+                alert('Please load a video first!');
+                return;
+            }
+
+            // Seek to the event timestamp
+            video.currentTime = videoTime;
+
+            // Play the video if it's paused
+            if (video.paused) {
+                video.play();
+            }
+
+            // Scroll video into view if not visible
+            video.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function startEditingEvent(eventIndex) {
+            if (eventIndex < 0 || eventIndex >= events.length) return;
+
+            const event = events[eventIndex];
+
+            // Set editing state
+            editingEventIndex = eventIndex;
+
+            // Show edit controls section
+            document.getElementById('editEventSection').style.display = 'block';
+
+            // Seek to event's video timestamp
+            if (event.videoTime !== undefined) {
+                seekToEventTime(event.videoTime);
+            }
+
+            // Refresh Recent Events to show editing state
+            updateRecentEvents();
+
+            // Scroll edit controls into view
+            document.getElementById('editEventSection').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function calculateMatchTimeFromVideo(videoTimeSeconds) {
+            // Determine which half we're in based on video time vs half offsets
+            let matchTimeSeconds = 0;
+
+            if (videoSecondHalfOffset > 0 && videoTimeSeconds >= videoSecondHalfOffset) {
+                // In 2nd half - offset from 2nd half start (starts at 30:00)
+                matchTimeSeconds = 1800 + (videoTimeSeconds - videoSecondHalfOffset);
+            } else {
+                // In 1st half - offset from 1st half start
+                matchTimeSeconds = videoTimeSeconds - videoFirstHalfOffset;
+            }
+
+            // Ensure non-negative
+            matchTimeSeconds = Math.max(0, matchTimeSeconds);
+
+            // Format as MM:SS
+            const minutes = Math.floor(matchTimeSeconds / 60);
+            const seconds = Math.floor(matchTimeSeconds % 60);
+            return String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
+        }
+
+        function updateEventTimestamp() {
+            if (editingEventIndex === null || editingEventIndex < 0 || editingEventIndex >= events.length) {
+                alert('No event is being edited!');
+                return;
+            }
+
+            const video = document.getElementById('matchVideo');
+            if (!video || !video.duration) {
+                alert('Please load a video first!');
+                return;
+            }
+
+            // Get current video timestamp
+            const newVideoTime = video.currentTime;
+
+            // Calculate match time based on video time and half offsets
+            const newMatchTime = calculateMatchTimeFromVideo(newVideoTime);
+
+            // Update the event
+            events[editingEventIndex].videoTime = newVideoTime;
+            events[editingEventIndex].time = newMatchTime;
+
+            // Save to storage
+            saveToStorage();
+
+            // Update UI
+            updateRecentEvents();
+
+            // Clear editing state
+            cancelEditingEvent();
+
+            // Show confirmation
+            alert(`Event timestamp updated!\nMatch Time: ${newMatchTime}\nVideo Time: ${formatVideoTime(newVideoTime)}`);
+        }
+
+        function cancelEditingEvent() {
+            editingEventIndex = null;
+
+            // Hide edit controls section
+            document.getElementById('editEventSection').style.display = 'none';
+
+            // Refresh Recent Events to clear editing state
+            updateRecentEvents();
         }
 
         function openReportsModal() {
@@ -2705,6 +3597,15 @@
             const seconds = timerSeconds % 60;
             const gameTime = String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
 
+            // Capture video timestamp if in Post-Match mode
+            let videoTime = undefined;
+            if (gameMode === 'post-match') {
+                const video = document.getElementById('matchVideo');
+                if (video && video.duration) {
+                    videoTime = video.currentTime;
+                }
+            }
+
             if (pendingKickoutDescriptor) {
                 // Handle kickout event
                 let teamType = null;
@@ -2725,6 +3626,10 @@
                     kickoutY: viewBoxY
                 };
 
+                if (videoTime !== undefined) {
+                    kickoutEvent.videoTime = videoTime;
+                }
+
                 events.push(kickoutEvent);
             } else if (pendingTurnoverEvent) {
                 // Handle turnover event (player event with location)
@@ -2737,6 +3642,9 @@
                     category: pendingTurnoverEvent.category,
                     descriptors: 'Touch'
                 };
+                if (videoTime !== undefined) {
+                    touchEvent.videoTime = videoTime;
+                }
                 events.push(touchEvent);
 
                 // Save T/O Lost event with coordinates
@@ -2750,6 +3658,9 @@
                     turnoverX: viewBoxX,
                     turnoverY: viewBoxY
                 };
+                if (videoTime !== undefined) {
+                    turnoverEvent.videoTime = videoTime;
+                }
                 events.push(turnoverEvent);
 
                 // Reset selection after T/O Lost
@@ -2774,6 +3685,9 @@
                     category: pendingShotEvent.category,
                     descriptors: 'Touch'
                 };
+                if (videoTime !== undefined) {
+                    touchEvent.videoTime = videoTime;
+                }
                 events.push(touchEvent);
 
                 // Save Shot event with coordinates
@@ -2787,6 +3701,9 @@
                     shotX: viewBoxX,
                     shotY: viewBoxY
                 };
+                if (videoTime !== undefined) {
+                    shotEvent.videoTime = videoTime;
+                }
                 events.push(shotEvent);
 
                 // If there's a score descriptor, save it
@@ -2799,6 +3716,9 @@
                         category: pendingShotEvent.category,
                         descriptors: pendingShotEvent.scoreDescriptor
                     };
+                    if (videoTime !== undefined) {
+                        scoreEvent.videoTime = videoTime;
+                    }
                     events.push(scoreEvent);
                 }
 
@@ -3652,6 +4572,103 @@
             }
         }
 
+        function createCompactButtons(ckGrid, oppGrid) {
+            // Compact layout for Post-Match mode: 3 rows of 5 buttons (optimized for tablet)
+            const row1Players = [1, 2, 3, 4, 5];
+            const row2Players = [6, 7, 8, 9, 10];
+            const row3Players = [11, 12, 13, 14, 15];
+
+            // OUR buttons
+            const ckContainer = document.createElement('div');
+            ckContainer.className = 'compact-container';
+
+            // Row 1 (1-5)
+            const ckRow1 = document.createElement('div');
+            ckRow1.className = 'compact-row';
+            row1Players.forEach(num => {
+                const cat = 'OUR ' + num;
+                const btn = document.createElement('button');
+                btn.className = 'category-btn compact-btn';
+                btn.textContent = num;
+                btn.onclick = () => selectCat(btn, 'OUR', cat);
+                ckRow1.appendChild(btn);
+            });
+            ckContainer.appendChild(ckRow1);
+
+            // Row 2 (6-10)
+            const ckRow2 = document.createElement('div');
+            ckRow2.className = 'compact-row';
+            row2Players.forEach(num => {
+                const cat = 'OUR ' + num;
+                const btn = document.createElement('button');
+                btn.className = 'category-btn compact-btn';
+                btn.textContent = num;
+                btn.onclick = () => selectCat(btn, 'OUR', cat);
+                ckRow2.appendChild(btn);
+            });
+            ckContainer.appendChild(ckRow2);
+
+            // Row 3 (11-15)
+            const ckRow3 = document.createElement('div');
+            ckRow3.className = 'compact-row';
+            row3Players.forEach(num => {
+                const cat = 'OUR ' + num;
+                const btn = document.createElement('button');
+                btn.className = 'category-btn compact-btn';
+                btn.textContent = num;
+                btn.onclick = () => selectCat(btn, 'OUR', cat);
+                ckRow3.appendChild(btn);
+            });
+            ckContainer.appendChild(ckRow3);
+
+            ckGrid.appendChild(ckContainer);
+
+            // OPP buttons
+            const oppContainer = document.createElement('div');
+            oppContainer.className = 'compact-container';
+
+            // Row 1 (1-5)
+            const oppRow1 = document.createElement('div');
+            oppRow1.className = 'compact-row';
+            row1Players.forEach(num => {
+                const opp = 'OPP ' + num;
+                const btn = document.createElement('button');
+                btn.className = 'category-btn compact-btn';
+                btn.textContent = num;
+                btn.onclick = () => selectCat(btn, 'OPP', opp);
+                oppRow1.appendChild(btn);
+            });
+            oppContainer.appendChild(oppRow1);
+
+            // Row 2 (6-10)
+            const oppRow2 = document.createElement('div');
+            oppRow2.className = 'compact-row';
+            row2Players.forEach(num => {
+                const opp = 'OPP ' + num;
+                const btn = document.createElement('button');
+                btn.className = 'category-btn compact-btn';
+                btn.textContent = num;
+                btn.onclick = () => selectCat(btn, 'OPP', opp);
+                oppRow2.appendChild(btn);
+            });
+            oppContainer.appendChild(oppRow2);
+
+            // Row 3 (11-15)
+            const oppRow3 = document.createElement('div');
+            oppRow3.className = 'compact-row';
+            row3Players.forEach(num => {
+                const opp = 'OPP ' + num;
+                const btn = document.createElement('button');
+                btn.className = 'category-btn compact-btn';
+                btn.textContent = num;
+                btn.onclick = () => selectCat(btn, 'OPP', opp);
+                oppRow3.appendChild(btn);
+            });
+            oppContainer.appendChild(oppRow3);
+
+            oppGrid.appendChild(oppContainer);
+        }
+
         function createButtons() {
             // Clear existing buttons
             const ckGrid = document.getElementById('ckGrid');
@@ -3659,6 +4676,15 @@
             ckGrid.innerHTML = '';
             oppGrid.innerHTML = '';
 
+            // Post-Match mode: Compact layout (3 rows, optimized for tablet)
+            if (gameMode === 'post-match') {
+                createCompactButtons(ckGrid, oppGrid);
+                buildMatrix();
+                rebuildDescriptorButtons();
+                return;
+            }
+
+            // In-Match mode: GAA Formation
             // GAA Formation: [goalkeeper, fullbacks, halfbacks, midfield, halfforwards, fullforwards]
             const formation = [
                     [1],           // Goalkeeper
@@ -3794,10 +4820,18 @@
         }
 
         function getCurrentCategories() {
+            if (gameMode === 'post-match') {
+                // Only return players 1-15 in post-match mode
+                return categories.slice(0, 15);
+            }
             return categories;
         }
 
         function getCurrentOpponents() {
+            if (gameMode === 'post-match') {
+                // Only return players 1-15 in post-match mode
+                return opponents.slice(0, 15);
+            }
             return opponents;
         }
 
@@ -4439,12 +5473,23 @@
                 descriptors: selectedDescriptors.join(', ')
             };
 
+            // In Post-Match mode, capture video timestamp
+            if (gameMode === 'post-match') {
+                const video = document.getElementById('matchVideo');
+                if (video && video.duration) {
+                    event.videoTime = video.currentTime;
+                }
+            }
+
             events.push(event);
             saveToStorage();
             updateMatrix();
             updateRecentEvents();
 
             document.getElementById('eventCount').textContent = events.length;
+
+            // Update possession display based on event
+            updatePossessionFromEvent(selectedDescriptors, currentType);
         }
 
         function updateRecentEvents() {
@@ -4477,14 +5522,32 @@
                     coordsDisplay = ` <span style="color: #888; font-size: 0.9em;">(${event.kickoutX.toFixed(0)}, ${event.kickoutY.toFixed(0)})</span>`;
                 }
 
+                // Add video time display and view/edit buttons if in Post-Match mode
+                let videoTimeStr = '';
+                let viewButton = '';
+                let editButton = '';
+                if (gameMode === 'post-match' && event.videoTime !== undefined) {
+                    const videoTimeDisplay = formatVideoTime(event.videoTime);
+                    videoTimeStr = ` <span style="color: #2196F3; font-size: 0.9em;">(${videoTimeDisplay})</span>`;
+                    viewButton = `<button class="view-event-btn" onclick="seekToEventTime(${event.videoTime})" title="View at ${videoTimeDisplay}">👁️</button>`;
+                    editButton = `<button class="edit-event-btn" onclick="startEditingEvent(${actualIndex})" title="Edit timestamp">✏️</button>`;
+                }
+
+                // Check if this event is being edited
+                const editingClass = editingEventIndex === actualIndex ? ' editing' : '';
+
                 html += `
-                    <div class="recent-event-item">
+                    <div class="recent-event-item${editingClass}">
                         <div class="recent-event-info">
-                            <span class="recent-event-time">${event.time}</span>
+                            <span class="recent-event-time">${event.time}${videoTimeStr}</span>
                             <span class="recent-event-player">${event.type} ${playerNum}</span>
                             <span class="recent-event-desc">${event.descriptors}${coordsDisplay}</span>
                         </div>
-                        <button class="delete-event-btn" onclick="deleteEvent(${actualIndex})" title="Delete this event">&times;</button>
+                        <div class="recent-event-actions">
+                            ${viewButton}
+                            ${editButton}
+                            <button class="delete-event-btn" onclick="deleteEvent(${actualIndex})" title="Delete this event">&times;</button>
+                        </div>
                     </div>
                 `;
             });
@@ -4500,6 +5563,14 @@
 
             if (!confirm(`Delete event: ${event.time} - ${event.type} ${playerNum} - ${event.descriptors}?`)) {
                 return;
+            }
+
+            // Cancel editing if we're deleting the event being edited
+            if (editingEventIndex === index) {
+                cancelEditingEvent();
+            } else if (editingEventIndex !== null && editingEventIndex > index) {
+                // Adjust editing index if deleting an event before it
+                editingEventIndex--;
             }
 
             // Remove event from array
