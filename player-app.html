@@ -5629,12 +5629,18 @@
                 return;
             }
 
-            let csv = 'Event#,Timestamp,Game Time,Period,Type,Category,Descriptors,KickoutX,KickoutY\n';
+            let csv = 'Event#,Timestamp,Game Time,Period,Type,Category,Descriptors,ShotX,ShotY,KickoutX,KickoutY,TurnoverX,TurnoverY\n';
             events.forEach((e, i) => {
+                const shotX = e.shotX !== undefined ? e.shotX.toFixed(2) : '';
+                const shotY = e.shotY !== undefined ? e.shotY.toFixed(2) : '';
                 const kickoutX = e.kickoutX !== undefined ? e.kickoutX.toFixed(2) : '';
                 const kickoutY = e.kickoutY !== undefined ? e.kickoutY.toFixed(2) : '';
+                const turnoverX = e.turnoverX !== undefined ? e.turnoverX.toFixed(2) : '';
+                const turnoverY = e.turnoverY !== undefined ? e.turnoverY.toFixed(2) : '';
                 csv += (i + 1) + ',' + e.timestamp + ',' + e.time + ',' + e.period + ',' +
-                       e.type + ',' + e.category + ',"' + e.descriptors + '",' + kickoutX + ',' + kickoutY + '\n';
+                       e.type + ',' + e.category + ',"' + e.descriptors + '",' +
+                       shotX + ',' + shotY + ',' + kickoutX + ',' + kickoutY + ',' +
+                       turnoverX + ',' + turnoverY + '\n';
             });
 
             let blob = new Blob([csv], { type: 'text/csv' });
@@ -5672,7 +5678,7 @@
                     // Validate header
                     const header = lines[0].trim();
                     if (!header.includes('Event#') || !header.includes('Timestamp') || !header.includes('Type') || !header.includes('Category')) {
-                        alert('Invalid CSV format! Expected headers: Event#, Timestamp, Game Time, Period, Type, Category, Descriptors');
+                        alert('Invalid CSV format! Expected headers: Event#, Timestamp, Game Time, Period, Type, Category, Descriptors, ShotX, ShotY, KickoutX, KickoutY, TurnoverX, TurnoverY');
                         event.target.value = '';
                         return;
                     }
@@ -5715,6 +5721,26 @@
                             category: parts[5].trim(),
                             descriptors: parts[6].trim()
                         };
+
+                        // Parse location data if present
+                        if (parts.length > 7 && parts[7].trim()) {
+                            event.shotX = parseFloat(parts[7].trim());
+                        }
+                        if (parts.length > 8 && parts[8].trim()) {
+                            event.shotY = parseFloat(parts[8].trim());
+                        }
+                        if (parts.length > 9 && parts[9].trim()) {
+                            event.kickoutX = parseFloat(parts[9].trim());
+                        }
+                        if (parts.length > 10 && parts[10].trim()) {
+                            event.kickoutY = parseFloat(parts[10].trim());
+                        }
+                        if (parts.length > 11 && parts[11].trim()) {
+                            event.turnoverX = parseFloat(parts[11].trim());
+                        }
+                        if (parts.length > 12 && parts[12].trim()) {
+                            event.turnoverY = parseFloat(parts[12].trim());
+                        }
 
                         // Validate event data
                         if (!event.type || !event.category || !event.descriptors) {
