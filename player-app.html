@@ -5678,7 +5678,7 @@
                     // Validate header
                     const header = lines[0].trim();
                     if (!header.includes('Event#') || !header.includes('Timestamp') || !header.includes('Type') || !header.includes('Category')) {
-                        alert('Invalid CSV format! Expected headers: Event#, Timestamp, Game Time, Period, Type, Category, Descriptors, ShotX, ShotY, KickoutX, KickoutY, TurnoverX, TurnoverY');
+                        alert('Invalid CSV format! Expected headers: Event#, Timestamp, Game Time, Period, Type, Category, Descriptors, KickoutX, KickoutY');
                         event.target.value = '';
                         return;
                     }
@@ -5722,24 +5722,12 @@
                             descriptors: parts[6].trim()
                         };
 
-                        // Parse location data if present
+                        // Parse kickout coordinates if present
                         if (parts.length > 7 && parts[7].trim()) {
-                            event.shotX = parseFloat(parts[7].trim());
+                            event.kickoutX = parseFloat(parts[7].trim());
                         }
                         if (parts.length > 8 && parts[8].trim()) {
-                            event.shotY = parseFloat(parts[8].trim());
-                        }
-                        if (parts.length > 9 && parts[9].trim()) {
-                            event.kickoutX = parseFloat(parts[9].trim());
-                        }
-                        if (parts.length > 10 && parts[10].trim()) {
-                            event.kickoutY = parseFloat(parts[10].trim());
-                        }
-                        if (parts.length > 11 && parts[11].trim()) {
-                            event.turnoverX = parseFloat(parts[11].trim());
-                        }
-                        if (parts.length > 12 && parts[12].trim()) {
-                            event.turnoverY = parseFloat(parts[12].trim());
+                            event.kickoutY = parseFloat(parts[8].trim());
                         }
 
                         // Validate event data

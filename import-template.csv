@@ -1,7 +1,6 @@
-Event#,Timestamp,Game Time,Period,Type,Category,Descriptors,ShotX,ShotY,KickoutX,KickoutY,TurnoverX,TurnoverY
-1,2026-06-19T14:15:30.000Z,05:30,1st Half Started,OUR,OUR 14,"Touch, Shot, Goal",150.50,75.30,,,,
-2,2026-06-19T14:22:15.000Z,12:15,1st Half Started,OUR,OUR 12,"Touch, Shot, 2 Pointer",200.20,100.80,,,,
-3,2026-06-19T14:28:45.000Z,18:45,1st Half Started,OUR,OUR 9,"Touch, Shot, Point",180.00,90.50,,,,
-4,2026-06-19T14:30:00.000Z,20:00,1st Half Started,OUR,Team Event,"KO Won",,,250.00,50.00,,
-5,2026-06-19T14:32:00.000Z,22:00,1st Half Started,OPP,Team Event,"KO Lost",,,220.00,45.00,,
-6,2026-06-19T14:35:00.000Z,25:00,1st Half Started,OUR,OUR 8,"Touch, T/O Lost",,,,,,175.00,85.00
+Event#,Timestamp,Game Time,Period,Type,Category,Descriptors,KickoutX,KickoutY
+1,2026-06-19T14:15:30.000Z,05:30,1st Half Started,OUR,OUR 14,"Touch, Shot, Goal",,
+2,2026-06-19T14:22:15.000Z,12:15,1st Half Started,OUR,OUR 12,"Touch, Shot, 2 Pointer",,
+3,2026-06-19T14:28:45.000Z,18:45,1st Half Started,OUR,OUR 9,"Touch, Shot, Point",,
+4,2026-06-19T14:30:00.000Z,20:00,1st Half Started,OUR,Team Event,"KO Won",250.00,50.00
+5,2026-06-19T14:32:00.000Z,22:00,1st Half Started,OPP,Team Event,"KO Lost",220.00,45.00
