@@ -6197,13 +6197,42 @@
             exportContent += `# Created: ${new Date().toLocaleString()}\n`;
             exportContent += `# Total clips: ${clipData.length}\n\n`;
 
-            exportContent += '# FFmpeg Commands (replace "input_video.mp4" with your video file)\n';
-            exportContent += '# Run these commands in the directory containing your video file\n\n';
+            exportContent += '# ========================================\n';
+            exportContent += '# OPTION 1: Create ONE merged video file\n';
+            exportContent += '# ========================================\n\n';
+
+            // Generate filter_complex command for merged video
+            exportContent += '# This command creates a single MP4 with all clips merged together:\n\n';
+            exportContent += 'ffmpeg -i input_video.mp4 \\\n';
+
+            // Build filter_complex for all segments
+            let filterParts = [];
+            clipData.forEach((clip, idx) => {
+                const startTime = parseFloat(clip.startTime);
+                const endTime = startTime + clip.duration;
+                filterParts.push(`[0:v]trim=start=${startTime.toFixed(2)}:end=${endTime.toFixed(2)},setpts=PTS-STARTPTS[v${idx}];`);
+                filterParts.push(`[0:a]atrim=start=${startTime.toFixed(2)}:end=${endTime.toFixed(2)},asetpts=PTS-STARTPTS[a${idx}];`);
+            });
+
+            // Concat all segments
+            const concatInputs = clipData.map((_, idx) => `[v${idx}][a${idx}]`).join('');
+            filterParts.push(`${concatInputs}concat=n=${clipData.length}:v=1:a=1[outv][outa]`);
+
+            exportContent += `-filter_complex "${filterParts.join('')}" \\\n`;
+            exportContent += `-map "[outv]" -map "[outa]" \\\n`;
+            exportContent += `highlights_${gameName.replace(/\s+/g, '_')}.mp4\n\n`;
+
+            exportContent += '\n# ========================================\n';
+            exportContent += '# OPTION 2: Create individual clip files\n';
+            exportContent += '# ========================================\n\n';
+            exportContent += '# Run these commands to create separate clip files:\n\n';
             ffmpegCommands.forEach(cmd => {
                 exportContent += cmd + '\n';
             });
 
-            exportContent += '\n\n# Clip Details (CSV format)\n';
+            exportContent += '\n\n# ========================================\n';
+            exportContent += '# Clip Details (CSV format)\n';
+            exportContent += '# ========================================\n\n';
             exportContent += 'Clip Number,Start Time (seconds),Duration (seconds),Game Time,Team,Player,Descriptors,Description\n';
             clipData.forEach(clip => {
                 exportContent += `${clip.clipNumber},${clip.startTime},${clip.duration},${clip.gameTime},${clip.team},"${clip.player}","${clip.descriptors}","${clip.description}"\n`;
@@ -6220,7 +6249,7 @@
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
 
-            alert(`Clip file created with ${clipData.length} clips!\n\nThe file contains FFmpeg commands to extract 30-second clips from your video.`);
+            alert(`Clip file created with ${clipData.length} clips!\n\nThe file contains:\n• OPTION 1: One command to create a merged highlights video\n• OPTION 2: Individual commands for separate clip files`);
         }
 
         function updateRecentEvents() {
