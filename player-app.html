@@ -5717,7 +5717,7 @@
                     if (videoTime !== undefined && isFinite(videoTime)) {
                         const videoTimeDisplay = formatVideoTime(videoTime);
                         videoTimeStr = ` <span style="color: #2196F3; font-size: 0.9em;">(${videoTimeDisplay})</span>`;
-                        viewButton = `<button class="view-event-btn" onclick="seekToEvent(events[${actualIndex}])" title="View at ${videoTimeDisplay}">👁️</button>`;
+                        viewButton = `<button class="view-event-btn" onclick="seekToEventTime(${videoTime})" title="View at ${videoTimeDisplay}">👁️</button>`;
                         editButton = `<button class="edit-event-btn" onclick="startEditingEvent(${actualIndex})" title="Edit timestamp">✏️</button>`;
                     }
                 }
