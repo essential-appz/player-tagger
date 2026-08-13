@@ -1855,6 +1855,10 @@
             </label>
             <button onclick="clearEventSelection()" style="padding: 4px 8px; border: 1px solid #ccc; background: white; border-radius: 4px; font-size: 11px; cursor: pointer;">Clear</button>
             <span id="selectedEventCount" style="margin-left: auto; font-size: 11px; color: #666;">0 selected</span>
+        </div>
+        <div style="margin-bottom: 10px; padding: 8px; background: #f5f5f5; border-radius: 6px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+            <label style="font-size: 12px; color: #666;">Video Source:</label>
+            <input type="file" id="clipSourceVideo" accept="video/*" style="font-size: 11px; flex: 1; min-width: 200px;">
             <button onclick="createClipsFromSelected()" style="padding: 6px 12px; border: none; background: #4CAF50; color: white; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: bold;">🎬 Create Clips</button>
         </div>
         <div class="recent-events-list" id="recentEventsList">
@@ -6118,6 +6122,14 @@
                 return;
             }
 
+            // Get video source file
+            const videoFileInput = document.getElementById('clipSourceVideo');
+            let videoFileName = 'input_video.mp4';
+
+            if (videoFileInput && videoFileInput.files.length > 0) {
+                videoFileName = videoFileInput.files[0].name;
+            }
+
             // Get selected events
             const selectedEvents = Array.from(selectedEventIndices)
                 .map(index => ({
@@ -6182,7 +6194,7 @@
 
                     // Generate FFmpeg command
                     const outputFilename = `clip_${String(clipNum).padStart(3, '0')}_${event.time.replace(':', '')}_${event.type}_${event.category.replace(' ', '')}.mp4`;
-                    ffmpegCommands.push(`ffmpeg -i input_video.mp4 -ss ${ffmpegStart} -t ${duration} -c copy "${outputFilename}"`);
+                    ffmpegCommands.push(`ffmpeg -i "${videoFileName}" -ss ${ffmpegStart} -t ${duration} -c copy "${outputFilename}"`);
                 }
             });
 
@@ -6194,6 +6206,7 @@
             // Create export content
             let exportContent = '# Video Clips Export\n';
             exportContent += `# Game: ${gameName || 'Untitled'}\n`;
+            exportContent += `# Video Source: ${videoFileName}\n`;
             exportContent += `# Created: ${new Date().toLocaleString()}\n`;
             exportContent += `# Total clips: ${clipData.length}\n\n`;
 
@@ -6203,7 +6216,7 @@
 
             // Generate filter_complex command for merged video
             exportContent += '# This command creates a single MP4 with all clips merged together:\n\n';
-            exportContent += 'ffmpeg -i input_video.mp4 \\\n';
+            exportContent += `ffmpeg -i "${videoFileName}" \\\n`;
 
             // Build filter_complex for all segments
             let filterParts = [];
@@ -6225,7 +6238,7 @@
             exportContent += '\n# ========================================\n';
             exportContent += '# OPTION 2: Create individual clip files\n';
             exportContent += '# ========================================\n\n';
-            exportContent += '# Run these commands to create separate clip files:\n\n';
+            exportContent += `# Run these commands in the directory containing "${videoFileName}":\n\n`;
             ffmpegCommands.forEach(cmd => {
                 exportContent += cmd + '\n';
             });
