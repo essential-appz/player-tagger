@@ -277,6 +277,32 @@
             }
         }
 
+        /* Single row layout for Post-Match mode (all 26 players) */
+        .compact-row-single {
+            display: flex;
+            justify-content: flex-start;
+            gap: 4px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .compact-btn-single {
+            flex: 0 0 40px;
+            padding: 10px 4px;
+            font-size: 14px;
+            min-width: 35px;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .compact-btn-single {
+                flex: 0 0 35px;
+                padding: 8px 3px;
+                font-size: 12px;
+                min-width: 30px;
+            }
+        }
+
         /* Video Player Styles */
         .video-container {
             display: flex;
@@ -305,6 +331,14 @@
             gap: 15px;
             overflow-y: auto;
             max-height: 500px;
+        }
+
+        #matchEventsSidebar {
+            max-height: 600px;
+        }
+
+        #descGridPostMatch .descriptor-btn {
+            margin-bottom: 5px;
         }
 
         .control-section {
@@ -469,6 +503,11 @@
 
         .video-btn:hover {
             background: #1976D2;
+        }
+
+        .video-btn.active {
+            background: #4CAF50;
+            box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.3);
         }
 
         .speed-select {
@@ -1640,6 +1679,14 @@
     <div id="videoSection" class="section" style="display: none;">
         <h2>Match Video</h2>
         <div class="video-container" id="videoContainer">
+            <!-- Match Events Sidebar (Left) -->
+            <div class="video-controls-sidebar" id="matchEventsSidebar">
+                <div class="control-section">
+                    <h4>Match Events</h4>
+                    <div id="descGridPostMatch" style="display: grid; grid-template-columns: 1fr; gap: 8px;"></div>
+                </div>
+            </div>
+
             <!-- Video Player -->
             <div class="video-player-wrapper">
                 <div class="video-controls-top">
@@ -1690,6 +1737,11 @@
                     <div class="possession-info">
                         <span class="possession-label">Current:</span>
                         <span class="possession-team none" id="possessionTeam">No possession</span>
+                    </div>
+
+                    <!-- Log Attack Button (Post-Match Mode Only) -->
+                    <div id="logAttackControl" style="display: none; margin-top: 10px;">
+                        <button class="video-btn" onclick="logAttack()" style="width: 100%; background: #FF9800;">⚡ Log Attack</button>
                     </div>
                 </div>
 
@@ -1742,7 +1794,7 @@
         </div>
     </div>
 
-    <div class="section">
+    <div class="section" id="matchEventsSection">
         <h2>Match Events</h2>
         <div class="button-grid" id="descGrid"></div>
     </div>
@@ -2146,6 +2198,24 @@
         </div>
     </div>
 
+    <!-- Initial Possession Modal -->
+    <div id="initialPossessionModal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2>Initial Possession</h2>
+            </div>
+            <p style="text-align: center; color: #666; margin-bottom: 20px;">Who won the throw-in?</p>
+            <div style="display: flex; gap: 15px; justify-content: center;">
+                <button class="control-btn primary" onclick="setInitialPossessionFromModal('OUR')" style="flex: 1; font-size: 16px; padding: 15px;">
+                    Our Team
+                </button>
+                <button class="control-btn danger" onclick="setInitialPossessionFromModal('OPP')" style="flex: 1; font-size: 16px; padding: 15px;">
+                    Opposition
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Configuration
         const categories = ['OUR 1', 'OUR 2', 'OUR 3', 'OUR 4', 'OUR 5', 'OUR 6', 'OUR 7', 'OUR 8', 'OUR 9', 'OUR 10', 'OUR 11', 'OUR 12', 'OUR 13', 'OUR 14', 'OUR 15', 'OUR 16', 'OUR 17', 'OUR 18', 'OUR 19', 'OUR 20', 'OUR 21', 'OUR 22', 'OUR 23', 'OUR 24', 'OUR 25', 'OUR 26'];
@@ -2513,7 +2583,14 @@
 
         function rebuildDescriptorButtons() {
             const descGrid = document.getElementById('descGrid');
+            const descGridPostMatch = document.getElementById('descGridPostMatch');
+
+            // Clear both grids
             descGrid.innerHTML = '';
+            descGridPostMatch.innerHTML = '';
+
+            // Determine which grid to populate based on game mode
+            const targetGrid = gameMode === 'post-match' ? descGridPostMatch : descGrid;
 
             descriptors.forEach(desc => {
                 const btn = document.createElement('button');
@@ -2524,20 +2601,28 @@
                 btn.disabled = isKOButton ? false : true;
                 btn.onclick = () => toggleDesc(btn, desc);
 
-                // Wrap KO buttons with team label
-                if (isKOButton) {
-                    const wrapper = document.createElement('div');
-                    wrapper.className = 'descriptor-wrapper';
-
-                    const label = document.createElement('div');
-                    label.className = 'team-label';
-                    label.textContent = desc.includes('Own KO') ? `By ${team1Name}` : `By ${team2Name}`;
-
-                    wrapper.appendChild(btn);
-                    wrapper.appendChild(label);
-                    descGrid.appendChild(wrapper);
+                // In post-match mode, use full-width buttons without wrappers
+                if (gameMode === 'post-match') {
+                    btn.style.width = '100%';
+                    btn.style.fontSize = '12px';
+                    btn.style.padding = '10px 8px';
+                    targetGrid.appendChild(btn);
                 } else {
-                    descGrid.appendChild(btn);
+                    // Wrap KO buttons with team label in in-match mode
+                    if (isKOButton) {
+                        const wrapper = document.createElement('div');
+                        wrapper.className = 'descriptor-wrapper';
+
+                        const label = document.createElement('div');
+                        label.className = 'team-label';
+                        label.textContent = desc.includes('Own KO') ? `By ${team1Name}` : `By ${team2Name}`;
+
+                        wrapper.appendChild(btn);
+                        wrapper.appendChild(label);
+                        targetGrid.appendChild(wrapper);
+                    } else {
+                        targetGrid.appendChild(btn);
+                    }
                 }
             });
 
@@ -2592,6 +2677,9 @@
 
             // Rebuild player buttons with new layout
             createButtons();
+
+            // Rebuild descriptor buttons in the correct location
+            rebuildDescriptorButtons();
         }
 
         function updateModeUI() {
@@ -2609,10 +2697,26 @@
 
         function updateVideoVisibility() {
             const videoSection = document.getElementById('videoSection');
+            const logAttackControl = document.getElementById('logAttackControl');
+            const matchEventsSection = document.getElementById('matchEventsSection');
+            const matchEventsSidebar = document.getElementById('matchEventsSidebar');
+
             if (gameMode === 'post-match') {
                 videoSection.style.display = 'block';
+                // Show log attack button if a half has started and possession is set
+                const halfStarted = currentPeriod === '1st Half Started' || currentPeriod === '2nd Half Started';
+                logAttackControl.style.display = (halfStarted && currentPossessionTeam) ? 'block' : 'none';
+
+                // Hide regular match events section, show sidebar version
+                matchEventsSection.style.display = 'none';
+                matchEventsSidebar.style.display = 'block';
             } else {
                 videoSection.style.display = 'none';
+                logAttackControl.style.display = 'none';
+
+                // Show regular match events section, hide sidebar version
+                matchEventsSection.style.display = 'block';
+                matchEventsSidebar.style.display = 'none';
             }
         }
 
@@ -2859,6 +2963,56 @@
                 possessionTeamEl.textContent = teamName;
                 possessionTeamEl.className = 'possession-team';
             }
+
+            // Update Log Attack button visibility
+            updateVideoVisibility();
+        }
+
+        function setInitialPossessionFromModal(team) {
+            currentPossessionTeam = team;
+            updatePossessionDisplay();
+            closeInitialPossessionModal();
+
+            // Show Log Attack button in Post-Match mode
+            if (gameMode === 'post-match') {
+                document.getElementById('logAttackControl').style.display = 'block';
+            }
+        }
+
+        function openInitialPossessionModal() {
+            document.getElementById('initialPossessionModal').classList.add('active');
+        }
+
+        function closeInitialPossessionModal() {
+            document.getElementById('initialPossessionModal').classList.remove('active');
+        }
+
+        function logAttack() {
+            if (!currentPossessionTeam) {
+                alert('No team has possession! Set possession first.');
+                return;
+            }
+
+            const gameTime = formatTime(timerSeconds);
+            const videoTime = gameMode === 'post-match' ? document.getElementById('matchVideo').currentTime : undefined;
+
+            const attackEvent = {
+                timestamp: new Date().toISOString(),
+                time: gameTime,
+                period: currentPeriod,
+                type: currentPossessionTeam,
+                category: 'Team Event',
+                descriptors: 'Attack'
+            };
+
+            if (videoTime !== undefined) {
+                attackEvent.videoTime = videoTime;
+            }
+
+            events.push(attackEvent);
+            saveToStorage();
+            rebuildMatrices();
+            updateRecentEvents();
         }
 
         function updatePossessionFromEvent(eventDescriptors, eventType) {
@@ -4573,100 +4727,33 @@
         }
 
         function createCompactButtons(ckGrid, oppGrid) {
-            // Compact layout for Post-Match mode: 3 rows of 5 buttons (optimized for tablet)
-            const row1Players = [1, 2, 3, 4, 5];
-            const row2Players = [6, 7, 8, 9, 10];
-            const row3Players = [11, 12, 13, 14, 15];
+            // Compact layout for Post-Match mode: Single row with all 26 players
 
-            // OUR buttons
-            const ckContainer = document.createElement('div');
-            ckContainer.className = 'compact-container';
-
-            // Row 1 (1-5)
-            const ckRow1 = document.createElement('div');
-            ckRow1.className = 'compact-row';
-            row1Players.forEach(num => {
+            // OUR buttons (1-26)
+            const ckRow = document.createElement('div');
+            ckRow.className = 'compact-row-single';
+            for (let num = 1; num <= 26; num++) {
                 const cat = 'OUR ' + num;
                 const btn = document.createElement('button');
-                btn.className = 'category-btn compact-btn';
+                btn.className = 'category-btn compact-btn-single';
                 btn.textContent = num;
                 btn.onclick = () => selectCat(btn, 'OUR', cat);
-                ckRow1.appendChild(btn);
-            });
-            ckContainer.appendChild(ckRow1);
+                ckRow.appendChild(btn);
+            }
+            ckGrid.appendChild(ckRow);
 
-            // Row 2 (6-10)
-            const ckRow2 = document.createElement('div');
-            ckRow2.className = 'compact-row';
-            row2Players.forEach(num => {
-                const cat = 'OUR ' + num;
-                const btn = document.createElement('button');
-                btn.className = 'category-btn compact-btn';
-                btn.textContent = num;
-                btn.onclick = () => selectCat(btn, 'OUR', cat);
-                ckRow2.appendChild(btn);
-            });
-            ckContainer.appendChild(ckRow2);
-
-            // Row 3 (11-15)
-            const ckRow3 = document.createElement('div');
-            ckRow3.className = 'compact-row';
-            row3Players.forEach(num => {
-                const cat = 'OUR ' + num;
-                const btn = document.createElement('button');
-                btn.className = 'category-btn compact-btn';
-                btn.textContent = num;
-                btn.onclick = () => selectCat(btn, 'OUR', cat);
-                ckRow3.appendChild(btn);
-            });
-            ckContainer.appendChild(ckRow3);
-
-            ckGrid.appendChild(ckContainer);
-
-            // OPP buttons
-            const oppContainer = document.createElement('div');
-            oppContainer.className = 'compact-container';
-
-            // Row 1 (1-5)
-            const oppRow1 = document.createElement('div');
-            oppRow1.className = 'compact-row';
-            row1Players.forEach(num => {
+            // OPP buttons (1-26)
+            const oppRow = document.createElement('div');
+            oppRow.className = 'compact-row-single';
+            for (let num = 1; num <= 26; num++) {
                 const opp = 'OPP ' + num;
                 const btn = document.createElement('button');
-                btn.className = 'category-btn compact-btn';
+                btn.className = 'category-btn compact-btn-single';
                 btn.textContent = num;
                 btn.onclick = () => selectCat(btn, 'OPP', opp);
-                oppRow1.appendChild(btn);
-            });
-            oppContainer.appendChild(oppRow1);
-
-            // Row 2 (6-10)
-            const oppRow2 = document.createElement('div');
-            oppRow2.className = 'compact-row';
-            row2Players.forEach(num => {
-                const opp = 'OPP ' + num;
-                const btn = document.createElement('button');
-                btn.className = 'category-btn compact-btn';
-                btn.textContent = num;
-                btn.onclick = () => selectCat(btn, 'OPP', opp);
-                oppRow2.appendChild(btn);
-            });
-            oppContainer.appendChild(oppRow2);
-
-            // Row 3 (11-15)
-            const oppRow3 = document.createElement('div');
-            oppRow3.className = 'compact-row';
-            row3Players.forEach(num => {
-                const opp = 'OPP ' + num;
-                const btn = document.createElement('button');
-                btn.className = 'category-btn compact-btn';
-                btn.textContent = num;
-                btn.onclick = () => selectCat(btn, 'OPP', opp);
-                oppRow3.appendChild(btn);
-            });
-            oppContainer.appendChild(oppRow3);
-
-            oppGrid.appendChild(oppContainer);
+                oppRow.appendChild(btn);
+            }
+            oppGrid.appendChild(oppRow);
         }
 
         function createButtons() {
@@ -5183,6 +5270,11 @@
             // Rebuild descriptor buttons to update KO/Update button states
             rebuildDescriptorButtons();
 
+            // Show initial possession modal in Post-Match mode when starting a half
+            if (gameMode === 'post-match' && (period === '1st Half Started' || period === '2nd Half Started')) {
+                openInitialPossessionModal();
+            }
+
             // Handle timer based on period
             if (period === '1st Half Started') {
                 startTimer(0);
@@ -5526,11 +5618,31 @@
                 let videoTimeStr = '';
                 let viewButton = '';
                 let editButton = '';
-                if (gameMode === 'post-match' && event.videoTime !== undefined) {
-                    const videoTimeDisplay = formatVideoTime(event.videoTime);
-                    videoTimeStr = ` <span style="color: #2196F3; font-size: 0.9em;">(${videoTimeDisplay})</span>`;
-                    viewButton = `<button class="view-event-btn" onclick="seekToEventTime(${event.videoTime})" title="View at ${videoTimeDisplay}">👁️</button>`;
-                    editButton = `<button class="edit-event-btn" onclick="startEditingEvent(${actualIndex})" title="Edit timestamp">✏️</button>`;
+                if (gameMode === 'post-match') {
+                    let videoTime = event.videoTime;
+
+                    // Calculate videoTime from gameTime if not stored
+                    if (videoTime === undefined || videoTime === null || !isFinite(videoTime)) {
+                        const gameTimeMatch = event.time.match(/(\d+):(\d+)/);
+                        if (gameTimeMatch) {
+                            const gameTimeSeconds = parseInt(gameTimeMatch[1]) * 60 + parseInt(gameTimeMatch[2]);
+
+                            if (gameTimeSeconds < 1800) {
+                                // 1st half: videoTime = gameTime + firstHalfOffset
+                                videoTime = gameTimeSeconds + videoFirstHalfOffset;
+                            } else {
+                                // 2nd half: videoTime = (gameTime - 1800) + secondHalfOffset
+                                videoTime = (gameTimeSeconds - 1800) + videoSecondHalfOffset;
+                            }
+                        }
+                    }
+
+                    if (videoTime !== undefined && isFinite(videoTime)) {
+                        const videoTimeDisplay = formatVideoTime(videoTime);
+                        videoTimeStr = ` <span style="color: #2196F3; font-size: 0.9em;">(${videoTimeDisplay})</span>`;
+                        viewButton = `<button class="view-event-btn" onclick="seekToEvent(events[${actualIndex}])" title="View at ${videoTimeDisplay}">👁️</button>`;
+                        editButton = `<button class="edit-event-btn" onclick="startEditingEvent(${actualIndex})" title="Edit timestamp">✏️</button>`;
+                    }
                 }
 
                 // Check if this event is being edited
