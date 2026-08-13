@@ -2273,6 +2273,25 @@
                     <div id="editEventDescriptors" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
                     </div>
                 </div>
+                <div id="editEventTimestampSection" style="display: none; margin-bottom: 15px; padding: 15px; background: #f5f5f5; border-radius: 6px;">
+                    <label style="display: block; margin-bottom: 10px; font-weight: bold;">Timestamp:</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                        <div>
+                            <label style="display: block; font-size: 12px; color: #666; margin-bottom: 3px;">Game Time:</label>
+                            <input type="text" id="editEventGameTime" readonly style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc; background: white;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 12px; color: #666; margin-bottom: 3px;">Video Time:</label>
+                            <input type="text" id="editEventVideoTime" readonly style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc; background: white;">
+                        </div>
+                    </div>
+                    <button class="control-btn" onclick="updateTimestampFromVideo()" style="width: 100%; background: #FF9800;">
+                        🎬 Use Current Video Timestamp
+                    </button>
+                    <p style="font-size: 11px; color: #666; margin-top: 8px; margin-bottom: 0;">
+                        Pause the video at the desired moment, then click to update timestamp
+                    </p>
+                </div>
                 <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
                     <button class="control-btn secondary" onclick="closeEditEventModal()">Cancel</button>
                     <button class="control-btn primary" onclick="saveEditedEvent()">Save Changes</button>
@@ -3195,10 +3214,56 @@
                 descriptorsContainer.appendChild(btn);
             });
 
+            // Show/hide timestamp section based on game mode
+            const timestampSection = document.getElementById('editEventTimestampSection');
+            if (gameMode === 'post-match') {
+                timestampSection.style.display = 'block';
+
+                // Populate current timestamp values
+                document.getElementById('editEventGameTime').value = event.time || '';
+
+                let videoTimeDisplay = '';
+                if (event.videoTime !== undefined && isFinite(event.videoTime)) {
+                    videoTimeDisplay = formatVideoTime(event.videoTime);
+                }
+                document.getElementById('editEventVideoTime').value = videoTimeDisplay;
+            } else {
+                timestampSection.style.display = 'none';
+            }
+
             // Add team change handler
             teamSelect.onchange = function() {
                 updateEditPlayerOptions(this.value, null);
             };
+        }
+
+        function updateTimestampFromVideo() {
+            if (editingEventIndex === null || editingEventIndex < 0 || editingEventIndex >= events.length) {
+                alert('No event is being edited!');
+                return;
+            }
+
+            const video = document.getElementById('matchVideo');
+            if (!video || !video.duration) {
+                alert('Please load a video first!');
+                return;
+            }
+
+            // Get current video timestamp
+            const newVideoTime = video.currentTime;
+
+            // Calculate match time based on video time and half offsets
+            const newMatchTime = calculateMatchTimeFromVideo(newVideoTime);
+
+            // Update the display fields
+            document.getElementById('editEventGameTime').value = newMatchTime;
+            document.getElementById('editEventVideoTime').value = formatVideoTime(newVideoTime);
+
+            // Update the event (will be saved when user clicks Save Changes)
+            events[editingEventIndex].videoTime = newVideoTime;
+            events[editingEventIndex].time = newMatchTime;
+
+            alert('Timestamp updated! Click "Save Changes" to apply.');
         }
 
         function updateEditPlayerOptions(team, selectedCategory) {
