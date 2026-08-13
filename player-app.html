@@ -1780,9 +1780,24 @@
                 <button class="zoom-exit-btn" onclick="toggleVideoZoom()">🔍 Exit Zoom</button>
             </div>
         </div>
+
+        <!-- Player Buttons (Post-Match Mode) -->
+        <div id="videoPlayerButtons" style="display: none; margin-top: 20px;">
+            <div class="teams-container">
+                <div class="team-panel">
+                    <h2>Our Players</h2>
+                    <div id="ckGridPostMatch"></div>
+                </div>
+
+                <div class="team-panel">
+                    <h2>Opposition Players</h2>
+                    <div id="oppGridPostMatch"></div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="teams-container">
+    <div class="teams-container" id="inMatchPlayerButtons">
         <div class="team-panel">
             <h2>Our Players</h2>
             <div id="ckGrid"></div>
@@ -2700,6 +2715,8 @@
             const logAttackControl = document.getElementById('logAttackControl');
             const matchEventsSection = document.getElementById('matchEventsSection');
             const matchEventsSidebar = document.getElementById('matchEventsSidebar');
+            const videoPlayerButtons = document.getElementById('videoPlayerButtons');
+            const inMatchPlayerButtons = document.getElementById('inMatchPlayerButtons');
 
             if (gameMode === 'post-match') {
                 videoSection.style.display = 'block';
@@ -2710,6 +2727,10 @@
                 // Hide regular match events section, show sidebar version
                 matchEventsSection.style.display = 'none';
                 matchEventsSidebar.style.display = 'block';
+
+                // Show player buttons in video panel, hide in-match player buttons
+                videoPlayerButtons.style.display = 'block';
+                inMatchPlayerButtons.style.display = 'none';
             } else {
                 videoSection.style.display = 'none';
                 logAttackControl.style.display = 'none';
@@ -2717,6 +2738,10 @@
                 // Show regular match events section, hide sidebar version
                 matchEventsSection.style.display = 'block';
                 matchEventsSidebar.style.display = 'none';
+
+                // Show in-match player buttons, hide video panel player buttons
+                videoPlayerButtons.style.display = 'none';
+                inMatchPlayerButtons.style.display = 'block';
             }
         }
 
@@ -4727,49 +4752,79 @@
         }
 
         function createCompactButtons(ckGrid, oppGrid) {
-            // Compact layout for Post-Match mode: Single row with all 26 players
+            // Compact layout for Post-Match mode: Two rows (1-15 and 16-26)
 
-            // OUR buttons (1-26)
-            const ckRow = document.createElement('div');
-            ckRow.className = 'compact-row-single';
-            for (let num = 1; num <= 26; num++) {
+            // OUR buttons - Row 1 (1-15)
+            const ckRow1 = document.createElement('div');
+            ckRow1.className = 'compact-row-single';
+            for (let num = 1; num <= 15; num++) {
                 const cat = 'OUR ' + num;
                 const btn = document.createElement('button');
                 btn.className = 'category-btn compact-btn-single';
                 btn.textContent = num;
                 btn.onclick = () => selectCat(btn, 'OUR', cat);
-                ckRow.appendChild(btn);
+                ckRow1.appendChild(btn);
             }
-            ckGrid.appendChild(ckRow);
+            ckGrid.appendChild(ckRow1);
 
-            // OPP buttons (1-26)
-            const oppRow = document.createElement('div');
-            oppRow.className = 'compact-row-single';
-            for (let num = 1; num <= 26; num++) {
+            // OUR buttons - Row 2 (16-26)
+            const ckRow2 = document.createElement('div');
+            ckRow2.className = 'compact-row-single';
+            for (let num = 16; num <= 26; num++) {
+                const cat = 'OUR ' + num;
+                const btn = document.createElement('button');
+                btn.className = 'category-btn compact-btn-single';
+                btn.textContent = num;
+                btn.onclick = () => selectCat(btn, 'OUR', cat);
+                ckRow2.appendChild(btn);
+            }
+            ckGrid.appendChild(ckRow2);
+
+            // OPP buttons - Row 1 (1-15)
+            const oppRow1 = document.createElement('div');
+            oppRow1.className = 'compact-row-single';
+            for (let num = 1; num <= 15; num++) {
                 const opp = 'OPP ' + num;
                 const btn = document.createElement('button');
                 btn.className = 'category-btn compact-btn-single';
                 btn.textContent = num;
                 btn.onclick = () => selectCat(btn, 'OPP', opp);
-                oppRow.appendChild(btn);
+                oppRow1.appendChild(btn);
             }
-            oppGrid.appendChild(oppRow);
+            oppGrid.appendChild(oppRow1);
+
+            // OPP buttons - Row 2 (16-26)
+            const oppRow2 = document.createElement('div');
+            oppRow2.className = 'compact-row-single';
+            for (let num = 16; num <= 26; num++) {
+                const opp = 'OPP ' + num;
+                const btn = document.createElement('button');
+                btn.className = 'category-btn compact-btn-single';
+                btn.textContent = num;
+                btn.onclick = () => selectCat(btn, 'OPP', opp);
+                oppRow2.appendChild(btn);
+            }
+            oppGrid.appendChild(oppRow2);
         }
 
         function createButtons() {
-            // Clear existing buttons
-            const ckGrid = document.getElementById('ckGrid');
-            const oppGrid = document.getElementById('oppGrid');
-            ckGrid.innerHTML = '';
-            oppGrid.innerHTML = '';
-
-            // Post-Match mode: Compact layout (3 rows, optimized for tablet)
+            // Post-Match mode: Use separate grids in video panel
             if (gameMode === 'post-match') {
-                createCompactButtons(ckGrid, oppGrid);
+                const ckGridPostMatch = document.getElementById('ckGridPostMatch');
+                const oppGridPostMatch = document.getElementById('oppGridPostMatch');
+                ckGridPostMatch.innerHTML = '';
+                oppGridPostMatch.innerHTML = '';
+                createCompactButtons(ckGridPostMatch, oppGridPostMatch);
                 buildMatrix();
                 rebuildDescriptorButtons();
                 return;
             }
+
+            // In-Match mode: Use regular grids
+            const ckGrid = document.getElementById('ckGrid');
+            const oppGrid = document.getElementById('oppGrid');
+            ckGrid.innerHTML = '';
+            oppGrid.innerHTML = '';
 
             // In-Match mode: GAA Formation
             // GAA Formation: [goalkeeper, fullbacks, halfbacks, midfield, halfforwards, fullforwards]
