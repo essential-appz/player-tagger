@@ -1849,6 +1849,13 @@
                 </div>
             </div>
         </div>
+        <div style="margin-bottom: 10px; padding: 8px; background: #e3f2fd; border-radius: 6px; display: flex; gap: 8px; align-items: center;">
+            <label style="display: flex; align-items: center; gap: 4px; font-size: 12px; margin: 0;">
+                <input type="checkbox" id="selectAllEvents" onchange="toggleSelectAllEvents()"> Select All
+            </label>
+            <button onclick="clearEventSelection()" style="padding: 4px 8px; border: 1px solid #ccc; background: white; border-radius: 4px; font-size: 11px; cursor: pointer;">Clear</button>
+            <span id="selectedEventCount" style="margin-left: auto; font-size: 11px; color: #666;">0 selected</span>
+        </div>
         <div class="recent-events-list" id="recentEventsList">
             <div class="no-recent-events">No events yet</div>
         </div>
@@ -2408,6 +2415,8 @@
             koWon: true,
             koLost: true
         };
+        // Event selection state
+        let selectedEventIndices = new Set();
 
         // Initialize
         function init() {
@@ -6051,6 +6060,57 @@
             updateRecentEvents();
         }
 
+        function toggleEventSelection(eventIndex) {
+            if (selectedEventIndices.has(eventIndex)) {
+                selectedEventIndices.delete(eventIndex);
+            } else {
+                selectedEventIndices.add(eventIndex);
+            }
+            updateSelectedEventCount();
+            updateSelectAllCheckbox();
+        }
+
+        function toggleSelectAllEvents() {
+            const selectAllCheckbox = document.getElementById('selectAllEvents');
+            const checkboxes = document.querySelectorAll('.event-checkbox');
+
+            if (selectAllCheckbox.checked) {
+                // Select all visible events
+                checkboxes.forEach(cb => {
+                    const eventIndex = parseInt(cb.getAttribute('onchange').match(/\d+/)[0]);
+                    selectedEventIndices.add(eventIndex);
+                    cb.checked = true;
+                });
+            } else {
+                // Deselect all
+                selectedEventIndices.clear();
+                checkboxes.forEach(cb => cb.checked = false);
+            }
+
+            updateSelectedEventCount();
+        }
+
+        function clearEventSelection() {
+            selectedEventIndices.clear();
+            document.querySelectorAll('.event-checkbox').forEach(cb => cb.checked = false);
+            document.getElementById('selectAllEvents').checked = false;
+            updateSelectedEventCount();
+        }
+
+        function updateSelectedEventCount() {
+            const count = selectedEventIndices.size;
+            const countEl = document.getElementById('selectedEventCount');
+            countEl.textContent = `${count} selected`;
+        }
+
+        function updateSelectAllCheckbox() {
+            const selectAllCheckbox = document.getElementById('selectAllEvents');
+            const visibleCheckboxes = document.querySelectorAll('.event-checkbox');
+            const allChecked = visibleCheckboxes.length > 0 &&
+                              Array.from(visibleCheckboxes).every(cb => cb.checked);
+            selectAllCheckbox.checked = allChecked;
+        }
+
         function updateRecentEvents() {
             const recentEventsList = document.getElementById('recentEventsList');
 
@@ -6148,9 +6208,15 @@
 
                 // Check if this event is being edited
                 const editingClass = editingEventIndex === actualIndex ? ' editing' : '';
+                const isSelected = selectedEventIndices.has(actualIndex);
 
                 html += `
                     <div class="recent-event-item${editingClass}">
+                        <input type="checkbox"
+                               class="event-checkbox"
+                               ${isSelected ? 'checked' : ''}
+                               onchange="toggleEventSelection(${actualIndex})"
+                               style="margin-right: 8px; cursor: pointer;">
                         <div class="recent-event-info">
                             <span class="recent-event-time">${event.time}${videoTimeStr}</span>
                             <span class="recent-event-player">${event.type} ${playerNum}</span>
@@ -6166,6 +6232,7 @@
             });
 
             recentEventsList.innerHTML = html;
+            updateSelectedEventCount();
         }
 
         function deleteEvent(index) {
