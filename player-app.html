@@ -3225,6 +3225,33 @@
                 let videoTimeDisplay = '';
                 if (event.videoTime !== undefined && isFinite(event.videoTime)) {
                     videoTimeDisplay = formatVideoTime(event.videoTime);
+
+                    // Seek video to event's timestamp
+                    const video = document.getElementById('matchVideo');
+                    if (video && video.duration) {
+                        video.currentTime = event.videoTime;
+                    }
+                } else {
+                    // Calculate video time from game time if not stored
+                    const gameTimeMatch = event.time.match(/(\d+):(\d+)/);
+                    if (gameTimeMatch) {
+                        const gameTimeSeconds = parseInt(gameTimeMatch[1]) * 60 + parseInt(gameTimeMatch[2]);
+                        let calculatedVideoTime;
+
+                        if (gameTimeSeconds < 1800) {
+                            calculatedVideoTime = gameTimeSeconds + videoFirstHalfOffset;
+                        } else {
+                            calculatedVideoTime = (gameTimeSeconds - 1800) + videoSecondHalfOffset;
+                        }
+
+                        videoTimeDisplay = formatVideoTime(calculatedVideoTime);
+
+                        // Seek video to calculated timestamp
+                        const video = document.getElementById('matchVideo');
+                        if (video && video.duration) {
+                            video.currentTime = calculatedVideoTime;
+                        }
+                    }
                 }
                 document.getElementById('editEventVideoTime').value = videoTimeDisplay;
             } else {
@@ -3262,8 +3289,6 @@
             // Update the event (will be saved when user clicks Save Changes)
             events[editingEventIndex].videoTime = newVideoTime;
             events[editingEventIndex].time = newMatchTime;
-
-            alert('Timestamp updated! Click "Save Changes" to apply.');
         }
 
         function updateEditPlayerOptions(team, selectedCategory) {
