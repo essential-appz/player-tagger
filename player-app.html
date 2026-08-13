@@ -1816,6 +1816,30 @@
 
     <div class="recent-events">
         <h3>Logged Events</h3>
+        <div style="margin-bottom: 10px; padding: 10px; background: #f5f5f5; border-radius: 6px;">
+            <div style="margin-bottom: 8px;">
+                <label style="font-size: 12px; font-weight: bold; color: #666; display: block; margin-bottom: 5px;">Team:</label>
+                <div style="display: flex; gap: 8px;">
+                    <button class="filter-btn active" id="filterAll" onclick="setTeamFilter('ALL')" style="flex: 1; padding: 6px; border: 1px solid #ccc; background: #4CAF50; color: white; border-radius: 4px; font-size: 12px; cursor: pointer;">All</button>
+                    <button class="filter-btn" id="filterOUR" onclick="setTeamFilter('OUR')" style="flex: 1; padding: 6px; border: 1px solid #ccc; background: white; color: #333; border-radius: 4px; font-size: 12px; cursor: pointer;">Our Team</button>
+                    <button class="filter-btn" id="filterOPP" onclick="setTeamFilter('OPP')" style="flex: 1; padding: 6px; border: 1px solid #ccc; background: white; color: #333; border-radius: 4px; font-size: 12px; cursor: pointer;">Opposition</button>
+                </div>
+            </div>
+            <div>
+                <label style="font-size: 12px; font-weight: bold; color: #666; display: block; margin-bottom: 5px;">Event Type:</label>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <label style="display: flex; align-items: center; gap: 4px; font-size: 12px;">
+                        <input type="checkbox" id="filterShot" checked onchange="updateEventFilters()"> Shot
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 4px; font-size: 12px;">
+                        <input type="checkbox" id="filterKOWon" checked onchange="updateEventFilters()"> KO Won
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 4px; font-size: 12px;">
+                        <input type="checkbox" id="filterKOLost" checked onchange="updateEventFilters()"> KO Lost
+                    </label>
+                </div>
+            </div>
+        </div>
         <div class="recent-events-list" id="recentEventsList">
             <div class="no-recent-events">No events yet</div>
         </div>
@@ -2339,6 +2363,13 @@
         // Shot pitch map state
         let pendingShotEvent = null;
         let trialDaysRemaining = 0;
+        // Event filter state
+        let eventTeamFilter = 'ALL'; // 'ALL', 'OUR', 'OPP'
+        let eventTypeFilters = {
+            shot: true,
+            koWon: true,
+            koLost: true
+        };
 
         // Initialize
         function init() {
@@ -5912,6 +5943,36 @@
             updatePossessionFromEvent(selectedDescriptors, currentType);
         }
 
+        function setTeamFilter(team) {
+            eventTeamFilter = team;
+
+            // Update button styles
+            const buttons = ['filterAll', 'filterOUR', 'filterOPP'];
+            buttons.forEach(btnId => {
+                const btn = document.getElementById(btnId);
+                if (btnId === 'filter' + team || (team === 'ALL' && btnId === 'filterAll')) {
+                    btn.style.background = '#4CAF50';
+                    btn.style.color = 'white';
+                } else {
+                    btn.style.background = 'white';
+                    btn.style.color = '#333';
+                }
+            });
+
+            // Refresh event list
+            updateRecentEvents();
+        }
+
+        function updateEventFilters() {
+            // Update filter state from checkboxes
+            eventTypeFilters.shot = document.getElementById('filterShot').checked;
+            eventTypeFilters.koWon = document.getElementById('filterKOWon').checked;
+            eventTypeFilters.koLost = document.getElementById('filterKOLost').checked;
+
+            // Refresh event list
+            updateRecentEvents();
+        }
+
         function updateRecentEvents() {
             const recentEventsList = document.getElementById('recentEventsList');
 
@@ -5920,11 +5981,36 @@
                 return;
             }
 
-            // Filter out Touch-only events and show all in ascending order (oldest first)
-            const filteredEvents = events.filter(e => e.descriptors !== 'Touch');
+            // Filter out Touch-only events and apply filters
+            let filteredEvents = events.filter(e => e.descriptors !== 'Touch');
+
+            // Apply team filter
+            if (eventTeamFilter !== 'ALL') {
+                filteredEvents = filteredEvents.filter(e => e.type === eventTeamFilter);
+            }
+
+            // Apply event type filters
+            filteredEvents = filteredEvents.filter(e => {
+                const descriptors = e.descriptors.toLowerCase();
+
+                // Check if event matches any selected filter
+                let matchesFilter = false;
+
+                if (eventTypeFilters.shot && descriptors.includes('shot')) {
+                    matchesFilter = true;
+                }
+                if (eventTypeFilters.koWon && (descriptors.includes('ko won') || descriptors.includes('own ko won') || descriptors.includes('opp ko won'))) {
+                    matchesFilter = true;
+                }
+                if (eventTypeFilters.koLost && (descriptors.includes('ko lost') || descriptors.includes('own ko lost') || descriptors.includes('opp ko lost'))) {
+                    matchesFilter = true;
+                }
+
+                return matchesFilter;
+            });
 
             if (filteredEvents.length === 0) {
-                recentEventsList.innerHTML = '<div class="no-recent-events">No events yet</div>';
+                recentEventsList.innerHTML = '<div class="no-recent-events">No events match the selected filters</div>';
                 return;
             }
 
