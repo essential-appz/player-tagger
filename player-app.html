@@ -1859,6 +1859,9 @@
         <div style="margin-bottom: 10px; padding: 8px; background: #f5f5f5; border-radius: 6px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
             <label style="font-size: 12px; color: #666;">Video Source:</label>
             <input type="file" id="clipSourceVideo" accept="video/*" style="font-size: 11px; flex: 1; min-width: 200px;">
+            <label style="font-size: 12px; color: #666; white-space: nowrap;">Clip Length:</label>
+            <input type="number" id="clipDuration" min="5" max="120" value="20" style="width: 60px; padding: 4px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px;">
+            <span style="font-size: 11px; color: #666;">sec</span>
             <button onclick="createClipsFromSelected()" style="padding: 6px 12px; border: none; background: #4CAF50; color: white; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: bold;">🎬 Create Clips</button>
         </div>
         <div class="recent-events-list" id="recentEventsList">
@@ -6136,6 +6139,15 @@
                 videoFileName = videoFileInput.files[0].name;
             }
 
+            // Get clip duration
+            const clipDurationInput = document.getElementById('clipDuration');
+            const clipDuration = clipDurationInput ? parseInt(clipDurationInput.value) : 20;
+
+            if (clipDuration < 5 || clipDuration > 120) {
+                alert('Clip duration must be between 5 and 120 seconds.');
+                return;
+            }
+
             // Get selected events
             const selectedEvents = Array.from(selectedEventIndices)
                 .map(index => ({
@@ -6174,7 +6186,7 @@
                 if (videoTime !== undefined && isFinite(videoTime)) {
                     const clipNum = clipIndex + 1;
                     const startTime = Math.max(0, videoTime); // Ensure non-negative
-                    const duration = 20; // 20 seconds
+                    const duration = clipDuration;
 
                     // Format timestamps for FFmpeg
                     const startHours = Math.floor(startTime / 3600);
@@ -6214,6 +6226,7 @@
             let exportContent = '# Video Clips Export\n';
             exportContent += `# Game: ${gameName || 'Untitled'}\n`;
             exportContent += `# Video Source: ${videoFileName}\n`;
+            exportContent += `# Clip Duration: ${clipDuration} seconds\n`;
             exportContent += `# Created: ${new Date().toLocaleString()}\n`;
             exportContent += `# Total clips: ${clipData.length}\n\n`;
 
