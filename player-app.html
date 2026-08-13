@@ -2306,6 +2306,32 @@
                     <div id="editEventDescriptors" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
                     </div>
                 </div>
+                <div style="margin-bottom: 15px; padding: 15px; background: #f5f5f5; border-radius: 6px;">
+                    <label style="display: block; margin-bottom: 10px; font-weight: bold;">Coordinates:</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                        <div>
+                            <label style="display: block; font-size: 12px; color: #666; margin-bottom: 3px;">Kickout X:</label>
+                            <input type="number" id="editEventKickoutX" step="0.01" placeholder="e.g., 250.00" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 12px; color: #666; margin-bottom: 3px;">Kickout Y:</label>
+                            <input type="number" id="editEventKickoutY" step="0.01" placeholder="e.g., 150.00" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc;">
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div>
+                            <label style="display: block; font-size: 12px; color: #666; margin-bottom: 3px;">Shot X:</label>
+                            <input type="number" id="editEventShotX" step="0.01" placeholder="e.g., 200.00" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 12px; color: #666; margin-bottom: 3px;">Shot Y:</label>
+                            <input type="number" id="editEventShotY" step="0.01" placeholder="e.g., 100.00" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc;">
+                        </div>
+                    </div>
+                    <p style="font-size: 11px; color: #666; margin-top: 8px; margin-bottom: 0;">
+                        Leave fields empty if not applicable
+                    </p>
+                </div>
                 <div id="editEventTimestampSection" style="display: none; margin-bottom: 15px; padding: 15px; background: #f5f5f5; border-radius: 6px;">
                     <label style="display: block; margin-bottom: 10px; font-weight: bold;">Timestamp:</label>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
@@ -3257,6 +3283,12 @@
                 descriptorsContainer.appendChild(btn);
             });
 
+            // Populate coordinate fields
+            document.getElementById('editEventKickoutX').value = event.kickoutX !== undefined ? event.kickoutX : '';
+            document.getElementById('editEventKickoutY').value = event.kickoutY !== undefined ? event.kickoutY : '';
+            document.getElementById('editEventShotX').value = event.shotX !== undefined ? event.shotX : '';
+            document.getElementById('editEventShotY').value = event.shotY !== undefined ? event.shotY : '';
+
             // Show/hide timestamp section based on game mode
             const timestampSection = document.getElementById('editEventTimestampSection');
             if (gameMode === 'post-match') {
@@ -3366,11 +3398,42 @@
                 return;
             }
 
+            // Get coordinate values
+            const kickoutX = document.getElementById('editEventKickoutX').value;
+            const kickoutY = document.getElementById('editEventKickoutY').value;
+            const shotX = document.getElementById('editEventShotX').value;
+            const shotY = document.getElementById('editEventShotY').value;
+
             // Update the event
             events[editingEventIndex].type = team;
             events[editingEventIndex].category = player;
             events[editingEventIndex].period = period;
             events[editingEventIndex].descriptors = descriptors.join(', ');
+
+            // Update coordinates (save as numbers or remove if empty)
+            if (kickoutX !== '' && !isNaN(kickoutX)) {
+                events[editingEventIndex].kickoutX = parseFloat(kickoutX);
+            } else {
+                delete events[editingEventIndex].kickoutX;
+            }
+
+            if (kickoutY !== '' && !isNaN(kickoutY)) {
+                events[editingEventIndex].kickoutY = parseFloat(kickoutY);
+            } else {
+                delete events[editingEventIndex].kickoutY;
+            }
+
+            if (shotX !== '' && !isNaN(shotX)) {
+                events[editingEventIndex].shotX = parseFloat(shotX);
+            } else {
+                delete events[editingEventIndex].shotX;
+            }
+
+            if (shotY !== '' && !isNaN(shotY)) {
+                events[editingEventIndex].shotY = parseFloat(shotY);
+            } else {
+                delete events[editingEventIndex].shotY;
+            }
 
             // Save to storage
             saveToStorage();
