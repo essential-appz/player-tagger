@@ -1849,12 +1849,13 @@
                 </div>
             </div>
         </div>
-        <div style="margin-bottom: 10px; padding: 8px; background: #e3f2fd; border-radius: 6px; display: flex; gap: 8px; align-items: center;">
+        <div style="margin-bottom: 10px; padding: 8px; background: #e3f2fd; border-radius: 6px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
             <label style="display: flex; align-items: center; gap: 4px; font-size: 12px; margin: 0;">
                 <input type="checkbox" id="selectAllEvents" onchange="toggleSelectAllEvents()"> Select All
             </label>
             <button onclick="clearEventSelection()" style="padding: 4px 8px; border: 1px solid #ccc; background: white; border-radius: 4px; font-size: 11px; cursor: pointer;">Clear</button>
             <span id="selectedEventCount" style="margin-left: auto; font-size: 11px; color: #666;">0 selected</span>
+            <button onclick="createClipsFromSelected()" style="padding: 6px 12px; border: none; background: #4CAF50; color: white; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: bold;">🎬 Create Clips</button>
         </div>
         <div class="recent-events-list" id="recentEventsList">
             <div class="no-recent-events">No events yet</div>
@@ -6109,6 +6110,117 @@
             const allChecked = visibleCheckboxes.length > 0 &&
                               Array.from(visibleCheckboxes).every(cb => cb.checked);
             selectAllCheckbox.checked = allChecked;
+        }
+
+        function createClipsFromSelected() {
+            if (selectedEventIndices.size === 0) {
+                alert('Please select at least one event to create clips.');
+                return;
+            }
+
+            // Get selected events
+            const selectedEvents = Array.from(selectedEventIndices)
+                .map(index => ({
+                    index: index,
+                    event: events[index]
+                }))
+                .filter(item => item.event !== undefined)
+                .sort((a, b) => a.index - b.index);
+
+            if (selectedEvents.length === 0) {
+                alert('No valid events selected.');
+                return;
+            }
+
+            // Generate clip data
+            let clipData = [];
+            let ffmpegCommands = [];
+
+            selectedEvents.forEach((item, clipIndex) => {
+                const event = item.event;
+                let videoTime = event.videoTime;
+
+                // Calculate video time if not stored
+                if (videoTime === undefined || videoTime === null || !isFinite(videoTime)) {
+                    const gameTimeMatch = event.time.match(/(\d+):(\d+)/);
+                    if (gameTimeMatch) {
+                        const gameTimeSeconds = parseInt(gameTimeMatch[1]) * 60 + parseInt(gameTimeMatch[2]);
+                        if (gameTimeSeconds < 1800) {
+                            videoTime = gameTimeSeconds + videoFirstHalfOffset;
+                        } else {
+                            videoTime = (gameTimeSeconds - 1800) + videoSecondHalfOffset;
+                        }
+                    }
+                }
+
+                if (videoTime !== undefined && isFinite(videoTime)) {
+                    const clipNum = clipIndex + 1;
+                    const startTime = Math.max(0, videoTime); // Ensure non-negative
+                    const duration = 30; // 30 seconds
+
+                    // Format timestamps for FFmpeg
+                    const startHours = Math.floor(startTime / 3600);
+                    const startMins = Math.floor((startTime % 3600) / 60);
+                    const startSecs = Math.floor(startTime % 60);
+                    const startMs = Math.floor((startTime % 1) * 1000);
+                    const ffmpegStart = `${String(startHours).padStart(2, '0')}:${String(startMins).padStart(2, '0')}:${String(startSecs).padStart(2, '0')}.${String(startMs).padStart(3, '0')}`;
+
+                    // Create description
+                    const description = `${event.time} - ${event.type} ${event.category.replace('OUR ', '').replace('OPP ', '')} - ${event.descriptors}`;
+
+                    // Add to clip data
+                    clipData.push({
+                        clipNumber: clipNum,
+                        startTime: startTime.toFixed(2),
+                        duration: duration,
+                        gameTime: event.time,
+                        team: event.type,
+                        player: event.category,
+                        descriptors: event.descriptors,
+                        description: description
+                    });
+
+                    // Generate FFmpeg command
+                    const outputFilename = `clip_${String(clipNum).padStart(3, '0')}_${event.time.replace(':', '')}_${event.type}_${event.category.replace(' ', '')}.mp4`;
+                    ffmpegCommands.push(`ffmpeg -i input_video.mp4 -ss ${ffmpegStart} -t ${duration} -c copy "${outputFilename}"`);
+                }
+            });
+
+            if (clipData.length === 0) {
+                alert('No events with valid video timestamps found.');
+                return;
+            }
+
+            // Create export content
+            let exportContent = '# Video Clips Export\n';
+            exportContent += `# Game: ${gameName || 'Untitled'}\n`;
+            exportContent += `# Created: ${new Date().toLocaleString()}\n`;
+            exportContent += `# Total clips: ${clipData.length}\n\n`;
+
+            exportContent += '# FFmpeg Commands (replace "input_video.mp4" with your video file)\n';
+            exportContent += '# Run these commands in the directory containing your video file\n\n';
+            ffmpegCommands.forEach(cmd => {
+                exportContent += cmd + '\n';
+            });
+
+            exportContent += '\n\n# Clip Details (CSV format)\n';
+            exportContent += 'Clip Number,Start Time (seconds),Duration (seconds),Game Time,Team,Player,Descriptors,Description\n';
+            clipData.forEach(clip => {
+                exportContent += `${clip.clipNumber},${clip.startTime},${clip.duration},${clip.gameTime},${clip.team},"${clip.player}","${clip.descriptors}","${clip.description}"\n`;
+            });
+
+            // Download as text file
+            const blob = new Blob([exportContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `clips_${gameName.replace(/\s+/g, '_')}_${Date.now()}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            alert(`Clip file created with ${clipData.length} clips!\n\nThe file contains FFmpeg commands to extract 30-second clips from your video.`);
         }
 
         function updateRecentEvents() {
