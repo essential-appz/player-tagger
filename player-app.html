@@ -6116,6 +6116,12 @@
             selectAllCheckbox.checked = allChecked;
         }
 
+        function sanitizeFilename(filename) {
+            // Replace invalid filename characters with underscores
+            // Invalid characters: / \ : * ? " < > |
+            return filename.replace(/[\/\\:*?"<>|]/g, '_');
+        }
+
         function createClipsFromSelected() {
             if (selectedEventIndices.size === 0) {
                 alert('Please select at least one event to create clips.');
@@ -6193,7 +6199,8 @@
                     });
 
                     // Generate FFmpeg command
-                    const outputFilename = `clip_${String(clipNum).padStart(3, '0')}_${event.time.replace(':', '')}_${event.type}_${event.category.replace(' ', '')}.mp4`;
+                    const baseFilename = `${event.time.replace(':', '')}_${event.type}_${event.category.replace(' ', '')}`;
+                    const outputFilename = `clip_${String(clipNum).padStart(3, '0')}_${sanitizeFilename(baseFilename)}.mp4`;
                     ffmpegCommands.push(`ffmpeg -i "${videoFileName}" -ss ${ffmpegStart} -t ${duration} -c copy "${outputFilename}"`);
                 }
             });
@@ -6231,9 +6238,10 @@
             const concatInputs = clipData.map((_, idx) => `[v${idx}][a${idx}]`).join('');
             filterParts.push(`${concatInputs}concat=n=${clipData.length}:v=1:a=1[outv][outa]`);
 
+            const highlightsFilename = `highlights_${sanitizeFilename(gameName)}.mp4`;
             exportContent += `-filter_complex "${filterParts.join('')}" \\\n`;
             exportContent += `-map "[outv]" -map "[outa]" \\\n`;
-            exportContent += `highlights_${gameName.replace(/\s+/g, '_')}.mp4\n\n`;
+            exportContent += `${highlightsFilename}\n\n`;
 
             exportContent += '\n# ========================================\n';
             exportContent += '# OPTION 2: Create individual clip files\n';
@@ -6256,7 +6264,7 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `clips_${gameName.replace(/\s+/g, '_')}_${Date.now()}.txt`;
+            a.download = `clips_${sanitizeFilename(gameName)}_${Date.now()}.txt`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
