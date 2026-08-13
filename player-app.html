@@ -1832,6 +1832,15 @@
                         <input type="checkbox" id="filterShot" checked onchange="updateEventFilters()"> Shot
                     </label>
                     <label style="display: flex; align-items: center; gap: 4px; font-size: 12px;">
+                        <input type="checkbox" id="filterGoal" checked onchange="updateEventFilters()"> Goal
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 4px; font-size: 12px;">
+                        <input type="checkbox" id="filter2Pointer" checked onchange="updateEventFilters()"> 2-Pointer
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 4px; font-size: 12px;">
+                        <input type="checkbox" id="filterPoint" checked onchange="updateEventFilters()"> Point
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 4px; font-size: 12px;">
                         <input type="checkbox" id="filterKOWon" checked onchange="updateEventFilters()"> KO Won
                     </label>
                     <label style="display: flex; align-items: center; gap: 4px; font-size: 12px;">
@@ -2367,6 +2376,9 @@
         let eventTeamFilter = 'ALL'; // 'ALL', 'OUR', 'OPP'
         let eventTypeFilters = {
             shot: true,
+            goal: true,
+            twoPointer: true,
+            point: true,
             koWon: true,
             koLost: true
         };
@@ -5966,6 +5978,9 @@
         function updateEventFilters() {
             // Update filter state from checkboxes
             eventTypeFilters.shot = document.getElementById('filterShot').checked;
+            eventTypeFilters.goal = document.getElementById('filterGoal').checked;
+            eventTypeFilters.twoPointer = document.getElementById('filter2Pointer').checked;
+            eventTypeFilters.point = document.getElementById('filterPoint').checked;
             eventTypeFilters.koWon = document.getElementById('filterKOWon').checked;
             eventTypeFilters.koLost = document.getElementById('filterKOLost').checked;
 
@@ -5997,6 +6012,15 @@
                 let matchesFilter = false;
 
                 if (eventTypeFilters.shot && descriptors.includes('shot')) {
+                    matchesFilter = true;
+                }
+                if (eventTypeFilters.goal && descriptors.includes('goal')) {
+                    matchesFilter = true;
+                }
+                if (eventTypeFilters.twoPointer && descriptors.includes('2 pointer')) {
+                    matchesFilter = true;
+                }
+                if (eventTypeFilters.point && descriptors.includes('point') && !descriptors.includes('2 pointer')) {
                     matchesFilter = true;
                 }
                 if (eventTypeFilters.koWon && (descriptors.includes('ko won') || descriptors.includes('own ko won') || descriptors.includes('opp ko won'))) {
