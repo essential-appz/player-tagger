@@ -1815,45 +1815,53 @@
     </div>
 
     <div class="recent-events">
-        <h3>Recent Events</h3>
+        <h3>Logged Events</h3>
         <div class="recent-events-list" id="recentEventsList">
             <div class="no-recent-events">No events yet</div>
         </div>
     </div>
 
     <div class="section">
-        <h2>Our Event Matrix</h2>
-        <p style="font-size: 12px; color: #666; margin-bottom: 10px;">
-            Count of events for each Our player-event combination
-        </p>
-        <div class="matrix-container">
-            <table class="matrix-table" id="ckMatrix">
-                <thead>
-                    <tr>
-                        <th class="category-header">OUR</th>
-                    </tr>
-                </thead>
-                <tbody id="ckMatrixBody">
-                </tbody>
-            </table>
+        <h2 onclick="toggleSection('ckMatrixSection')" style="cursor: pointer; user-select: none;">
+            <span id="ckMatrixToggle">▶</span> Our Event Matrix
+        </h2>
+        <div id="ckMatrixSection" style="display: none;">
+            <p style="font-size: 12px; color: #666; margin-bottom: 10px;">
+                Count of events for each Our player-event combination
+            </p>
+            <div class="matrix-container">
+                <table class="matrix-table" id="ckMatrix">
+                    <thead>
+                        <tr>
+                            <th class="category-header">OUR</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ckMatrixBody">
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
     <div class="section">
-        <h2>Opposition Event Matrix</h2>
-        <p style="font-size: 12px; color: #666; margin-bottom: 10px;">
-            Count of events for each Opposition player-event combination
-        </p>
-        <div class="matrix-container">
-            <table class="matrix-table" id="oppMatrix">
-                <thead>
-                    <tr>
-                        <th class="category-header">OPP</th>
-                    </tr>
-                </thead>
-                <tbody id="oppMatrixBody">
-                </tbody>
-            </table>
+        <h2 onclick="toggleSection('oppMatrixSection')" style="cursor: pointer; user-select: none;">
+            <span id="oppMatrixToggle">▶</span> Opposition Event Matrix
+        </h2>
+        <div id="oppMatrixSection" style="display: none;">
+            <p style="font-size: 12px; color: #666; margin-bottom: 10px;">
+                Count of events for each Opposition player-event combination
+            </p>
+            <div class="matrix-container">
+                <table class="matrix-table" id="oppMatrix">
+                    <thead>
+                        <tr>
+                            <th class="category-header">OPP</th>
+                        </tr>
+                    </thead>
+                    <tbody id="oppMatrixBody">
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -2742,6 +2750,20 @@
                 // Show in-match player buttons, hide video panel player buttons
                 videoPlayerButtons.style.display = 'none';
                 inMatchPlayerButtons.style.display = 'block';
+            }
+        }
+
+        function toggleSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            const toggleId = sectionId.replace('Section', 'Toggle');
+            const toggle = document.getElementById(toggleId);
+
+            if (section.style.display === 'none') {
+                section.style.display = 'block';
+                toggle.textContent = '▼';
+            } else {
+                section.style.display = 'none';
+                toggle.textContent = '▶';
             }
         }
 
@@ -5647,7 +5669,7 @@
                 return;
             }
 
-            // Filter out Touch-only events and show last 10 in reverse order (most recent first)
+            // Filter out Touch-only events and show all in ascending order (oldest first)
             const filteredEvents = events.filter(e => e.descriptors !== 'Touch');
 
             if (filteredEvents.length === 0) {
@@ -5655,7 +5677,7 @@
                 return;
             }
 
-            const recentEvents = filteredEvents.slice(-10).reverse();
+            const recentEvents = filteredEvents;
 
             let html = '';
             recentEvents.forEach(event => {
