@@ -3219,41 +3219,29 @@
             if (gameMode === 'post-match') {
                 timestampSection.style.display = 'block';
 
-                // Populate current timestamp values
-                document.getElementById('editEventGameTime').value = event.time || '';
+                // Use current video position as default timestamp
+                const video = document.getElementById('matchVideo');
+                if (video && video.duration) {
+                    const currentVideoTime = video.currentTime;
+                    const currentGameTime = calculateMatchTimeFromVideo(currentVideoTime);
 
-                let videoTimeDisplay = '';
-                if (event.videoTime !== undefined && isFinite(event.videoTime)) {
-                    videoTimeDisplay = formatVideoTime(event.videoTime);
+                    // Update display fields with current video position
+                    document.getElementById('editEventGameTime').value = currentGameTime;
+                    document.getElementById('editEventVideoTime').value = formatVideoTime(currentVideoTime);
 
-                    // Seek video to event's timestamp
-                    const video = document.getElementById('matchVideo');
-                    if (video && video.duration) {
-                        video.currentTime = event.videoTime;
-                    }
+                    // Update the event with current video position
+                    events[editingEventIndex].videoTime = currentVideoTime;
+                    events[editingEventIndex].time = currentGameTime;
                 } else {
-                    // Calculate video time from game time if not stored
-                    const gameTimeMatch = event.time.match(/(\d+):(\d+)/);
-                    if (gameTimeMatch) {
-                        const gameTimeSeconds = parseInt(gameTimeMatch[1]) * 60 + parseInt(gameTimeMatch[2]);
-                        let calculatedVideoTime;
+                    // Fallback to event's stored timestamp if no video loaded
+                    document.getElementById('editEventGameTime').value = event.time || '';
 
-                        if (gameTimeSeconds < 1800) {
-                            calculatedVideoTime = gameTimeSeconds + videoFirstHalfOffset;
-                        } else {
-                            calculatedVideoTime = (gameTimeSeconds - 1800) + videoSecondHalfOffset;
-                        }
-
-                        videoTimeDisplay = formatVideoTime(calculatedVideoTime);
-
-                        // Seek video to calculated timestamp
-                        const video = document.getElementById('matchVideo');
-                        if (video && video.duration) {
-                            video.currentTime = calculatedVideoTime;
-                        }
+                    let videoTimeDisplay = '';
+                    if (event.videoTime !== undefined && isFinite(event.videoTime)) {
+                        videoTimeDisplay = formatVideoTime(event.videoTime);
                     }
+                    document.getElementById('editEventVideoTime').value = videoTimeDisplay;
                 }
-                document.getElementById('editEventVideoTime').value = videoTimeDisplay;
             } else {
                 timestampSection.style.display = 'none';
             }
