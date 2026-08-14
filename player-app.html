@@ -3765,6 +3765,10 @@
 
                 if (!x || !y) return '';
 
+                // Extract player number from category (e.g., "OUR 7" -> "7")
+                const playerNumMatch = shot.category.match(/\d+/);
+                const playerNum = playerNumMatch ? playerNumMatch[0] : '';
+
                 // Determine color based on shot result
                 // Check the next event to see what happened
                 const shotIndex = events.indexOf(shot);
@@ -3785,7 +3789,14 @@
                     }
                 }
 
-                return `<circle cx="${x}" cy="${y}" r="8" fill="${color}" stroke="white" stroke-width="2" opacity="0.8"/>`;
+                // Determine text color for visibility
+                const textColor = (color === '#ffffff' || color === '#ff9800') ? '#000000' : '#ffffff';
+
+                return `
+                    <circle cx="${x}" cy="${y}" r="12" fill="${color}" stroke="white" stroke-width="2" opacity="0.9"/>
+                    <text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central"
+                          font-size="11" font-weight="bold" fill="${textColor}">${playerNum}</text>
+                `;
             }).join('\n');
 
             return `
