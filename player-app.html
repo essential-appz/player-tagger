@@ -1825,6 +1825,15 @@
                     <button class="filter-btn" id="filterOPP" onclick="setTeamFilter('OPP')" style="flex: 1; padding: 6px; border: 1px solid #ccc; background: white; color: #333; border-radius: 4px; font-size: 12px; cursor: pointer;">Opposition</button>
                 </div>
             </div>
+            <div style="margin-bottom: 8px;">
+                <label style="font-size: 12px; font-weight: bold; color: #666; display: block; margin-bottom: 5px;">Player Numbers:</label>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <input type="text" id="playerNumberFilter" placeholder="e.g., 7,9,14 or leave empty for all" style="flex: 1; padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px;">
+                    <button onclick="applyPlayerNumberFilter()" style="padding: 6px 12px; border: 1px solid #ccc; background: white; border-radius: 4px; font-size: 11px; cursor: pointer;">Apply</button>
+                    <button onclick="clearPlayerNumberFilter()" style="padding: 6px 8px; border: 1px solid #ccc; background: white; border-radius: 4px; font-size: 11px; cursor: pointer;">Clear</button>
+                </div>
+                <div id="activePlayerFilters" style="margin-top: 5px; font-size: 11px; color: #666;"></div>
+            </div>
             <div>
                 <label style="font-size: 12px; font-weight: bold; color: #666; display: block; margin-bottom: 5px;">Event Type:</label>
                 <div style="display: flex; gap: 8px; flex-wrap: wrap;">
@@ -2423,6 +2432,7 @@
             koWon: true,
             koLost: true
         };
+        let playerNumberFilter = []; // Array of player numbers to filter by (empty = all players)
         // Event selection state
         let selectedEventIndices = new Set();
 
@@ -6068,6 +6078,44 @@
             updateRecentEvents();
         }
 
+        function applyPlayerNumberFilter() {
+            const input = document.getElementById('playerNumberFilter');
+            const value = input.value.trim();
+
+            if (value === '') {
+                playerNumberFilter = [];
+            } else {
+                // Parse comma-separated numbers
+                const numbers = value.split(',')
+                    .map(n => parseInt(n.trim()))
+                    .filter(n => !isNaN(n) && n >= 1 && n <= 26);
+
+                // Remove duplicates and sort
+                playerNumberFilter = [...new Set(numbers)].sort((a, b) => a - b);
+            }
+
+            updatePlayerFilterDisplay();
+            updateRecentEvents();
+        }
+
+        function clearPlayerNumberFilter() {
+            playerNumberFilter = [];
+            document.getElementById('playerNumberFilter').value = '';
+            updatePlayerFilterDisplay();
+            updateRecentEvents();
+        }
+
+        function updatePlayerFilterDisplay() {
+            const displayEl = document.getElementById('activePlayerFilters');
+            if (playerNumberFilter.length > 0) {
+                displayEl.textContent = `Filtering by players: ${playerNumberFilter.join(', ')}`;
+                displayEl.style.color = '#4CAF50';
+                displayEl.style.fontWeight = 'bold';
+            } else {
+                displayEl.textContent = '';
+            }
+        }
+
         function toggleEventSelection(eventIndex) {
             if (selectedEventIndices.has(eventIndex)) {
                 selectedEventIndices.delete(eventIndex);
@@ -6330,6 +6378,19 @@
 
                 return matchesFilter;
             });
+
+            // Apply player number filter
+            if (playerNumberFilter.length > 0) {
+                filteredEvents = filteredEvents.filter(e => {
+                    // Extract player number from category (e.g., "OUR 7" -> 7)
+                    const playerNumMatch = e.category.match(/\d+/);
+                    if (playerNumMatch) {
+                        const playerNum = parseInt(playerNumMatch[0]);
+                        return playerNumberFilter.includes(playerNum);
+                    }
+                    return false; // Exclude Team Events when filtering by player number
+                });
+            }
 
             if (filteredEvents.length === 0) {
                 recentEventsList.innerHTML = '<div class="no-recent-events">No events match the selected filters</div>';
