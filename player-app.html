@@ -5011,7 +5011,6 @@
             const oppPlayers = [8, 10, 11, 13, 15, 6, 9, 14];
 
             let currentTime = 0;
-            const events = [];
 
             // Generate 15 test events with realistic scenarios
             for (let i = 0; i < 15; i++) {
@@ -5053,7 +5052,7 @@
                         shotX: shotX,
                         shotY: shotY
                     };
-                    this.events.push(scoreEvent);
+                    events.push(scoreEvent);
 
                     // Add kickout from OPPOSING team
                     const koTeam = isOurTeam ? 'OPP' : 'OUR';
@@ -5071,7 +5070,7 @@
                         kickoutX: koX,
                         kickoutY: koY
                     };
-                    this.events.push(kickoutEvent);
+                    events.push(kickoutEvent);
 
                 } else {
                     // Wide event
@@ -5085,7 +5084,7 @@
                         shotX: shotX,
                         shotY: shotY
                     };
-                    this.events.push(wideEvent);
+                    events.push(wideEvent);
 
                     // Add kickout from OPPOSING team (wide gives kickout to opposition)
                     const koTeam = isOurTeam ? 'OPP' : 'OUR';
@@ -5103,7 +5102,7 @@
                         kickoutX: koX,
                         kickoutY: koY
                     };
-                    this.events.push(kickoutEvent);
+                    events.push(kickoutEvent);
                 }
             }
 
@@ -5112,9 +5111,9 @@
             rebuildMatrices();
             updateRecentEvents();
             updateScoreboard();
-            document.getElementById('eventCount').textContent = this.events.length;
+            document.getElementById('eventCount').textContent = events.length;
 
-            alert(`Test data loaded: ${this.events.length} events\n\nIncludes scores and wides with proper kickout assignments.`);
+            alert(`Test data loaded: ${events.length} events\n\nIncludes scores and wides with proper kickout assignments.`);
             closeNewGameModal();
         }
 
