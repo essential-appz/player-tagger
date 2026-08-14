@@ -2206,6 +2206,14 @@
 
             <hr style="border: none; border-top: 2px solid #e0e0e0; margin: 20px 0;">
 
+            <h3>Test Data</h3>
+            <p style="font-size: 13px; color: #666; margin: -10px 0 15px 0;">Load realistic test data for development and testing</p>
+            <div style="text-align: center; margin-bottom: 20px;">
+                <button class="modal-btn secondary" onclick="loadTestData()" style="width: auto; padding: 10px 30px;">Load Test Data</button>
+            </div>
+
+            <hr style="border: none; border-top: 2px solid #e0e0e0; margin: 20px 0;">
+
             <h3>Saved Games</h3>
             <div class="form-group">
                 <div class="saved-games-list" id="savedGamesList">
@@ -4979,6 +4987,134 @@
             // Update page title
             document.querySelector('h1').textContent = gameName;
 
+            closeNewGameModal();
+        }
+
+        function loadTestData() {
+            if (!confirm('This will clear current data and load test data. Continue?')) {
+                return;
+            }
+
+            // Clear current game
+            clearData(true);
+
+            // Set period to 1st Half Started so we can log events
+            currentPeriod = '1st Half Started';
+            updatePeriodButtons();
+
+            // Start timer
+            timerSeconds = 0;
+            startTimer(0);
+
+            const scoreTypes = ['Goal', 'Point', '2 Pointer'];
+            const players = [7, 9, 12, 14, 15, 5, 11, 13];
+            const oppPlayers = [8, 10, 11, 13, 15, 6, 9, 14];
+
+            let currentTime = 0;
+            const events = [];
+
+            // Generate 15 test events with realistic scenarios
+            for (let i = 0; i < 15; i++) {
+                currentTime += Math.floor(Math.random() * 90) + 30; // 30-120 seconds apart
+
+                // Determine if this is a score or wide (70% score, 30% wide)
+                const isScore = Math.random() < 0.7;
+
+                // Alternate between teams
+                const isOurTeam = i % 2 === 0;
+                const teamType = isOurTeam ? 'OUR' : 'OPP';
+                const playerNum = isOurTeam ? players[i % players.length] : oppPlayers[i % oppPlayers.length];
+                const category = `${teamType} ${playerNum}`;
+
+                // Determine period (switch to 2nd half at 30 minutes)
+                let period = '1st Half Started';
+                let displayTime = currentTime;
+                if (currentTime >= 1800) {
+                    period = '2nd Half Started';
+                    displayTime = currentTime; // Keep running time for test data
+                }
+
+                const gameTime = formatTime(displayTime);
+
+                // Generate shot location coordinates
+                const shotX = 150 + Math.random() * 100; // 150-250 (shooting area)
+                const shotY = 100 + Math.random() * 100; // 100-200 (center area)
+
+                if (isScore) {
+                    // Score event (Goal, Point, or 2 Pointer)
+                    const scoreType = scoreTypes[Math.floor(Math.random() * scoreTypes.length)];
+                    const scoreEvent = {
+                        timestamp: new Date(Date.now() + (currentTime * 1000)).toISOString(),
+                        time: gameTime,
+                        period: period,
+                        type: teamType,
+                        category: category,
+                        descriptors: `Touch, Shot, ${scoreType}`,
+                        shotX: shotX,
+                        shotY: shotY
+                    };
+                    this.events.push(scoreEvent);
+
+                    // Add kickout from OPPOSING team
+                    const koTeam = isOurTeam ? 'OPP' : 'OUR';
+                    const koDescriptor = isOurTeam ? 'Opp KO Won' : 'Own KO Won';
+                    const koX = koTeam === 'OUR' ? 50 + Math.random() * 50 : 320 + Math.random() * 50;
+                    const koY = 300 + Math.random() * 150;
+
+                    const kickoutEvent = {
+                        timestamp: new Date(Date.now() + ((currentTime + 5) * 1000)).toISOString(),
+                        time: formatTime(displayTime + 5),
+                        period: period,
+                        type: koTeam,
+                        category: 'Team Event',
+                        descriptors: koDescriptor,
+                        kickoutX: koX,
+                        kickoutY: koY
+                    };
+                    this.events.push(kickoutEvent);
+
+                } else {
+                    // Wide event
+                    const wideEvent = {
+                        timestamp: new Date(Date.now() + (currentTime * 1000)).toISOString(),
+                        time: gameTime,
+                        period: period,
+                        type: teamType,
+                        category: category,
+                        descriptors: 'Touch, Shot, Wide',
+                        shotX: shotX,
+                        shotY: shotY
+                    };
+                    this.events.push(wideEvent);
+
+                    // Add kickout from OPPOSING team (wide gives kickout to opposition)
+                    const koTeam = isOurTeam ? 'OPP' : 'OUR';
+                    const koDescriptor = isOurTeam ? 'Opp KO Won' : 'Own KO Won';
+                    const koX = koTeam === 'OUR' ? 50 + Math.random() * 50 : 320 + Math.random() * 50;
+                    const koY = 300 + Math.random() * 150;
+
+                    const kickoutEvent = {
+                        timestamp: new Date(Date.now() + ((currentTime + 5) * 1000)).toISOString(),
+                        time: formatTime(displayTime + 5),
+                        period: period,
+                        type: koTeam,
+                        category: 'Team Event',
+                        descriptors: koDescriptor,
+                        kickoutX: koX,
+                        kickoutY: koY
+                    };
+                    this.events.push(kickoutEvent);
+                }
+            }
+
+            // Update UI
+            saveToStorage();
+            rebuildMatrices();
+            updateRecentEvents();
+            updateScoreboard();
+            document.getElementById('eventCount').textContent = this.events.length;
+
+            alert(`Test data loaded: ${this.events.length} events\n\nIncludes scores and wides with proper kickout assignments.`);
             closeNewGameModal();
         }
 
