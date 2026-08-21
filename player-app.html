@@ -179,13 +179,15 @@
         /* Team panels side by side */
         .teams-container {
             display: flex;
-            flex-direction: row;
+            flex-direction: row !important;
+            flex-wrap: nowrap;
             gap: 10px;
             margin-bottom: 15px;
         }
 
         .team-panel {
             flex: 1;
+            min-width: 0;
             background: white;
             padding: 15px;
             border-radius: 8px;
@@ -2768,7 +2770,13 @@
                 descriptors.forEach(desc => {
                     const btn = document.createElement('button');
                     btn.className = 'descriptor-btn';
-                    btn.textContent = desc;
+                    // Special formatting for Save/Short/45 button
+                    if (desc === 'Save/Short/45') {
+                        btn.innerHTML = 'Save | Short<br>45';
+                        btn.setAttribute('data-descriptor', desc);
+                    } else {
+                        btn.textContent = desc;
+                    }
                     const isKOButton = desc.includes('KO Won') || desc.includes('KO Lost');
                     btn.disabled = isKOButton ? false : true;
                     btn.onclick = () => toggleDesc(btn, desc);
@@ -2803,7 +2811,13 @@
                 descriptors.forEach(desc => {
                     const btn = document.createElement('button');
                     btn.className = 'descriptor-btn';
-                    btn.textContent = desc;
+                    // Special formatting for Save/Short/45 button
+                    if (desc === 'Save/Short/45') {
+                        btn.innerHTML = 'Save | Short<br>45';
+                        btn.setAttribute('data-descriptor', desc);
+                    } else {
+                        btn.textContent = desc;
+                    }
                     btn.disabled = false;
                     btn.onclick = () => toggleDesc(btn, desc);
                     btn.style.width = '100%';
@@ -3312,7 +3326,13 @@
             allDescriptors.forEach(desc => {
                 const btn = document.createElement('button');
                 btn.className = 'descriptor-btn';
-                btn.textContent = desc;
+                // Special formatting for Save/Short/45 button
+                if (desc === 'Save/Short/45') {
+                    btn.innerHTML = 'Save | Short<br>45';
+                    btn.setAttribute('data-descriptor', desc);
+                } else {
+                    btn.textContent = desc;
+                }
                 btn.style.padding = '8px';
                 btn.style.fontSize = '12px';
 
@@ -3478,7 +3498,7 @@
 
             // Get selected descriptors
             const selectedButtons = document.querySelectorAll('#editEventDescriptors .descriptor-btn.selected');
-            const descriptors = Array.from(selectedButtons).map(btn => btn.textContent);
+            const descriptors = Array.from(selectedButtons).map(btn => btn.getAttribute('data-descriptor') || btn.textContent);
 
             if (descriptors.length === 0) {
                 alert('Please select at least one descriptor!');
