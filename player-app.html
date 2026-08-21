@@ -1810,7 +1810,7 @@
 
     <div class="section" id="matchEventsSection">
         <h2>Match Events</h2>
-        <div class="button-grid" id="descGrid"></div>
+        <div id="descGrid"></div>
     </div>
 
     <div class="recent-events">
@@ -2747,24 +2747,35 @@
             // Determine which grid to populate based on game mode
             const targetGrid = gameMode === 'post-match' ? descGridPostMatch : descGrid;
 
-            descriptors.forEach(desc => {
-                const btn = document.createElement('button');
-                btn.className = 'descriptor-btn';
-                btn.textContent = desc;
-                // KO buttons are always enabled (team events, no player selection needed)
-                const isKOButton = desc.includes('KO Won') || desc.includes('KO Lost');
-                // In Post-Match mode, enable all buttons; In-Match mode, only enable KO buttons
-                btn.disabled = (gameMode === 'post-match' || isKOButton) ? false : true;
-                btn.onclick = () => toggleDesc(btn, desc);
+            // In-match mode: organize into two rows
+            if (gameMode !== 'post-match') {
+                // Create row containers
+                const row1 = document.createElement('div');
+                row1.className = 'button-grid';
+                row1.style.marginBottom = '8px';
 
-                // In post-match mode, use full-width buttons without wrappers
-                if (gameMode === 'post-match') {
-                    btn.style.width = '100%';
-                    btn.style.fontSize = '12px';
-                    btn.style.padding = '10px 8px';
-                    targetGrid.appendChild(btn);
-                } else {
-                    // Wrap KO buttons with team label in in-match mode
+                const row2 = document.createElement('div');
+                row2.className = 'button-grid';
+
+                // Categorize descriptors
+                const scoringDescriptors = ['Goal', '2 Pointer', 'Point', 'Wide', 'Save/Short/45'];
+                const koDescriptors = ['Own KO Won', 'Own KO Lost', 'T/O Lost', 'Opp KO Won', 'Opp KO Lost'];
+
+                descriptors.forEach(desc => {
+                    const btn = document.createElement('button');
+                    btn.className = 'descriptor-btn';
+                    btn.textContent = desc;
+                    const isKOButton = desc.includes('KO Won') || desc.includes('KO Lost');
+                    btn.disabled = isKOButton ? false : true;
+                    btn.onclick = () => toggleDesc(btn, desc);
+
+                    // Determine which row this button belongs to
+                    let targetRow = row1; // Default to row 1
+                    if (koDescriptors.includes(desc) || desc.includes('T/O')) {
+                        targetRow = row2;
+                    }
+
+                    // Wrap KO buttons with team label
                     if (isKOButton) {
                         const wrapper = document.createElement('div');
                         wrapper.className = 'descriptor-wrapper';
@@ -2775,12 +2786,28 @@
 
                         wrapper.appendChild(btn);
                         wrapper.appendChild(label);
-                        targetGrid.appendChild(wrapper);
+                        targetRow.appendChild(wrapper);
                     } else {
-                        targetGrid.appendChild(btn);
+                        targetRow.appendChild(btn);
                     }
-                }
-            });
+                });
+
+                targetGrid.appendChild(row1);
+                targetGrid.appendChild(row2);
+            } else {
+                // Post-match mode: single column layout
+                descriptors.forEach(desc => {
+                    const btn = document.createElement('button');
+                    btn.className = 'descriptor-btn';
+                    btn.textContent = desc;
+                    btn.disabled = false;
+                    btn.onclick = () => toggleDesc(btn, desc);
+                    btn.style.width = '100%';
+                    btn.style.fontSize = '12px';
+                    btn.style.padding = '10px 8px';
+                    targetGrid.appendChild(btn);
+                });
+            }
 
             // Re-enable buttons if category is selected
             if (currentType && currentCategory) {
