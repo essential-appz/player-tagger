@@ -1837,9 +1837,6 @@
                 <label style="font-size: 12px; font-weight: bold; color: #666; display: block; margin-bottom: 5px;">Event Type:</label>
                 <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                     <label style="display: flex; align-items: center; gap: 4px; font-size: 12px;">
-                        <input type="checkbox" id="filterShot" checked onchange="updateEventFilters()"> Shot
-                    </label>
-                    <label style="display: flex; align-items: center; gap: 4px; font-size: 12px;">
                         <input type="checkbox" id="filterGoal" checked onchange="updateEventFilters()"> Goal
                     </label>
                     <label style="display: flex; align-items: center; gap: 4px; font-size: 12px;">
@@ -1847,9 +1844,6 @@
                     </label>
                     <label style="display: flex; align-items: center; gap: 4px; font-size: 12px;">
                         <input type="checkbox" id="filterPoint" checked onchange="updateEventFilters()"> Point
-                    </label>
-                    <label style="display: flex; align-items: center; gap: 4px; font-size: 12px;">
-                        <input type="checkbox" id="filterNoScore" checked onchange="updateEventFilters()"> No Score
                     </label>
                     <label style="display: flex; align-items: center; gap: 4px; font-size: 12px;">
                         <input type="checkbox" id="filterKOWon" checked onchange="updateEventFilters()"> KO Won
@@ -2310,7 +2304,7 @@
         // Configuration
         const categories = ['OUR 1', 'OUR 2', 'OUR 3', 'OUR 4', 'OUR 5', 'OUR 6', 'OUR 7', 'OUR 8', 'OUR 9', 'OUR 10', 'OUR 11', 'OUR 12', 'OUR 13', 'OUR 14', 'OUR 15', 'OUR 16', 'OUR 17', 'OUR 18', 'OUR 19', 'OUR 20', 'OUR 21', 'OUR 22', 'OUR 23', 'OUR 24', 'OUR 25', 'OUR 26'];
         const opponents = ['OPP 1', 'OPP 2', 'OPP 3', 'OPP 4', 'OPP 5', 'OPP 6', 'OPP 7', 'OPP 8', 'OPP 9', 'OPP 10', 'OPP 11', 'OPP 12', 'OPP 13', 'OPP 14', 'OPP 15', 'OPP 16', 'OPP 17', 'OPP 18', 'OPP 19', 'OPP 20', 'OPP 21', 'OPP 22', 'OPP 23', 'OPP 24', 'OPP 25', 'OPP 26'];
-        const defaultDescriptors = ['Shot', 'Goal', '2 Pointer', 'Point', 'Wide', 'Save/Short/45', 'No Score', 'Own KO Won', 'Own KO Lost', 'T/O Lost', 'Opp KO Won', 'Opp KO Lost'];
+        const defaultDescriptors = ['Goal', '2 Pointer', 'Point', 'Wide', 'Save/Short/45', 'Own KO Won', 'Own KO Lost', 'T/O Lost', 'Opp KO Won', 'Opp KO Lost'];
         let descriptors = [];
         let allDescriptors = [];
         let tempDescriptors = []; // Temporary descriptors while editing in modal
@@ -2351,7 +2345,6 @@
             goal: true,
             twoPointer: true,
             point: true,
-            noScore: true,
             koWon: true,
             koLost: true
         };
@@ -2567,10 +2560,68 @@
                 const saved = localStorage.getItem('customDescriptors');
                 if (saved) {
                     descriptors = JSON.parse(saved);
+
+                    // Migration: Check if descriptors are outdated
+                    let needsMigration = false;
+                    const missingDescriptors = [];
+                    const removedDescriptors = [];
+
+                    // Check for missing descriptors from defaultDescriptors
+                    defaultDescriptors.forEach(desc => {
+                        if (!descriptors.includes(desc)) {
+                            missingDescriptors.push(desc);
+                            needsMigration = true;
+                        }
+                    });
+
+                    // Check for removed descriptors (e.g., "No Score" and "Shot" were removed)
+                    const obsoleteDescriptors = ['No Score', 'Shot'];
+                    obsoleteDescriptors.forEach(desc => {
+                        if (descriptors.includes(desc)) {
+                            removedDescriptors.push(desc);
+                            needsMigration = true;
+                        }
+                    });
+
+                    if (needsMigration) {
+                        if (missingDescriptors.length > 0) {
+                            console.warn('⚠️ Old descriptor format detected. Missing:', missingDescriptors);
+                        }
+                        if (removedDescriptors.length > 0) {
+                            console.warn('⚠️ Obsolete descriptors detected:', removedDescriptors);
+                        }
+
+                        // If missing critical descriptors, reset to defaults
+                        if (missingDescriptors.length > 2 || missingDescriptors.includes('Save/Short/45')) {
+                            console.log('🔄 Resetting to default descriptors (too many missing)');
+                            descriptors = [...defaultDescriptors];
+                        } else {
+                            // Remove obsolete descriptors
+                            removedDescriptors.forEach(obsolete => {
+                                const index = descriptors.indexOf(obsolete);
+                                if (index > -1) {
+                                    descriptors.splice(index, 1);
+                                    console.log('🗑️ Removed obsolete descriptor:', obsolete);
+                                }
+                            });
+
+                            // Add missing descriptors
+                            if (missingDescriptors.length > 0) {
+                                missingDescriptors.forEach(missing => {
+                                    descriptors.push(missing);
+                                });
+                                console.log('✅ Migrated descriptors. Added:', missingDescriptors);
+                            }
+                        }
+
+                        // Save the updated descriptors
+                        saveCustomDescriptors();
+                    }
                 } else {
                     descriptors = [...defaultDescriptors];
                 }
             } catch (e) {
+                console.error('Error loading descriptors, using defaults:', e);
                 descriptors = [...defaultDescriptors];
             }
             allDescriptors = ['Touch', ...descriptors];
@@ -2634,7 +2685,7 @@
         function resetDescriptors() {
             if (!requirePremium('Custom Descriptors')) return;
 
-            if (!confirm('Reset to default descriptors?\n\nThis will restore:\n• Shot\n• Goal\n• 2 Pointer\n• Point\n• Wide\n• Save/Short/45\n• No Score\n• Own KO Won\n• Own KO Lost\n• T/O Lost\n• Opp KO Won\n• Opp KO Lost\n\nCustom descriptors will be removed.')) {
+            if (!confirm('Reset to default descriptors?\n\nThis will restore:\n• Goal\n• 2 Pointer\n• Point\n• Wide\n• Save/Short/45\n• Own KO Won\n• Own KO Lost\n• T/O Lost\n• Opp KO Won\n• Opp KO Lost\n\nCustom descriptors will be removed.')) {
                 return;
             }
 
@@ -3874,17 +3925,15 @@
 
         function openShotMapModal() {
             // Filter shot events with coordinates
-            // Include events with Shot descriptor OR shot result descriptors (Goal, Point, etc.) that have coordinates
+            // Include events with shot result descriptors (Goal, Point, etc.) that have coordinates
             const shots = events.filter(e =>
                 e.shotX !== undefined &&
                 e.shotY !== undefined &&
-                (e.descriptors.includes('Shot') ||
-                 e.descriptors.includes('Goal') ||
+                (e.descriptors.includes('Goal') ||
                  e.descriptors.includes('Point') ||
                  e.descriptors.includes('2 Pointer') ||
                  e.descriptors.includes('Wide') ||
-                 e.descriptors.includes('Save/Short/45') ||
-                 e.descriptors.includes('No Score'))
+                 e.descriptors.includes('Save/Short/45'))
             );
 
             if (shots.length === 0) {
@@ -3948,8 +3997,6 @@
                     color = '#9C27B0'; // Wide (purple)
                 } else if (shot.descriptors.includes('Save/Short/45')) {
                     color = '#f44336'; // Save/Short/45 (red)
-                } else if (shot.descriptors.includes('No Score')) {
-                    color = '#f44336'; // No Score (red)
                 } else {
                     // If no result on this event, check the next event (original flow)
                     const shotIndex = events.indexOf(shot);
@@ -3965,8 +4012,6 @@
                             color = '#9C27B0'; // Wide (purple)
                         } else if (nextEvent.descriptors === 'Save/Short/45') {
                             color = '#f44336'; // Save/Short/45 (red)
-                        } else if (nextEvent.descriptors === 'No Score') {
-                            color = '#f44336'; // No Score (red)
                         }
                     }
                 }
@@ -4022,7 +4067,7 @@
                     </g>
 
                     <!-- Legend -->
-                    <g transform="translate(20, 500)">
+                    <g transform="translate(20, 520)">
                         <circle cx="0" cy="0" r="8" fill="#4CAF50" opacity="0.8"/>
                         <text x="15" y="5" fill="white" font-size="12" font-weight="bold">Goal</text>
 
@@ -4037,9 +4082,6 @@
 
                         <circle cx="0" cy="40" r="8" fill="#f44336" opacity="0.8"/>
                         <text x="15" y="45" fill="white" font-size="11" font-weight="bold">Save/Short/45</text>
-
-                        <circle cx="0" cy="60" r="8" fill="#f44336" opacity="0.8"/>
-                        <text x="15" y="65" fill="white" font-size="11" font-weight="bold">No Score</text>
                     </g>
                 </svg>
             `;
@@ -6022,26 +6064,6 @@
                 return;
             }
 
-            // Handle No Score button - open pitch map to capture shot location
-            if (desc === 'No Score') {
-                // Store event details and open pitch map modal
-                pendingShotEvent = {
-                    type: currentType,
-                    category: currentCategory,
-                    scoreDescriptor: 'No Score'
-                };
-                document.getElementById('pitchMapTitle').textContent = 'No Score - Click Shot Location';
-                document.getElementById('pitchMapModal').style.display = 'block';
-
-                // Flash the button to show it was registered
-                btn.style.backgroundColor = '#2196F3';
-                setTimeout(() => {
-                    btn.style.backgroundColor = '';
-                }, 200);
-
-                return;
-            }
-
             // Handle T/O Lost - log with location
             if (desc === 'T/O Lost') {
                 // Store event details and open pitch map modal
@@ -6079,30 +6101,6 @@
                     btn.style.backgroundColor = '';
                 }, 200);
 
-                return;
-            }
-
-            // Handle Shot - just toggle, don't auto-save
-            if (desc === 'Shot') {
-                if (btn.classList.contains('selected')) {
-                    btn.classList.remove('selected');
-                    let idx = selectedDescriptors.indexOf(desc);
-                    if (idx > -1) selectedDescriptors.splice(idx, 1);
-
-                    // Also remove any scoring descriptors if Shot is removed
-                    ['Goal', 'Point', '2 Pointer'].forEach(type => {
-                        const idx = selectedDescriptors.indexOf(type);
-                        if (idx > -1) selectedDescriptors.splice(idx, 1);
-                        const typeBtn = Array.from(document.querySelectorAll('.descriptor-btn')).find(b => b.textContent === type);
-                        if (typeBtn) typeBtn.classList.remove('selected');
-                    });
-                } else {
-                    btn.classList.add('selected');
-                    selectedDescriptors.push(desc);
-                }
-
-                document.getElementById('status').textContent =
-                    currentType + ': ' + currentCategory + ' | ' + selectedDescriptors.join(', ');
                 return;
             }
 
@@ -6228,11 +6226,9 @@
 
         function updateEventFilters() {
             // Update filter state from checkboxes
-            eventTypeFilters.shot = document.getElementById('filterShot').checked;
             eventTypeFilters.goal = document.getElementById('filterGoal').checked;
             eventTypeFilters.twoPointer = document.getElementById('filter2Pointer').checked;
             eventTypeFilters.point = document.getElementById('filterPoint').checked;
-            eventTypeFilters.noScore = document.getElementById('filterNoScore').checked;
             eventTypeFilters.koWon = document.getElementById('filterKOWon').checked;
             eventTypeFilters.koLost = document.getElementById('filterKOLost').checked;
 
@@ -6519,9 +6515,6 @@
                 // Check if event matches any selected filter
                 let matchesFilter = false;
 
-                if (eventTypeFilters.shot && descriptors.includes('shot')) {
-                    matchesFilter = true;
-                }
                 if (eventTypeFilters.goal && descriptors.includes('goal')) {
                     matchesFilter = true;
                 }
@@ -6529,9 +6522,6 @@
                     matchesFilter = true;
                 }
                 if (eventTypeFilters.point && descriptors.includes('point') && !descriptors.includes('2 pointer')) {
-                    matchesFilter = true;
-                }
-                if (eventTypeFilters.noScore && descriptors.includes('no score')) {
                     matchesFilter = true;
                 }
                 if (eventTypeFilters.koWon && (descriptors.includes('ko won') || descriptors.includes('own ko won') || descriptors.includes('opp ko won'))) {
