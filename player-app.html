@@ -3952,15 +3952,10 @@
 
         function openShotMapModal() {
             // Filter shot events with coordinates
-            // Include events with shot result descriptors (Goal, Point, etc.) that have coordinates
+            // Shot events are created automatically with 'Shot' descriptor and coordinates
             const shots = events.filter(e =>
                 e.shotX !== undefined &&
-                e.shotY !== undefined &&
-                (e.descriptors.includes('Goal') ||
-                 e.descriptors.includes('Point') ||
-                 e.descriptors.includes('2 Pointer') ||
-                 e.descriptors.includes('Wide') ||
-                 e.descriptors.includes('Save/Short/45'))
+                e.shotY !== undefined
             );
 
             if (shots.length === 0) {
