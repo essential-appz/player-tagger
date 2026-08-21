@@ -1849,6 +1849,9 @@
                         <input type="checkbox" id="filterPoint" checked onchange="updateEventFilters()"> Point
                     </label>
                     <label style="display: flex; align-items: center; gap: 4px; font-size: 12px;">
+                        <input type="checkbox" id="filterNoScore" checked onchange="updateEventFilters()"> No Score
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 4px; font-size: 12px;">
                         <input type="checkbox" id="filterKOWon" checked onchange="updateEventFilters()"> KO Won
                     </label>
                     <label style="display: flex; align-items: center; gap: 4px; font-size: 12px;">
@@ -2130,7 +2133,7 @@
                 <h2 id="pitchMapTitle">Kickout Position</h2>
                 <button class="modal-close" onclick="closePitchMapModal()">&times;</button>
             </div>
-            <p style="text-align: center; color: #666; margin-bottom: 15px;">Click where the kickout landed on the pitch</p>
+            <p id="pitchMapDescription" style="text-align: center; color: #666; margin-bottom: 15px;">Click where the kickout landed on the pitch</p>
             <div style="display: flex; justify-content: center;">
                 <svg id="pitchMapSvg" viewBox="0 0 400 600" style="width: 100%; max-width: 400px; cursor: crosshair; border: 2px solid #ddd; border-radius: 4px; background: #4CAF50;" onclick="handlePitchMapClick(event)">
                     <!-- Field background -->
@@ -2240,29 +2243,40 @@
                 </div>
                 <div style="margin-bottom: 15px; padding: 15px; background: #f5f5f5; border-radius: 6px;">
                     <label style="display: block; margin-bottom: 10px; font-weight: bold;">Coordinates:</label>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
-                        <div>
-                            <label style="display: block; font-size: 12px; color: #666; margin-bottom: 3px;">Kickout X:</label>
-                            <input type="number" id="editEventKickoutX" step="0.01" placeholder="e.g., 250.00" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc;">
+
+                    <!-- Kickout Coordinates -->
+                    <div style="margin-bottom: 12px;">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
+                            <label style="font-size: 13px; color: #666; flex: 1;">Kickout Position:</label>
+                            <button type="button" onclick="editEventCoordinatesOnPitch('kickout')" style="background: #2196F3; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold;">
+                                📍 Edit on Field
+                            </button>
                         </div>
-                        <div>
-                            <label style="display: block; font-size: 12px; color: #666; margin-bottom: 3px;">Kickout Y:</label>
-                            <input type="number" id="editEventKickoutY" step="0.01" placeholder="e.g., 150.00" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                            <input type="number" id="editEventKickoutX" step="0.01" placeholder="X (0-400)" style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #ccc; font-size: 12px;" oninput="updateClearButtonVisibility('kickout')">
+                            <input type="number" id="editEventKickoutY" step="0.01" placeholder="Y (0-600)" style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #ccc; font-size: 12px;" oninput="updateClearButtonVisibility('kickout')">
                         </div>
+                        <button type="button" id="clearKickoutBtn" onclick="clearEventCoordinates('kickout')" style="display: none; background: #f44336; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; margin-top: 4px;">
+                            Clear
+                        </button>
                     </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                        <div>
-                            <label style="display: block; font-size: 12px; color: #666; margin-bottom: 3px;">Shot X:</label>
-                            <input type="number" id="editEventShotX" step="0.01" placeholder="e.g., 200.00" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc;">
+
+                    <!-- Shot Coordinates -->
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
+                            <label style="font-size: 13px; color: #666; flex: 1;">Shot Position:</label>
+                            <button type="button" onclick="editEventCoordinatesOnPitch('shot')" style="background: #2196F3; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold;">
+                                📍 Edit on Field
+                            </button>
                         </div>
-                        <div>
-                            <label style="display: block; font-size: 12px; color: #666; margin-bottom: 3px;">Shot Y:</label>
-                            <input type="number" id="editEventShotY" step="0.01" placeholder="e.g., 100.00" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                            <input type="number" id="editEventShotX" step="0.01" placeholder="X (0-400)" style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #ccc; font-size: 12px;" oninput="updateClearButtonVisibility('shot')">
+                            <input type="number" id="editEventShotY" step="0.01" placeholder="Y (0-600)" style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #ccc; font-size: 12px;" oninput="updateClearButtonVisibility('shot')">
                         </div>
+                        <button type="button" id="clearShotBtn" onclick="clearEventCoordinates('shot')" style="display: none; background: #f44336; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; margin-top: 4px;">
+                            Clear
+                        </button>
                     </div>
-                    <p style="font-size: 11px; color: #666; margin-top: 8px; margin-bottom: 0;">
-                        Leave fields empty if not applicable
-                    </p>
                 </div>
                 <div id="editEventTimestampSection" style="display: none; margin-bottom: 15px; padding: 15px; background: #f5f5f5; border-radius: 6px;">
                     <label style="display: block; margin-bottom: 10px; font-weight: bold;">Timestamp:</label>
@@ -2296,7 +2310,7 @@
         // Configuration
         const categories = ['OUR 1', 'OUR 2', 'OUR 3', 'OUR 4', 'OUR 5', 'OUR 6', 'OUR 7', 'OUR 8', 'OUR 9', 'OUR 10', 'OUR 11', 'OUR 12', 'OUR 13', 'OUR 14', 'OUR 15', 'OUR 16', 'OUR 17', 'OUR 18', 'OUR 19', 'OUR 20', 'OUR 21', 'OUR 22', 'OUR 23', 'OUR 24', 'OUR 25', 'OUR 26'];
         const opponents = ['OPP 1', 'OPP 2', 'OPP 3', 'OPP 4', 'OPP 5', 'OPP 6', 'OPP 7', 'OPP 8', 'OPP 9', 'OPP 10', 'OPP 11', 'OPP 12', 'OPP 13', 'OPP 14', 'OPP 15', 'OPP 16', 'OPP 17', 'OPP 18', 'OPP 19', 'OPP 20', 'OPP 21', 'OPP 22', 'OPP 23', 'OPP 24', 'OPP 25', 'OPP 26'];
-        const defaultDescriptors = ['Shot', 'Goal', '2 Pointer', 'Point', 'Wide', 'Save/Short/45', 'Own KO Won', 'Own KO Lost', 'T/O Lost', 'Opp KO Won', 'Opp KO Lost'];
+        const defaultDescriptors = ['Shot', 'Goal', '2 Pointer', 'Point', 'Wide', 'Save/Short/45', 'No Score', 'Own KO Won', 'Own KO Lost', 'T/O Lost', 'Opp KO Won', 'Opp KO Lost'];
         let descriptors = [];
         let allDescriptors = [];
         let tempDescriptors = []; // Temporary descriptors while editing in modal
@@ -2337,6 +2351,7 @@
             goal: true,
             twoPointer: true,
             point: true,
+            noScore: true,
             koWon: true,
             koLost: true
         };
@@ -2619,7 +2634,7 @@
         function resetDescriptors() {
             if (!requirePremium('Custom Descriptors')) return;
 
-            if (!confirm('Reset to default descriptors?\n\nThis will restore:\n• Shot\n• Goal\n• 2 Pointer\n• Point\n• Wide\n• Save/Short/45\n• Own KO Won\n• Own KO Lost\n• T/O Lost\n• Opp KO Won\n• Opp KO Lost\n\nCustom descriptors will be removed.')) {
+            if (!confirm('Reset to default descriptors?\n\nThis will restore:\n• Shot\n• Goal\n• 2 Pointer\n• Point\n• Wide\n• Save/Short/45\n• No Score\n• Own KO Won\n• Own KO Lost\n• T/O Lost\n• Opp KO Won\n• Opp KO Lost\n\nCustom descriptors will be removed.')) {
                 return;
             }
 
@@ -2687,7 +2702,8 @@
                 btn.textContent = desc;
                 // KO buttons are always enabled (team events, no player selection needed)
                 const isKOButton = desc.includes('KO Won') || desc.includes('KO Lost');
-                btn.disabled = isKOButton ? false : true;
+                // In Post-Match mode, enable all buttons; In-Match mode, only enable KO buttons
+                btn.disabled = (gameMode === 'post-match' || isKOButton) ? false : true;
                 btn.onclick = () => toggleDesc(btn, desc);
 
                 // In post-match mode, use full-width buttons without wrappers
@@ -2870,6 +2886,7 @@
         let videoSecondHalfOffset = 0;
         let currentPossessionTeam = null;
         let editingEventIndex = null; // Track which event is being edited
+        let editingCoordinateType = null; // Track whether editing 'kickout' or 'shot' coordinates
 
         function loadVideoFromUrl() {
             const url = document.getElementById('videoUrlInput').value.trim();
@@ -3184,8 +3201,18 @@
         }
 
         function populateEditEventModal(event) {
+            console.log('populateEditEventModal called with event:', {
+                type: event.type,
+                category: event.category,
+                descriptors: event.descriptors
+            });
+
             // Set team
             const teamSelect = document.getElementById('editEventTeam');
+
+            // Remove any existing onchange handler to prevent interference
+            teamSelect.onchange = null;
+
             teamSelect.value = event.type;
 
             // Populate and set player based on team
@@ -3219,38 +3246,33 @@
             });
 
             // Populate coordinate fields
-            document.getElementById('editEventKickoutX').value = event.kickoutX !== undefined ? event.kickoutX : '';
-            document.getElementById('editEventKickoutY').value = event.kickoutY !== undefined ? event.kickoutY : '';
-            document.getElementById('editEventShotX').value = event.shotX !== undefined ? event.shotX : '';
-            document.getElementById('editEventShotY').value = event.shotY !== undefined ? event.shotY : '';
+            document.getElementById('editEventKickoutX').value = event.kickoutX !== undefined ? event.kickoutX.toFixed(2) : '';
+            document.getElementById('editEventKickoutY').value = event.kickoutY !== undefined ? event.kickoutY.toFixed(2) : '';
+            document.getElementById('editEventShotX').value = event.shotX !== undefined ? event.shotX.toFixed(2) : '';
+            document.getElementById('editEventShotY').value = event.shotY !== undefined ? event.shotY.toFixed(2) : '';
+
+            // Show/hide clear buttons based on whether coordinates exist
+            document.getElementById('clearKickoutBtn').style.display = (event.kickoutX !== undefined && event.kickoutY !== undefined) ? 'inline-block' : 'none';
+            document.getElementById('clearShotBtn').style.display = (event.shotX !== undefined && event.shotY !== undefined) ? 'inline-block' : 'none';
 
             // Show/hide timestamp section based on game mode
             const timestampSection = document.getElementById('editEventTimestampSection');
             if (gameMode === 'post-match') {
                 timestampSection.style.display = 'block';
 
-                // Use current video position as default timestamp
-                const video = document.getElementById('matchVideo');
-                if (video && video.duration) {
-                    const currentVideoTime = video.currentTime;
-                    const currentGameTime = calculateMatchTimeFromVideo(currentVideoTime);
+                // Always show the event's actual logged times first
+                document.getElementById('editEventGameTime').value = event.time || '';
 
-                    // Update display fields with current video position
-                    document.getElementById('editEventGameTime').value = currentGameTime;
-                    document.getElementById('editEventVideoTime').value = formatVideoTime(currentVideoTime);
-
-                    // Update the event with current video position
-                    events[editingEventIndex].videoTime = currentVideoTime;
-                    events[editingEventIndex].time = currentGameTime;
+                const videoTimeInput = document.getElementById('editEventVideoTime');
+                // Check if event has a valid videoTime property
+                if (typeof event.videoTime === 'number' && !isNaN(event.videoTime)) {
+                    const videoTimeDisplay = formatVideoTime(event.videoTime);
+                    videoTimeInput.value = videoTimeDisplay;
+                    // Store the original video time in data attribute
+                    videoTimeInput.setAttribute('data-video-seconds', event.videoTime);
                 } else {
-                    // Fallback to event's stored timestamp if no video loaded
-                    document.getElementById('editEventGameTime').value = event.time || '';
-
-                    let videoTimeDisplay = '';
-                    if (event.videoTime !== undefined && isFinite(event.videoTime)) {
-                        videoTimeDisplay = formatVideoTime(event.videoTime);
-                    }
-                    document.getElementById('editEventVideoTime').value = videoTimeDisplay;
+                    videoTimeInput.value = '';
+                    videoTimeInput.removeAttribute('data-video-seconds');
                 }
             } else {
                 timestampSection.style.display = 'none';
@@ -3280,23 +3302,42 @@
             // Calculate match time based on video time and half offsets
             const newMatchTime = calculateMatchTimeFromVideo(newVideoTime);
 
-            // Update the display fields
+            // Update the display fields only (actual event update happens when user clicks Save Changes)
             document.getElementById('editEventGameTime').value = newMatchTime;
             document.getElementById('editEventVideoTime').value = formatVideoTime(newVideoTime);
 
-            // Update the event (will be saved when user clicks Save Changes)
-            events[editingEventIndex].videoTime = newVideoTime;
-            events[editingEventIndex].time = newMatchTime;
+            // Store the video time in a data attribute so saveEditedEvent can use it
+            document.getElementById('editEventVideoTime').setAttribute('data-video-seconds', newVideoTime);
         }
 
         function updateEditPlayerOptions(team, selectedCategory) {
             const playerSelect = document.getElementById('editEventPlayer');
+
+            console.log('updateEditPlayerOptions called with:', { team, selectedCategory });
+
             playerSelect.innerHTML = '';
+
+            // Normalize selectedCategory - if it's just a number, prefix with team
+            let normalizedCategory = selectedCategory;
+            if (selectedCategory && selectedCategory !== 'Team Event') {
+                // Check if category already has team prefix
+                if (!selectedCategory.startsWith('OUR ') && !selectedCategory.startsWith('OPP ')) {
+                    // It's just a number, add team prefix
+                    normalizedCategory = `${team} ${selectedCategory}`;
+                    console.log('Normalized category from', selectedCategory, 'to', normalizedCategory);
+                }
+            }
 
             // Add Team Event option
             const teamEventOption = document.createElement('option');
             teamEventOption.value = 'Team Event';
             teamEventOption.textContent = 'Team Event';
+
+            // Pre-select Team Event if that's the category
+            if (normalizedCategory === 'Team Event') {
+                teamEventOption.selected = true;
+            }
+
             playerSelect.appendChild(teamEventOption);
 
             // Add player options
@@ -3304,12 +3345,41 @@
                 const option = document.createElement('option');
                 option.value = `${team} ${i}`;
                 option.textContent = `${i}`;
+
+                // Pre-select if this matches the normalizedCategory
+                if (normalizedCategory && option.value === normalizedCategory) {
+                    option.selected = true;
+                    console.log('Pre-selecting option:', option.value);
+                }
+
                 playerSelect.appendChild(option);
             }
 
-            // Set selected value if provided
-            if (selectedCategory) {
-                playerSelect.value = selectedCategory;
+            // Double-check the value is set after all options are added
+            if (normalizedCategory) {
+                playerSelect.value = normalizedCategory;
+
+                console.log('After setting value:', {
+                    attempted: normalizedCategory,
+                    actualValue: playerSelect.value,
+                    selectedIndex: playerSelect.selectedIndex,
+                    selectedOptionValue: playerSelect.options[playerSelect.selectedIndex]?.value
+                });
+
+                // Debug logging if it still didn't work
+                if (playerSelect.value !== normalizedCategory) {
+                    console.error('❌ Failed to set player dropdown:', {
+                        attempted: normalizedCategory,
+                        actualValue: playerSelect.value,
+                        availableOptions: Array.from(playerSelect.options).map(o => ({
+                            value: o.value,
+                            text: o.textContent,
+                            selected: o.selected
+                        }))
+                    });
+                } else {
+                    console.log('✅ Successfully set player to:', playerSelect.value);
+                }
             }
         }
 
@@ -3339,11 +3409,26 @@
             const shotX = document.getElementById('editEventShotX').value;
             const shotY = document.getElementById('editEventShotY').value;
 
+            // Get timestamp values (if in post-match mode)
+            const gameTime = document.getElementById('editEventGameTime').value;
+            const videoTimeInput = document.getElementById('editEventVideoTime');
+            const videoTimeSeconds = videoTimeInput.getAttribute('data-video-seconds');
+
             // Update the event
             events[editingEventIndex].type = team;
             events[editingEventIndex].category = player;
             events[editingEventIndex].period = period;
             events[editingEventIndex].descriptors = descriptors.join(', ');
+
+            // Update timestamps (if in post-match mode and values were changed)
+            if (gameMode === 'post-match') {
+                if (gameTime) {
+                    events[editingEventIndex].time = gameTime;
+                }
+                if (videoTimeSeconds) {
+                    events[editingEventIndex].videoTime = parseFloat(videoTimeSeconds);
+                }
+            }
 
             // Update coordinates (save as numbers or remove if empty)
             if (kickoutX !== '' && !isNaN(kickoutX)) {
@@ -3415,6 +3500,79 @@
         function closeEditEventModal() {
             document.getElementById('editEventModal').classList.remove('active');
             editingEventIndex = null;
+            editingCoordinateType = null;
+            // Clean up the video time data attribute
+            document.getElementById('editEventVideoTime').removeAttribute('data-video-seconds');
+        }
+
+        function editEventCoordinatesOnPitch(type) {
+            if (editingEventIndex === null || editingEventIndex < 0 || editingEventIndex >= events.length) {
+                alert('No event is being edited!');
+                return;
+            }
+
+            // Store which coordinate type we're editing
+            editingCoordinateType = type;
+
+            // Close the edit modal temporarily
+            document.getElementById('editEventModal').classList.remove('active');
+
+            // Set up the pitch map modal
+            const modal = document.getElementById('pitchMapModal');
+            const title = document.getElementById('pitchMapTitle');
+            const description = document.getElementById('pitchMapDescription');
+
+            if (type === 'kickout') {
+                title.textContent = 'Edit Kickout Position';
+                description.textContent = 'Click the new position on the pitch (orange marker shows current position)';
+            } else if (type === 'shot') {
+                title.textContent = 'Edit Shot Position';
+                description.textContent = 'Click the new position on the pitch (orange marker shows current position)';
+            }
+
+            // Show existing marker if coordinates exist
+            const event = events[editingEventIndex];
+            const marker = document.getElementById('kickoutMarker');
+            const markerCircle = document.getElementById('kickoutMarkerCircle');
+
+            if (type === 'kickout' && event.kickoutX !== undefined && event.kickoutY !== undefined) {
+                marker.setAttribute('transform', `translate(${event.kickoutX}, ${event.kickoutY})`);
+                marker.style.display = 'block';
+                markerCircle.setAttribute('fill', '#FF9800'); // Orange for existing
+            } else if (type === 'shot' && event.shotX !== undefined && event.shotY !== undefined) {
+                marker.setAttribute('transform', `translate(${event.shotX}, ${event.shotY})`);
+                marker.style.display = 'block';
+                markerCircle.setAttribute('fill', '#FF9800'); // Orange for existing
+            } else {
+                marker.style.display = 'none';
+            }
+
+            // Show the pitch map modal
+            modal.style.display = 'flex';
+        }
+
+        function clearEventCoordinates(type) {
+            if (type === 'kickout') {
+                document.getElementById('editEventKickoutX').value = '';
+                document.getElementById('editEventKickoutY').value = '';
+                document.getElementById('clearKickoutBtn').style.display = 'none';
+            } else if (type === 'shot') {
+                document.getElementById('editEventShotX').value = '';
+                document.getElementById('editEventShotY').value = '';
+                document.getElementById('clearShotBtn').style.display = 'none';
+            }
+        }
+
+        function updateClearButtonVisibility(type) {
+            if (type === 'kickout') {
+                const x = document.getElementById('editEventKickoutX').value;
+                const y = document.getElementById('editEventKickoutY').value;
+                document.getElementById('clearKickoutBtn').style.display = (x || y) ? 'inline-block' : 'none';
+            } else if (type === 'shot') {
+                const x = document.getElementById('editEventShotX').value;
+                const y = document.getElementById('editEventShotY').value;
+                document.getElementById('clearShotBtn').style.display = (x || y) ? 'inline-block' : 'none';
+            }
         }
 
         function calculateMatchTimeFromVideo(videoTimeSeconds) {
@@ -3716,10 +3874,17 @@
 
         function openShotMapModal() {
             // Filter shot events with coordinates
+            // Include events with Shot descriptor OR shot result descriptors (Goal, Point, etc.) that have coordinates
             const shots = events.filter(e =>
                 e.shotX !== undefined &&
                 e.shotY !== undefined &&
-                e.descriptors.includes('Shot')
+                (e.descriptors.includes('Shot') ||
+                 e.descriptors.includes('Goal') ||
+                 e.descriptors.includes('Point') ||
+                 e.descriptors.includes('2 Pointer') ||
+                 e.descriptors.includes('Wide') ||
+                 e.descriptors.includes('Save/Short/45') ||
+                 e.descriptors.includes('No Score'))
             );
 
             if (shots.length === 0) {
@@ -3770,22 +3935,39 @@
                 const playerNum = playerNumMatch ? playerNumMatch[0] : '';
 
                 // Determine color based on shot result
-                // Check the next event to see what happened
-                const shotIndex = events.indexOf(shot);
                 let color = '#f44336'; // Default: Save/Short/45 (red)
 
-                if (shotIndex < events.length - 1) {
-                    const nextEvent = events[shotIndex + 1];
-                    if (nextEvent.descriptors === 'Goal') {
-                        color = '#4CAF50'; // Goal (green)
-                    } else if (nextEvent.descriptors === 'Point') {
-                        color = '#ffffff'; // Point (white)
-                    } else if (nextEvent.descriptors === '2 Pointer') {
-                        color = '#ff9800'; // 2 Pointer (orange)
-                    } else if (nextEvent.descriptors === 'Wide') {
-                        color = '#9C27B0'; // Wide (purple)
-                    } else if (nextEvent.descriptors === 'Save/Short/45') {
-                        color = '#f44336'; // Save/Short/45 (red)
+                // First check if the shot event itself has a result descriptor (edited events)
+                if (shot.descriptors.includes('Goal')) {
+                    color = '#4CAF50'; // Goal (green)
+                } else if (shot.descriptors.includes('Point') && !shot.descriptors.includes('2 Pointer')) {
+                    color = '#ffffff'; // Point (white)
+                } else if (shot.descriptors.includes('2 Pointer')) {
+                    color = '#ff9800'; // 2 Pointer (orange)
+                } else if (shot.descriptors.includes('Wide')) {
+                    color = '#9C27B0'; // Wide (purple)
+                } else if (shot.descriptors.includes('Save/Short/45')) {
+                    color = '#f44336'; // Save/Short/45 (red)
+                } else if (shot.descriptors.includes('No Score')) {
+                    color = '#f44336'; // No Score (red)
+                } else {
+                    // If no result on this event, check the next event (original flow)
+                    const shotIndex = events.indexOf(shot);
+                    if (shotIndex < events.length - 1) {
+                        const nextEvent = events[shotIndex + 1];
+                        if (nextEvent.descriptors === 'Goal') {
+                            color = '#4CAF50'; // Goal (green)
+                        } else if (nextEvent.descriptors === 'Point') {
+                            color = '#ffffff'; // Point (white)
+                        } else if (nextEvent.descriptors === '2 Pointer') {
+                            color = '#ff9800'; // 2 Pointer (orange)
+                        } else if (nextEvent.descriptors === 'Wide') {
+                            color = '#9C27B0'; // Wide (purple)
+                        } else if (nextEvent.descriptors === 'Save/Short/45') {
+                            color = '#f44336'; // Save/Short/45 (red)
+                        } else if (nextEvent.descriptors === 'No Score') {
+                            color = '#f44336'; // No Score (red)
+                        }
                     }
                 }
 
@@ -3840,7 +4022,7 @@
                     </g>
 
                     <!-- Legend -->
-                    <g transform="translate(20, 520)">
+                    <g transform="translate(20, 500)">
                         <circle cx="0" cy="0" r="8" fill="#4CAF50" opacity="0.8"/>
                         <text x="15" y="5" fill="white" font-size="12" font-weight="bold">Goal</text>
 
@@ -3855,6 +4037,9 @@
 
                         <circle cx="0" cy="40" r="8" fill="#f44336" opacity="0.8"/>
                         <text x="15" y="45" fill="white" font-size="11" font-weight="bold">Save/Short/45</text>
+
+                        <circle cx="0" cy="60" r="8" fill="#f44336" opacity="0.8"/>
+                        <text x="15" y="65" fill="white" font-size="11" font-weight="bold">No Score</text>
                     </g>
                 </svg>
             `;
@@ -3876,6 +4061,22 @@
         }
 
         function closePitchMapModal() {
+            // Hide marker
+            document.getElementById('kickoutMarker').style.display = 'none';
+
+            // Reset title and description
+            document.getElementById('pitchMapTitle').textContent = 'Kickout Position';
+            document.getElementById('pitchMapDescription').textContent = 'Click where the kickout landed on the pitch';
+
+            // If we were editing coordinates, re-open the edit modal
+            if (editingCoordinateType && editingEventIndex !== null) {
+                document.getElementById('pitchMapModal').style.display = 'none';
+                document.getElementById('editEventModal').classList.add('active');
+                editingCoordinateType = null;
+                return;
+            }
+
+            // Normal close behavior
             document.getElementById('pitchMapModal').style.display = 'none';
             pendingKickoutDescriptor = null;
             pendingTurnoverEvent = null;
@@ -3883,6 +4084,52 @@
         }
 
         function handlePitchMapClick(event) {
+            // Handle editing existing event coordinates
+            if (editingCoordinateType && editingEventIndex !== null) {
+                const svg = document.getElementById('pitchMapSvg');
+                const rect = svg.getBoundingClientRect();
+
+                // Get click coordinates relative to SVG
+                const x = event.clientX - rect.left;
+                const y = event.clientY - rect.top;
+
+                // Convert to SVG viewBox coordinates (0-400, 0-600)
+                const viewBoxX = (x / rect.width) * 400;
+                const viewBoxY = (y / rect.height) * 600;
+
+                // Update the marker to show new position
+                const marker = document.getElementById('kickoutMarker');
+                const markerCircle = document.getElementById('kickoutMarkerCircle');
+                marker.setAttribute('transform', `translate(${viewBoxX}, ${viewBoxY})`);
+                marker.style.display = 'block';
+                markerCircle.setAttribute('fill', '#2196F3'); // Blue for new position
+
+                // Update the coordinate fields in the edit modal
+                if (editingCoordinateType === 'kickout') {
+                    document.getElementById('editEventKickoutX').value = viewBoxX.toFixed(2);
+                    document.getElementById('editEventKickoutY').value = viewBoxY.toFixed(2);
+                    document.getElementById('clearKickoutBtn').style.display = 'inline-block';
+                } else if (editingCoordinateType === 'shot') {
+                    document.getElementById('editEventShotX').value = viewBoxX.toFixed(2);
+                    document.getElementById('editEventShotY').value = viewBoxY.toFixed(2);
+                    document.getElementById('clearShotBtn').style.display = 'inline-block';
+                }
+
+                // Brief delay to show the new marker position before closing
+                setTimeout(() => {
+                    // Close pitch map modal
+                    closePitchMapModal();
+
+                    // Re-open the edit modal
+                    document.getElementById('editEventModal').classList.add('active');
+
+                    // Reset editing coordinate type
+                    editingCoordinateType = null;
+                }, 300);
+                return;
+            }
+
+            // Handle creating new events (original logic)
             if (!pendingKickoutDescriptor && !pendingTurnoverEvent && !pendingShotEvent) return;
 
             const svg = document.getElementById('pitchMapSvg');
@@ -4543,8 +4790,9 @@
                     if (descriptorList.includes('Own KO Won')) ourWon++;
                     if (descriptorList.includes('Own KO Lost')) ourLost++;
                 } else if (event.type === 'OPP') {
-                    if (descriptorList.includes('Opp KO Won')) oppWon++;
-                    if (descriptorList.includes('Opp KO Lost')) oppLost++;
+                    // Handle both naming conventions for opposition kickouts
+                    if (descriptorList.includes('Opp KO Won') || descriptorList.includes('Own KO Won')) oppWon++;
+                    if (descriptorList.includes('Opp KO Lost') || descriptorList.includes('Own KO Lost')) oppLost++;
                 }
             });
 
@@ -5705,7 +5953,12 @@
             // Check if this is a team event (KO) that doesn't need player selection
             const isTeamEvent = desc.includes('KO Won') || desc.includes('KO Lost');
 
-            if (!currentType && !isTeamEvent) return;
+            if (!currentType && !isTeamEvent) {
+                if (gameMode === 'post-match') {
+                    alert('Please select a player first from the player buttons below the video.');
+                }
+                return;
+            }
 
             // Handle team events (Own/Opp KO Won/Lost)
             if (isTeamEvent) {
@@ -5758,6 +6011,26 @@
                     scoreDescriptor: 'Save/Short/45'
                 };
                 document.getElementById('pitchMapTitle').textContent = 'Save/Short/45 - Click Shot Location';
+                document.getElementById('pitchMapModal').style.display = 'block';
+
+                // Flash the button to show it was registered
+                btn.style.backgroundColor = '#2196F3';
+                setTimeout(() => {
+                    btn.style.backgroundColor = '';
+                }, 200);
+
+                return;
+            }
+
+            // Handle No Score button - open pitch map to capture shot location
+            if (desc === 'No Score') {
+                // Store event details and open pitch map modal
+                pendingShotEvent = {
+                    type: currentType,
+                    category: currentCategory,
+                    scoreDescriptor: 'No Score'
+                };
+                document.getElementById('pitchMapTitle').textContent = 'No Score - Click Shot Location';
                 document.getElementById('pitchMapModal').style.display = 'block';
 
                 // Flash the button to show it was registered
@@ -5873,7 +6146,37 @@
         }
 
         function saveEvent() {
-            const gameTime = getFormattedGameTime();
+            let gameTime;
+
+            // In Post-Match mode, calculate game time from video timestamp minus offset
+            if (gameMode === 'post-match') {
+                const video = document.getElementById('matchVideo');
+                if (video && video.duration) {
+                    const videoTime = video.currentTime;
+
+                    // Determine which offset to use based on current period
+                    let offset = 0;
+                    if (currentPeriod === '1st Half Started' || currentPeriod === '1st Half Ended') {
+                        offset = videoFirstHalfOffset;
+                    } else if (currentPeriod === '2nd Half Started' || currentPeriod === '2nd Half Ended') {
+                        offset = videoSecondHalfOffset;
+                    }
+
+                    // Calculate game time in seconds
+                    const gameTimeSeconds = Math.max(0, videoTime - offset);
+
+                    // Format as MM:SS
+                    const minutes = Math.floor(gameTimeSeconds / 60);
+                    const seconds = Math.floor(gameTimeSeconds % 60);
+                    gameTime = String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
+                } else {
+                    // Fallback to game clock if video not available
+                    gameTime = getFormattedGameTime();
+                }
+            } else {
+                // In-Match mode, use game clock
+                gameTime = getFormattedGameTime();
+            }
 
             let event = {
                 timestamp: new Date().toISOString(),
@@ -5929,6 +6232,7 @@
             eventTypeFilters.goal = document.getElementById('filterGoal').checked;
             eventTypeFilters.twoPointer = document.getElementById('filter2Pointer').checked;
             eventTypeFilters.point = document.getElementById('filterPoint').checked;
+            eventTypeFilters.noScore = document.getElementById('filterNoScore').checked;
             eventTypeFilters.koWon = document.getElementById('filterKOWon').checked;
             eventTypeFilters.koLost = document.getElementById('filterKOLost').checked;
 
@@ -6227,6 +6531,9 @@
                 if (eventTypeFilters.point && descriptors.includes('point') && !descriptors.includes('2 pointer')) {
                     matchesFilter = true;
                 }
+                if (eventTypeFilters.noScore && descriptors.includes('no score')) {
+                    matchesFilter = true;
+                }
                 if (eventTypeFilters.koWon && (descriptors.includes('ko won') || descriptors.includes('own ko won') || descriptors.includes('opp ko won'))) {
                     matchesFilter = true;
                 }
@@ -6403,7 +6710,7 @@
                 return;
             }
 
-            let csv = 'Event#,Timestamp,Game Time,Period,Type,Category,Descriptors,ShotX,ShotY,KickoutX,KickoutY,TurnoverX,TurnoverY\n';
+            let csv = 'Event#,Timestamp,Game Time,Period,Type,Category,Descriptors,ShotX,ShotY,KickoutX,KickoutY,TurnoverX,TurnoverY,VideoTime\n';
             events.forEach((e, i) => {
                 const shotX = e.shotX !== undefined ? e.shotX.toFixed(2) : '';
                 const shotY = e.shotY !== undefined ? e.shotY.toFixed(2) : '';
@@ -6411,10 +6718,11 @@
                 const kickoutY = e.kickoutY !== undefined ? e.kickoutY.toFixed(2) : '';
                 const turnoverX = e.turnoverX !== undefined ? e.turnoverX.toFixed(2) : '';
                 const turnoverY = e.turnoverY !== undefined ? e.turnoverY.toFixed(2) : '';
+                const videoTime = e.videoTime !== undefined ? e.videoTime.toFixed(2) : '';
                 csv += (i + 1) + ',' + e.timestamp + ',' + e.time + ',' + e.period + ',' +
                        e.type + ',' + e.category + ',"' + e.descriptors + '",' +
                        shotX + ',' + shotY + ',' + kickoutX + ',' + kickoutY + ',' +
-                       turnoverX + ',' + turnoverY + '\n';
+                       turnoverX + ',' + turnoverY + ',' + videoTime + '\n';
             });
 
             let blob = new Blob([csv], { type: 'text/csv' });
@@ -6452,7 +6760,7 @@
                     // Validate header
                     const header = lines[0].trim();
                     if (!header.includes('Event#') || !header.includes('Timestamp') || !header.includes('Type') || !header.includes('Category')) {
-                        alert('Invalid CSV format! Expected headers: Event#, Timestamp, Game Time, Period, Type, Category, Descriptors, KickoutX, KickoutY');
+                        alert('Invalid CSV format! Expected headers: Event#, Timestamp, Game Time, Period, Type, Category, Descriptors, ShotX, ShotY, KickoutX, KickoutY, TurnoverX, TurnoverY, VideoTime');
                         event.target.value = '';
                         return;
                     }
@@ -6496,12 +6804,27 @@
                             descriptors: parts[6].trim()
                         };
 
-                        // Parse kickout coordinates if present
+                        // Parse coordinates if present (ShotX, ShotY, KickoutX, KickoutY, TurnoverX, TurnoverY, VideoTime)
                         if (parts.length > 7 && parts[7].trim()) {
-                            event.kickoutX = parseFloat(parts[7].trim());
+                            event.shotX = parseFloat(parts[7].trim());
                         }
                         if (parts.length > 8 && parts[8].trim()) {
-                            event.kickoutY = parseFloat(parts[8].trim());
+                            event.shotY = parseFloat(parts[8].trim());
+                        }
+                        if (parts.length > 9 && parts[9].trim()) {
+                            event.kickoutX = parseFloat(parts[9].trim());
+                        }
+                        if (parts.length > 10 && parts[10].trim()) {
+                            event.kickoutY = parseFloat(parts[10].trim());
+                        }
+                        if (parts.length > 11 && parts[11].trim()) {
+                            event.turnoverX = parseFloat(parts[11].trim());
+                        }
+                        if (parts.length > 12 && parts[12].trim()) {
+                            event.turnoverY = parseFloat(parts[12].trim());
+                        }
+                        if (parts.length > 13 && parts[13].trim()) {
+                            event.videoTime = parseFloat(parts[13].trim());
                         }
 
                         // Validate event data
