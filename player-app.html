@@ -1873,6 +1873,10 @@
             <label style="font-size: 12px; color: #666; white-space: nowrap;">Clip Length:</label>
             <input type="number" id="clipDuration" min="5" max="120" value="20" style="width: 60px; padding: 4px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px;">
             <span style="font-size: 11px; color: #666;">sec</span>
+            <label style="display: flex; align-items: center; gap: 4px; font-size: 12px; color: #666;">
+                <input type="checkbox" id="addCaptionToClips" checked>
+                Add Caption
+            </label>
             <button onclick="createClipsFromSelected()" style="padding: 6px 12px; border: none; background: #4CAF50; color: white; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: bold;">🎬 Create Clips</button>
         </div>
         <div class="recent-events-list" id="recentEventsList">
@@ -6400,6 +6404,10 @@
                 return;
             }
 
+            // Get caption setting
+            const addCaptionCheckbox = document.getElementById('addCaptionToClips');
+            const addCaption = addCaptionCheckbox ? addCaptionCheckbox.checked : false;
+
             // Get selected events
             const selectedEvents = Array.from(selectedEventIndices)
                 .map(index => ({
@@ -6465,7 +6473,20 @@
                     // Generate FFmpeg command
                     const baseFilename = `${event.time.replace(':', '')}_${event.type}_${event.category.replace(' ', '')}`;
                     const outputFilename = `clip_${String(clipNum).padStart(3, '0')}_${sanitizeFilename(baseFilename)}.mp4`;
-                    ffmpegCommands.push(`ffmpeg -i "${videoFileName}" -ss ${ffmpegStart} -t ${duration} -c copy "${outputFilename}"`);
+
+                    if (addCaption) {
+                        // Add caption overlay with drawtext filter
+                        // Escape special characters for drawtext
+                        const captionText = description.replace(/'/g, "'\\\\\\''").replace(/:/g, '\\:');
+                        const ffmpegCmd = `ffmpeg -i "${videoFileName}" -ss ${ffmpegStart} -t ${duration} ` +
+                            `-vf "drawtext=text='${captionText}':fontsize=24:fontcolor=white:` +
+                            `box=1:boxcolor=black@0.6:boxborderw=8:x=(w-text_w)/2:y=h-th-20" ` +
+                            `-c:a copy "${outputFilename}"`;
+                        ffmpegCommands.push(ffmpegCmd);
+                    } else {
+                        // Fast copy without re-encoding
+                        ffmpegCommands.push(`ffmpeg -i "${videoFileName}" -ss ${ffmpegStart} -t ${duration} -c copy "${outputFilename}"`);
+                    }
                 }
             });
 
@@ -6479,6 +6500,7 @@
             exportContent += `# Game: ${gameName || 'Untitled'}\n`;
             exportContent += `# Video Source: ${videoFileName}\n`;
             exportContent += `# Clip Duration: ${clipDuration} seconds\n`;
+            exportContent += `# Captions: ${addCaption ? 'Enabled' : 'Disabled'}\n`;
             exportContent += `# Created: ${new Date().toLocaleString()}\n`;
             exportContent += `# Total clips: ${clipData.length}\n\n`;
 
@@ -6487,7 +6509,12 @@
             exportContent += '# ========================================\n\n';
 
             // Generate filter_complex command for merged video
-            exportContent += '# This command creates a single MP4 with all clips merged together:\n\n';
+            if (addCaption) {
+                exportContent += '# This command creates a single MP4 with all clips merged together.\n';
+                exportContent += '# Each clip includes a caption showing: Game Time - Team Player - Descriptors\n\n';
+            } else {
+                exportContent += '# This command creates a single MP4 with all clips merged together:\n\n';
+            }
             exportContent += `ffmpeg -i "${videoFileName}" \\\n`;
 
             // Build filter_complex for all segments
@@ -6495,7 +6522,14 @@
             clipData.forEach((clip, idx) => {
                 const startTime = parseFloat(clip.startTime);
                 const endTime = startTime + clip.duration;
-                filterParts.push(`[0:v]trim=start=${startTime.toFixed(2)}:end=${endTime.toFixed(2)},setpts=PTS-STARTPTS[v${idx}];`);
+
+                if (addCaption) {
+                    // Add caption to each clip segment
+                    const captionText = clip.description.replace(/'/g, "'\\\\\\''").replace(/:/g, '\\:');
+                    filterParts.push(`[0:v]trim=start=${startTime.toFixed(2)}:end=${endTime.toFixed(2)},setpts=PTS-STARTPTS,drawtext=text='${captionText}':fontsize=24:fontcolor=white:box=1:boxcolor=black@0.6:boxborderw=8:x=(w-text_w)/2:y=h-th-20[v${idx}];`);
+                } else {
+                    filterParts.push(`[0:v]trim=start=${startTime.toFixed(2)}:end=${endTime.toFixed(2)},setpts=PTS-STARTPTS[v${idx}];`);
+                }
                 filterParts.push(`[0:a]atrim=start=${startTime.toFixed(2)}:end=${endTime.toFixed(2)},asetpts=PTS-STARTPTS[a${idx}];`);
             });
 
@@ -6511,7 +6545,12 @@
             exportContent += '\n# ========================================\n';
             exportContent += '# OPTION 2: Create individual clip files\n';
             exportContent += '# ========================================\n\n';
-            exportContent += `# Run these commands in the directory containing "${videoFileName}":\n\n`;
+            if (addCaption) {
+                exportContent += `# Run these commands in the directory containing "${videoFileName}".\n`;
+                exportContent += '# Each clip will include a caption overlay at the bottom.\n\n';
+            } else {
+                exportContent += `# Run these commands in the directory containing "${videoFileName}":\n\n`;
+            }
             ffmpegCommands.forEach(cmd => {
                 exportContent += cmd + '\n';
             });
