@@ -2585,7 +2585,7 @@
                     });
 
                     // Check for removed descriptors (e.g., "No Score" and "Shot" were removed)
-                    const obsoleteDescriptors = ['No Score', 'Shot', 'Save/Short/45'];
+                    const obsoleteDescriptors = ['No Score', 'Shot', 'Save/Short/45', '45'];
                     obsoleteDescriptors.forEach(desc => {
                         if (descriptors.includes(desc)) {
                             removedDescriptors.push(desc);
@@ -4663,23 +4663,26 @@
             html += '<div class="report-section">';
             html += '<h3>Shot Conversion</h3>';
             html += '<table class="report-table">';
-            html += '<tr><th rowspan="2">Team</th><th colspan="5">1st Half</th><th colspan="5" style="border-left: 2px solid #ddd">2nd Half</th><th colspan="5" style="border-left: 2px solid #ddd">Total</th></tr>';
-            html += '<tr><th>Shots</th><th>Scores</th><th>Wides</th><th>For 45s</th><th>%</th><th style="border-left: 2px solid #ddd">Shots</th><th>Scores</th><th>Wides</th><th>For 45s</th><th>%</th><th style="border-left: 2px solid #ddd">Shots</th><th>Scores</th><th>Wides</th><th>For 45s</th><th>%</th></tr>';
+            html += '<tr><th rowspan="2">Team</th><th colspan="6">1st Half</th><th colspan="6" style="border-left: 2px solid #ddd">2nd Half</th><th colspan="6" style="border-left: 2px solid #ddd">Total</th></tr>';
+            html += '<tr><th>Shots</th><th>Scores</th><th>Wides</th><th>Short/Save</th><th>For 45s</th><th>%</th><th style="border-left: 2px solid #ddd">Shots</th><th>Scores</th><th>Wides</th><th>Short/Save</th><th>For 45s</th><th>%</th><th style="border-left: 2px solid #ddd">Shots</th><th>Scores</th><th>Wides</th><th>Short/Save</th><th>For 45s</th><th>%</th></tr>';
             html += '<tr>';
             html += '<td>' + team1Name + '</td>';
             html += '<td>' + shotStats1st.ourShots + '</td>';
             html += '<td>' + shotStats1st.ourScores + '</td>';
             html += '<td>' + shotStats1st.ourWides + '</td>';
+            html += '<td>' + shotStats1st.ourSaveShot + '</td>';
             html += '<td>' + shotStats1st.ourFortyFives + '</td>';
             html += '<td>' + shotStats1st.ourConversion + '%</td>';
             html += '<td style="border-left: 2px solid #ddd">' + shotStats2nd.ourShots + '</td>';
             html += '<td>' + shotStats2nd.ourScores + '</td>';
             html += '<td>' + shotStats2nd.ourWides + '</td>';
+            html += '<td>' + shotStats2nd.ourSaveShot + '</td>';
             html += '<td>' + shotStats2nd.ourFortyFives + '</td>';
             html += '<td>' + shotStats2nd.ourConversion + '%</td>';
             html += '<td style="border-left: 2px solid #ddd">' + shotStatsTotal.ourShots + '</td>';
             html += '<td>' + shotStatsTotal.ourScores + '</td>';
             html += '<td>' + shotStatsTotal.ourWides + '</td>';
+            html += '<td>' + shotStatsTotal.ourSaveShot + '</td>';
             html += '<td>' + shotStatsTotal.ourFortyFives + '</td>';
             html += '<td>' + shotStatsTotal.ourConversion + '%</td>';
             html += '</tr>';
@@ -4688,16 +4691,19 @@
             html += '<td>' + shotStats1st.oppShots + '</td>';
             html += '<td>' + shotStats1st.oppScores + '</td>';
             html += '<td>' + shotStats1st.oppWides + '</td>';
+            html += '<td>' + shotStats1st.oppSaveShot + '</td>';
             html += '<td>' + shotStats1st.oppFortyFives + '</td>';
             html += '<td>' + shotStats1st.oppConversion + '%</td>';
             html += '<td style="border-left: 2px solid #ddd">' + shotStats2nd.oppShots + '</td>';
             html += '<td>' + shotStats2nd.oppScores + '</td>';
             html += '<td>' + shotStats2nd.oppWides + '</td>';
+            html += '<td>' + shotStats2nd.oppSaveShot + '</td>';
             html += '<td>' + shotStats2nd.oppFortyFives + '</td>';
             html += '<td>' + shotStats2nd.oppConversion + '%</td>';
             html += '<td style="border-left: 2px solid #ddd">' + shotStatsTotal.oppShots + '</td>';
             html += '<td>' + shotStatsTotal.oppScores + '</td>';
             html += '<td>' + shotStatsTotal.oppWides + '</td>';
+            html += '<td>' + shotStatsTotal.oppSaveShot + '</td>';
             html += '<td>' + shotStatsTotal.oppFortyFives + '</td>';
             html += '<td>' + shotStatsTotal.oppConversion + '%</td>';
             html += '</tr>';
@@ -4896,8 +4902,8 @@
                 filteredEvents = events.filter(e => e.period === '2nd Half Started' || e.period === '2nd Half Ended');
             }
 
-            let ourShots = 0, ourScores = 0, ourWides = 0, ourFortyFives = 0;
-            let oppShots = 0, oppScores = 0, oppWides = 0, oppFortyFives = 0;
+            let ourShots = 0, ourScores = 0, ourWides = 0, ourSaveShot = 0, ourFortyFives = 0;
+            let oppShots = 0, oppScores = 0, oppWides = 0, oppSaveShot = 0, oppFortyFives = 0;
 
             filteredEvents.forEach(event => {
                 const descriptorList = event.descriptors.split(',').map(d => d.trim());
@@ -4906,17 +4912,20 @@
                                 descriptorList.includes('Point') ||
                                 descriptorList.includes('2 Pointer');
                 const hasWide = descriptorList.includes('Wide');
+                const hasSaveShot = descriptorList.includes('Save/Shot') || descriptorList.includes('Save/Short/45');
                 const has45 = descriptorList.includes('For 45');
 
                 if (event.type === 'OUR') {
                     if (hasShot) ourShots++;
                     if (hasScore) ourScores++;
                     if (hasWide) ourWides++;
+                    if (hasSaveShot) ourSaveShot++;
                     if (has45) ourFortyFives++;
                 } else if (event.type === 'OPP') {
                     if (hasShot) oppShots++;
                     if (hasScore) oppScores++;
                     if (hasWide) oppWides++;
+                    if (hasSaveShot) oppSaveShot++;
                     if (has45) oppFortyFives++;
                 }
             });
@@ -4928,11 +4937,13 @@
                 ourShots,
                 ourScores,
                 ourWides,
+                ourSaveShot,
                 ourFortyFives,
                 ourConversion,
                 oppShots,
                 oppScores,
                 oppWides,
+                oppSaveShot,
                 oppFortyFives,
                 oppConversion
             };
@@ -4994,12 +5005,18 @@
             let ourWon = 0, ourLost = 0, oppWon = 0, oppLost = 0;
 
             filteredEvents.forEach(event => {
+                // Skip auto-generated T/O events from Save/Shot (counted via Save/Shot event below)
+                if (event.fromSaveShot) return;
+
                 if (event.descriptors.includes('Our T/O Lost')) {
                     ourLost++;
                     oppWon++;
                 } else if (event.descriptors.includes('Opp T/O Lost')) {
                     oppLost++;
                     ourWon++;
+                } else if (event.descriptors.includes('Save/Shot')) {
+                    if (event.type === 'OUR') { ourLost++; oppWon++; }
+                    else if (event.type === 'OPP') { oppLost++; ourWon++; }
                 }
             });
 
@@ -5361,6 +5378,7 @@
             team1Name = save.team1Name || 'Us';
             team2Name = save.team2Name || 'Opposition';
             events = save.events || [];
+            normalizeEventDescriptors(events);
             htOurGoals = save.htOurGoals !== undefined ? save.htOurGoals : null;
             htOurPoints = save.htOurPoints !== undefined ? save.htOurPoints : null;
             htOppGoals = save.htOppGoals !== undefined ? save.htOppGoals : null;
@@ -5964,11 +5982,23 @@
             updateScoreboard();
         }
 
+        function normalizeEventDescriptors(eventList) {
+            eventList.forEach(event => {
+                if (!event.descriptors) return;
+                event.descriptors = event.descriptors.split(', ').map(d => {
+                    if (d.trim() === '45') return 'For 45';
+                    if (d.trim() === 'Save/Short/45') return 'Save/Shot';
+                    return d;
+                }).join(', ');
+            });
+        }
+
         function loadEvents() {
             try {
                 const saved = localStorage.getItem('categoryEvents');
                 if (saved) {
                     events = JSON.parse(saved);
+                    normalizeEventDescriptors(events);
                     if (events.length > 0) {
                         document.getElementById('eventCount').textContent = events.length;
                         updateMatrix();
@@ -7045,6 +7075,7 @@
 
                     // Load imported events
                     events = importedEvents;
+                    normalizeEventDescriptors(events);
 
                     // Clear half-time scores (will be recalculated if needed)
                     htOurGoals = null;
