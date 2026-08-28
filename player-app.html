@@ -2314,7 +2314,7 @@
         // Configuration
         const categories = ['OUR 1', 'OUR 2', 'OUR 3', 'OUR 4', 'OUR 5', 'OUR 6', 'OUR 7', 'OUR 8', 'OUR 9', 'OUR 10', 'OUR 11', 'OUR 12', 'OUR 13', 'OUR 14', 'OUR 15', 'OUR 16', 'OUR 17', 'OUR 18', 'OUR 19', 'OUR 20', 'OUR 21', 'OUR 22', 'OUR 23', 'OUR 24', 'OUR 25', 'OUR 26'];
         const opponents = ['OPP 1', 'OPP 2', 'OPP 3', 'OPP 4', 'OPP 5', 'OPP 6', 'OPP 7', 'OPP 8', 'OPP 9', 'OPP 10', 'OPP 11', 'OPP 12', 'OPP 13', 'OPP 14', 'OPP 15', 'OPP 16', 'OPP 17', 'OPP 18', 'OPP 19', 'OPP 20', 'OPP 21', 'OPP 22', 'OPP 23', 'OPP 24', 'OPP 25', 'OPP 26'];
-        const defaultDescriptors = ['Goal', '2 Pointer', 'Point', 'Wide', 'Save/Short/45', 'Own KO Won', 'Own KO Lost', 'T/O Lost', 'Opp KO Won', 'Opp KO Lost'];
+        const defaultDescriptors = ['Goal', '2 Pointer', 'Point', 'For 45', 'Wide', 'Save/Shot', 'Own KO Won', 'Own KO Lost', 'Our T/O Lost', 'Opp T/O Lost', 'Opp KO Won', 'Opp KO Lost'];
         let descriptors = [];
         let allDescriptors = [];
         let tempDescriptors = []; // Temporary descriptors while editing in modal
@@ -2585,7 +2585,7 @@
                     });
 
                     // Check for removed descriptors (e.g., "No Score" and "Shot" were removed)
-                    const obsoleteDescriptors = ['No Score', 'Shot'];
+                    const obsoleteDescriptors = ['No Score', 'Shot', 'Save/Short/45'];
                     obsoleteDescriptors.forEach(desc => {
                         if (descriptors.includes(desc)) {
                             removedDescriptors.push(desc);
@@ -2602,7 +2602,7 @@
                         }
 
                         // If missing critical descriptors, reset to defaults
-                        if (missingDescriptors.length > 2 || missingDescriptors.includes('Save/Short/45')) {
+                        if (missingDescriptors.length > 2 || (missingDescriptors.includes('For 45') && missingDescriptors.includes('Save/Shot'))) {
                             console.log('🔄 Resetting to default descriptors (too many missing)');
                             descriptors = [...defaultDescriptors];
                         } else {
@@ -2695,7 +2695,7 @@
         function resetDescriptors() {
             if (!requirePremium('Custom Descriptors')) return;
 
-            if (!confirm('Reset to default descriptors?\n\nThis will restore:\n• Goal\n• 2 Pointer\n• Point\n• Wide\n• Save/Short/45\n• Own KO Won\n• Own KO Lost\n• T/O Lost\n• Opp KO Won\n• Opp KO Lost\n\nCustom descriptors will be removed.')) {
+            if (!confirm('Reset to default descriptors?\n\nThis will restore:\n• Goal\n• 2 Pointer\n• Point\n• For 45\n• Wide\n• Save/Shot\n• Own KO Won\n• Own KO Lost\n• Our T/O Lost\n• Opp T/O Lost\n• Opp KO Won\n• Opp KO Lost\n\nCustom descriptors will be removed.')) {
                 return;
             }
 
@@ -2768,21 +2768,15 @@
                 row2.className = 'button-grid';
 
                 // Categorize descriptors
-                const scoringDescriptors = ['Goal', '2 Pointer', 'Point', 'Wide', 'Save/Short/45'];
-                const koDescriptors = ['Own KO Won', 'Own KO Lost', 'T/O Lost', 'Opp KO Won', 'Opp KO Lost'];
+                const scoringDescriptors = ['Goal', '2 Pointer', 'Point', 'Wide', 'For 45', 'Save/Shot'];
+                const koDescriptors = ['Own KO Won', 'Own KO Lost', 'Our T/O Lost', 'Opp T/O Lost', 'Opp KO Won', 'Opp KO Lost'];
 
                 descriptors.forEach(desc => {
                     const btn = document.createElement('button');
                     btn.className = 'descriptor-btn';
-                    // Special formatting for Save/Short/45 button
-                    if (desc === 'Save/Short/45') {
-                        btn.innerHTML = 'Save | Short<br>45';
-                        btn.setAttribute('data-descriptor', desc);
-                    } else {
-                        btn.textContent = desc;
-                    }
-                    const isKOButton = desc.includes('KO Won') || desc.includes('KO Lost');
-                    btn.disabled = isKOButton ? false : true;
+                    btn.textContent = desc;
+                    const isFreeButton = desc.includes('KO Won') || desc.includes('KO Lost') || desc.includes('T/O Lost');
+                    btn.disabled = isFreeButton ? false : true;
                     btn.onclick = () => toggleDesc(btn, desc);
 
                     // Determine which row this button belongs to
@@ -2792,6 +2786,7 @@
                     }
 
                     // Wrap KO buttons with team label
+                    const isKOButton = desc.includes('KO Won') || desc.includes('KO Lost');
                     if (isKOButton) {
                         const wrapper = document.createElement('div');
                         wrapper.className = 'descriptor-wrapper';
@@ -2815,13 +2810,7 @@
                 descriptors.forEach(desc => {
                     const btn = document.createElement('button');
                     btn.className = 'descriptor-btn';
-                    // Special formatting for Save/Short/45 button
-                    if (desc === 'Save/Short/45') {
-                        btn.innerHTML = 'Save | Short<br>45';
-                        btn.setAttribute('data-descriptor', desc);
-                    } else {
-                        btn.textContent = desc;
-                    }
+                    btn.textContent = desc;
                     btn.disabled = false;
                     btn.onclick = () => toggleDesc(btn, desc);
                     btn.style.width = '100%';
@@ -3257,7 +3246,8 @@
                 currentPossessionTeam = eventType === 'OUR' ? 'OPP' : 'OUR';
             } else if (eventDescriptors.includes('Goal') || eventDescriptors.includes('Point') ||
                        eventDescriptors.includes('2 Pointer') || eventDescriptors.includes('Wide') ||
-                       eventDescriptors.includes('Save/Short/45')) {
+                       eventDescriptors.includes('For 45') ||
+                       eventDescriptors.includes('Save/Shot')) {
                 // Shots end possession
                 currentPossessionTeam = null;
             }
@@ -3330,13 +3320,7 @@
             allDescriptors.forEach(desc => {
                 const btn = document.createElement('button');
                 btn.className = 'descriptor-btn';
-                // Special formatting for Save/Short/45 button
-                if (desc === 'Save/Short/45') {
-                    btn.innerHTML = 'Save | Short<br>45';
-                    btn.setAttribute('data-descriptor', desc);
-                } else {
-                    btn.textContent = desc;
-                }
+                btn.textContent = desc;
                 btn.style.padding = '8px';
                 btn.style.fontSize = '12px';
 
@@ -3900,15 +3884,64 @@
             const ourTurnovers = turnovers.filter(e => e.type === 'OUR');
             const oppTurnovers = turnovers.filter(e => e.type === 'OPP');
 
+            const ourColor = '#2196F3'; // Blue for our team
+            const oppColor = '#f44336'; // Red for opposition
+
+            const ourMarkers = ourTurnovers.map(e => {
+                if (e.fromSaveShot) {
+                    return `<circle cx="${e.turnoverX}" cy="${e.turnoverY}" r="13" fill="none" stroke="white" stroke-width="2" opacity="0.8"/>
+                            <circle cx="${e.turnoverX}" cy="${e.turnoverY}" r="8" fill="${ourColor}" stroke="white" stroke-width="2" opacity="0.8"/>`;
+                }
+                return `<circle cx="${e.turnoverX}" cy="${e.turnoverY}" r="8" fill="${ourColor}" stroke="white" stroke-width="2" opacity="0.8"/>`;
+            }).join('\n');
+
+            const oppMarkers = oppTurnovers.map(e => {
+                if (e.fromSaveShot) {
+                    return `<circle cx="${e.turnoverX}" cy="${e.turnoverY}" r="13" fill="none" stroke="${oppColor}" stroke-width="2" opacity="0.8"/>
+                            <circle cx="${e.turnoverX}" cy="${e.turnoverY}" r="8" fill="${oppColor}" stroke="white" stroke-width="2" opacity="0.8"/>`;
+                }
+                return `<circle cx="${e.turnoverX}" cy="${e.turnoverY}" r="8" fill="${oppColor}" stroke="white" stroke-width="2" opacity="0.8"/>`;
+            }).join('\n');
+
             let html = `
                 <div style="padding: 20px;">
-                    <h3 style="text-align: center; margin-bottom: 20px;">${team1Name} Turnovers Lost (${ourTurnovers.length})</h3>
-                    ${generateTurnoverPitchSVG(ourTurnovers)}
-
-                    <hr style="margin: 40px 0; border: none; border-top: 2px solid #e0e0e0;">
-
-                    <h3 style="text-align: center; margin-bottom: 20px;">${team2Name} Turnovers Lost (${oppTurnovers.length})</h3>
-                    ${generateTurnoverPitchSVG(oppTurnovers)}
+                    <p style="text-align: center; margin-bottom: 12px; font-size: 14px; color: #666;">
+                        ${team1Name}: ${ourTurnovers.length} &nbsp;|&nbsp; ${team2Name}: ${oppTurnovers.length}
+                    </p>
+                    <svg viewBox="0 0 400 600" style="width: 100%; max-width: 400px; margin: 0 auto; display: block;">
+                        <rect width="400" height="600" fill="#4CAF50"/>
+                        <rect x="10" y="10" width="380" height="580" fill="none" stroke="white" stroke-width="3"/>
+                        <rect x="130" y="10" width="140" height="60" fill="none" stroke="white" stroke-width="2"/>
+                        <rect x="130" y="530" width="140" height="60" fill="none" stroke="white" stroke-width="2"/>
+                        <rect x="170" y="10" width="60" height="30" fill="none" stroke="white" stroke-width="2"/>
+                        <rect x="170" y="560" width="60" height="30" fill="none" stroke="white" stroke-width="2"/>
+                        <line x1="10" y1="300" x2="390" y2="300" stroke="white" stroke-width="2" stroke-dasharray="10,5"/>
+                        <line x1="10" y1="200" x2="390" y2="200" stroke="white" stroke-width="2"/>
+                        <line x1="10" y1="400" x2="390" y2="400" stroke="white" stroke-width="2"/>
+                        <path d="M 80 70 Q 200 100 320 70" fill="none" stroke="white" stroke-width="2"/>
+                        <path d="M 80 530 Q 200 500 320 530" fill="none" stroke="white" stroke-width="2"/>
+                        <rect x="185" y="5" width="30" height="10" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="185" y="585" width="30" height="10" fill="white" stroke="black" stroke-width="1"/>
+                        ${ourMarkers}
+                        ${oppMarkers}
+                        <g transform="translate(360, 300)">
+                            <line x1="0" y1="60" x2="0" y2="-60" stroke="white" stroke-width="3" opacity="0.7"/>
+                            <polygon points="0,-60 -8,-50 8,-50" fill="white" opacity="0.7"/>
+                        </g>
+                        <g transform="translate(20, 530)">
+                            <circle cx="0" cy="0" r="8" fill="${ourColor}" opacity="0.8"/>
+                            <text x="15" y="5" fill="white" font-size="12" font-weight="bold">${team1Name} (${ourTurnovers.length})</text>
+                        </g>
+                        <g transform="translate(20, 554)">
+                            <circle cx="0" cy="0" r="8" fill="${oppColor}" opacity="0.8"/>
+                            <text x="15" y="5" fill="white" font-size="12" font-weight="bold">${team2Name} (${oppTurnovers.length})</text>
+                        </g>
+                        <g transform="translate(20, 578)">
+                            <circle cx="0" cy="0" r="13" fill="none" stroke="white" stroke-width="2" opacity="0.8"/>
+                            <circle cx="0" cy="0" r="8" fill="white" opacity="0.5"/>
+                            <text x="20" y="5" fill="white" font-size="11" font-weight="bold">= Save/Shot T/O</text>
+                        </g>
+                    </svg>
                 </div>
             `;
 
@@ -4034,7 +4067,7 @@
                 const playerNum = playerNumMatch ? playerNumMatch[0] : '';
 
                 // Determine color based on shot result
-                let color = '#f44336'; // Default: Save/Short/45 (red)
+                let color = '#f44336'; // Default: Save/Shot or 45 (red)
 
                 // First check if the shot event itself has a result descriptor (edited events)
                 if (shot.descriptors.includes('Goal')) {
@@ -4045,8 +4078,10 @@
                     color = '#ff9800'; // 2 Pointer (orange)
                 } else if (shot.descriptors.includes('Wide')) {
                     color = '#9C27B0'; // Wide (purple)
-                } else if (shot.descriptors.includes('Save/Short/45')) {
-                    color = '#f44336'; // Save/Short/45 (red)
+                } else if (shot.descriptors.includes('Save/Shot')) {
+                    color = '#f44336'; // Save/Shot (red)
+                } else if (shot.descriptors.includes('For 45')) {
+                    color = '#00BCD4'; // For 45 (cyan)
                 } else {
                     // If no result on this event, check the next event (original flow)
                     const shotIndex = events.indexOf(shot);
@@ -4060,8 +4095,10 @@
                             color = '#ff9800'; // 2 Pointer (orange)
                         } else if (nextEvent.descriptors === 'Wide') {
                             color = '#9C27B0'; // Wide (purple)
-                        } else if (nextEvent.descriptors === 'Save/Short/45') {
-                            color = '#f44336'; // Save/Short/45 (red)
+                        } else if (nextEvent.descriptors === 'Save/Shot') {
+                            color = '#f44336'; // Save/Shot (red)
+                        } else if (nextEvent.descriptors === 'For 45') {
+                            color = '#00BCD4'; // For 45 (cyan)
                         }
                     }
                 }
@@ -4117,21 +4154,24 @@
                     </g>
 
                     <!-- Legend -->
-                    <g transform="translate(20, 520)">
+                    <g transform="translate(20, 510)">
                         <circle cx="0" cy="0" r="8" fill="#4CAF50" opacity="0.8"/>
                         <text x="15" y="5" fill="white" font-size="12" font-weight="bold">Goal</text>
 
-                        <circle cx="70" cy="0" r="8" fill="#ff9800" opacity="0.8"/>
-                        <text x="85" y="5" fill="white" font-size="12" font-weight="bold">2-Ptr</text>
+                        <circle cx="80" cy="0" r="8" fill="#ff9800" opacity="0.8"/>
+                        <text x="95" y="5" fill="white" font-size="12" font-weight="bold">2-Ptr</text>
 
-                        <circle cx="0" cy="20" r="8" fill="#ffffff" opacity="0.8"/>
-                        <text x="15" y="25" fill="white" font-size="12" font-weight="bold">Point</text>
+                        <circle cx="0" cy="22" r="8" fill="#ffffff" opacity="0.8"/>
+                        <text x="15" y="27" fill="white" font-size="12" font-weight="bold">Point</text>
 
-                        <circle cx="70" cy="20" r="8" fill="#9C27B0" opacity="0.8"/>
-                        <text x="85" y="25" fill="white" font-size="12" font-weight="bold">Wide</text>
+                        <circle cx="80" cy="22" r="8" fill="#9C27B0" opacity="0.8"/>
+                        <text x="95" y="27" fill="white" font-size="12" font-weight="bold">Wide</text>
 
-                        <circle cx="0" cy="40" r="8" fill="#f44336" opacity="0.8"/>
-                        <text x="15" y="45" fill="white" font-size="11" font-weight="bold">Save/Short/45</text>
+                        <circle cx="0" cy="44" r="8" fill="#f44336" opacity="0.8"/>
+                        <text x="15" y="49" fill="white" font-size="12" font-weight="bold">Save/Shot</text>
+
+                        <circle cx="80" cy="44" r="8" fill="#00BCD4" opacity="0.8"/>
+                        <text x="95" y="49" fill="white" font-size="12" font-weight="bold">For 45</text>
                     </g>
                 </svg>
             `;
@@ -4274,22 +4314,24 @@
 
                 events.push(kickoutEvent);
             } else if (pendingTurnoverEvent) {
-                // Handle turnover event (player event with location)
-                // Save Touch event first
-                const touchEvent = {
-                    timestamp: new Date().toISOString(),
-                    time: gameTime,
-                    period: currentPeriod,
-                    type: pendingTurnoverEvent.type,
-                    category: pendingTurnoverEvent.category,
-                    descriptors: 'Touch'
-                };
-                if (videoTime !== undefined) {
-                    touchEvent.videoTime = videoTime;
+                // Handle turnover event
+                if (!pendingTurnoverEvent.isTeamEvent) {
+                    // Player event: save Touch event first
+                    const touchEvent = {
+                        timestamp: new Date().toISOString(),
+                        time: gameTime,
+                        period: currentPeriod,
+                        type: pendingTurnoverEvent.type,
+                        category: pendingTurnoverEvent.category,
+                        descriptors: 'Touch'
+                    };
+                    if (videoTime !== undefined) {
+                        touchEvent.videoTime = videoTime;
+                    }
+                    events.push(touchEvent);
                 }
-                events.push(touchEvent);
 
-                // Save T/O Lost event with coordinates
+                // Save T/O event with coordinates
                 const turnoverEvent = {
                     timestamp: new Date().toISOString(),
                     time: gameTime,
@@ -4305,17 +4347,19 @@
                 }
                 events.push(turnoverEvent);
 
-                // Reset selection after T/O Lost
-                currentType = null;
-                currentCategory = null;
-                selectedDescriptors = [];
-                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
-                document.querySelectorAll('.descriptor-btn').forEach(b => {
-                    const isKOButton = b.textContent.includes('KO Won') || b.textContent.includes('KO Lost');
-                    b.disabled = !isKOButton;
-                    b.classList.remove('selected');
-                });
-                document.getElementById('status').textContent = 'Ready - Select a category';
+                if (!pendingTurnoverEvent.isTeamEvent) {
+                    // Reset selection after player T/O Lost
+                    currentType = null;
+                    currentCategory = null;
+                    selectedDescriptors = [];
+                    document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
+                    document.querySelectorAll('.descriptor-btn').forEach(b => {
+                        const isFreeButton = b.textContent.includes('KO Won') || b.textContent.includes('KO Lost') || b.textContent.includes('T/O Lost');
+                        b.disabled = !isFreeButton;
+                        b.classList.remove('selected');
+                    });
+                    document.getElementById('status').textContent = 'Ready - Select a category';
+                }
             } else if (pendingShotEvent) {
                 // Handle shot event (player event with location)
                 // Save Touch event first
@@ -4362,6 +4406,26 @@
                         scoreEvent.videoTime = videoTime;
                     }
                     events.push(scoreEvent);
+
+                    // Save/Shot means the shooting team loses possession - auto-add T/O Lost
+                    if (pendingShotEvent.scoreDescriptor === 'Save/Shot') {
+                        const toDescriptor = pendingShotEvent.type === 'OUR' ? 'Our T/O Lost' : 'Opp T/O Lost';
+                        const toEvent = {
+                            timestamp: new Date().toISOString(),
+                            time: gameTime,
+                            period: currentPeriod,
+                            type: pendingShotEvent.type,
+                            category: 'Team Event',
+                            descriptors: toDescriptor,
+                            turnoverX: viewBoxX,
+                            turnoverY: viewBoxY,
+                            fromSaveShot: true
+                        };
+                        if (videoTime !== undefined) {
+                            toEvent.videoTime = videoTime;
+                        }
+                        events.push(toEvent);
+                    }
                 }
 
                 // Reset selection after shot
@@ -4370,8 +4434,8 @@
                 selectedDescriptors = [];
                 document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
                 document.querySelectorAll('.descriptor-btn').forEach(b => {
-                    const isKOButton = b.textContent.includes('KO Won') || b.textContent.includes('KO Lost');
-                    b.disabled = !isKOButton;
+                    const isFreeButton = b.textContent.includes('KO Won') || b.textContent.includes('KO Lost') || b.textContent.includes('T/O Lost');
+                    b.disabled = !isFreeButton;
                     b.classList.remove('selected');
                 });
                 document.getElementById('status').textContent = 'Ready - Select a category';
@@ -4605,6 +4669,36 @@
             html += '</table>';
             html += '</div>';
 
+            // Turnovers
+            const turnoverStats1st = getTurnoverStats('1st');
+            const turnoverStats2nd = getTurnoverStats('2nd');
+            const turnoverStatsTotal = getTurnoverStats();
+            html += '<div class="report-section">';
+            html += '<h3>Turnovers</h3>';
+            html += '<table class="report-table">';
+            html += '<tr><th rowspan="2">Team</th><th colspan="2">1st Half</th><th colspan="2" style="border-left: 2px solid #ddd">2nd Half</th><th colspan="2" style="border-left: 2px solid #ddd">Total</th></tr>';
+            html += '<tr><th>T/O Won</th><th>T/O Lost</th><th style="border-left: 2px solid #ddd">T/O Won</th><th>T/O Lost</th><th style="border-left: 2px solid #ddd">T/O Won</th><th>T/O Lost</th></tr>';
+            html += '<tr>';
+            html += '<td>' + team1Name + '</td>';
+            html += '<td>' + turnoverStats1st.ourWon + '</td>';
+            html += '<td>' + turnoverStats1st.ourLost + '</td>';
+            html += '<td style="border-left: 2px solid #ddd">' + turnoverStats2nd.ourWon + '</td>';
+            html += '<td>' + turnoverStats2nd.ourLost + '</td>';
+            html += '<td style="border-left: 2px solid #ddd">' + turnoverStatsTotal.ourWon + '</td>';
+            html += '<td>' + turnoverStatsTotal.ourLost + '</td>';
+            html += '</tr>';
+            html += '<tr>';
+            html += '<td>' + team2Name + '</td>';
+            html += '<td>' + turnoverStats1st.oppWon + '</td>';
+            html += '<td>' + turnoverStats1st.oppLost + '</td>';
+            html += '<td style="border-left: 2px solid #ddd">' + turnoverStats2nd.oppWon + '</td>';
+            html += '<td>' + turnoverStats2nd.oppLost + '</td>';
+            html += '<td style="border-left: 2px solid #ddd">' + turnoverStatsTotal.oppWon + '</td>';
+            html += '<td>' + turnoverStatsTotal.oppLost + '</td>';
+            html += '</tr>';
+            html += '</table>';
+            html += '</div>';
+
             // Shot Conversion
             const shotStats1st = getShotConversion('1st');
             const shotStats2nd = getShotConversion('2nd');
@@ -4612,30 +4706,42 @@
             html += '<div class="report-section">';
             html += '<h3>Shot Conversion</h3>';
             html += '<table class="report-table">';
-            html += '<tr><th rowspan="2">Team</th><th colspan="3">1st Half</th><th colspan="3" style="border-left: 2px solid #ddd">2nd Half</th><th colspan="3" style="border-left: 2px solid #ddd">Total</th></tr>';
-            html += '<tr><th>Shots</th><th>Scores</th><th>%</th><th style="border-left: 2px solid #ddd">Shots</th><th>Scores</th><th>%</th><th style="border-left: 2px solid #ddd">Shots</th><th>Scores</th><th>%</th></tr>';
+            html += '<tr><th rowspan="2">Team</th><th colspan="5">1st Half</th><th colspan="5" style="border-left: 2px solid #ddd">2nd Half</th><th colspan="5" style="border-left: 2px solid #ddd">Total</th></tr>';
+            html += '<tr><th>Shots</th><th>Scores</th><th>Wides</th><th>For 45s</th><th>%</th><th style="border-left: 2px solid #ddd">Shots</th><th>Scores</th><th>Wides</th><th>For 45s</th><th>%</th><th style="border-left: 2px solid #ddd">Shots</th><th>Scores</th><th>Wides</th><th>For 45s</th><th>%</th></tr>';
             html += '<tr>';
             html += '<td>' + team1Name + '</td>';
             html += '<td>' + shotStats1st.ourShots + '</td>';
             html += '<td>' + shotStats1st.ourScores + '</td>';
+            html += '<td>' + shotStats1st.ourWides + '</td>';
+            html += '<td>' + shotStats1st.ourFortyFives + '</td>';
             html += '<td>' + shotStats1st.ourConversion + '%</td>';
             html += '<td style="border-left: 2px solid #ddd">' + shotStats2nd.ourShots + '</td>';
             html += '<td>' + shotStats2nd.ourScores + '</td>';
+            html += '<td>' + shotStats2nd.ourWides + '</td>';
+            html += '<td>' + shotStats2nd.ourFortyFives + '</td>';
             html += '<td>' + shotStats2nd.ourConversion + '%</td>';
             html += '<td style="border-left: 2px solid #ddd">' + shotStatsTotal.ourShots + '</td>';
             html += '<td>' + shotStatsTotal.ourScores + '</td>';
+            html += '<td>' + shotStatsTotal.ourWides + '</td>';
+            html += '<td>' + shotStatsTotal.ourFortyFives + '</td>';
             html += '<td>' + shotStatsTotal.ourConversion + '%</td>';
             html += '</tr>';
             html += '<tr>';
             html += '<td>' + team2Name + '</td>';
             html += '<td>' + shotStats1st.oppShots + '</td>';
             html += '<td>' + shotStats1st.oppScores + '</td>';
+            html += '<td>' + shotStats1st.oppWides + '</td>';
+            html += '<td>' + shotStats1st.oppFortyFives + '</td>';
             html += '<td>' + shotStats1st.oppConversion + '%</td>';
             html += '<td style="border-left: 2px solid #ddd">' + shotStats2nd.oppShots + '</td>';
             html += '<td>' + shotStats2nd.oppScores + '</td>';
+            html += '<td>' + shotStats2nd.oppWides + '</td>';
+            html += '<td>' + shotStats2nd.oppFortyFives + '</td>';
             html += '<td>' + shotStats2nd.oppConversion + '%</td>';
             html += '<td style="border-left: 2px solid #ddd">' + shotStatsTotal.oppShots + '</td>';
             html += '<td>' + shotStatsTotal.oppScores + '</td>';
+            html += '<td>' + shotStatsTotal.oppWides + '</td>';
+            html += '<td>' + shotStatsTotal.oppFortyFives + '</td>';
             html += '<td>' + shotStatsTotal.oppConversion + '%</td>';
             html += '</tr>';
             html += '</table>';
@@ -4833,7 +4939,8 @@
                 filteredEvents = events.filter(e => e.period === '2nd Half Started' || e.period === '2nd Half Ended');
             }
 
-            let ourShots = 0, ourScores = 0, oppShots = 0, oppScores = 0;
+            let ourShots = 0, ourScores = 0, ourWides = 0, ourFortyFives = 0;
+            let oppShots = 0, oppScores = 0, oppWides = 0, oppFortyFives = 0;
 
             filteredEvents.forEach(event => {
                 const descriptorList = event.descriptors.split(',').map(d => d.trim());
@@ -4841,13 +4948,19 @@
                 const hasScore = descriptorList.includes('Goal') ||
                                 descriptorList.includes('Point') ||
                                 descriptorList.includes('2 Pointer');
+                const hasWide = descriptorList.includes('Wide');
+                const has45 = descriptorList.includes('For 45');
 
                 if (event.type === 'OUR') {
                     if (hasShot) ourShots++;
                     if (hasScore) ourScores++;
+                    if (hasWide) ourWides++;
+                    if (has45) ourFortyFives++;
                 } else if (event.type === 'OPP') {
                     if (hasShot) oppShots++;
                     if (hasScore) oppScores++;
+                    if (hasWide) oppWides++;
+                    if (has45) oppFortyFives++;
                 }
             });
 
@@ -4857,9 +4970,13 @@
             return {
                 ourShots,
                 ourScores,
+                ourWides,
+                ourFortyFives,
                 ourConversion,
                 oppShots,
                 oppScores,
+                oppWides,
+                oppFortyFives,
                 oppConversion
             };
         }
@@ -4907,6 +5024,29 @@
                 theirPercent,
                 ourTheirPercent
             };
+        }
+
+        function getTurnoverStats(periodFilter = null) {
+            let filteredEvents = events;
+            if (periodFilter === '1st') {
+                filteredEvents = events.filter(e => e.period === '1st Half Started' || e.period === '1st Half Ended');
+            } else if (periodFilter === '2nd') {
+                filteredEvents = events.filter(e => e.period === '2nd Half Started' || e.period === '2nd Half Ended');
+            }
+
+            let ourWon = 0, ourLost = 0, oppWon = 0, oppLost = 0;
+
+            filteredEvents.forEach(event => {
+                if (event.descriptors.includes('Our T/O Lost')) {
+                    ourLost++;
+                    oppWon++;
+                } else if (event.descriptors.includes('Opp T/O Lost')) {
+                    oppLost++;
+                    ourWon++;
+                }
+            });
+
+            return { ourWon, ourLost, oppWon, oppLost };
         }
 
         function getPossessionStats(periodFilter = null) {
@@ -5948,8 +6088,8 @@
                     document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
                     document.querySelectorAll('.descriptor-btn').forEach(b => {
                         // Keep KO buttons enabled
-                        const isKOButton = b.textContent.includes('KO Won') || b.textContent.includes('KO Lost');
-                        b.disabled = !isKOButton;
+                        const isFreeButton = b.textContent.includes('KO Won') || b.textContent.includes('KO Lost') || b.textContent.includes('T/O Lost');
+                        b.disabled = !isFreeButton;
                         b.classList.remove('selected');
                     });
                     document.getElementById('status').textContent = 'Ready - Select a category';
@@ -5974,8 +6114,8 @@
                     document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
                     document.querySelectorAll('.descriptor-btn').forEach(b => {
                         // Keep KO buttons enabled
-                        const isKOButton = b.textContent.includes('KO Won') || b.textContent.includes('KO Lost');
-                        b.disabled = !isKOButton;
+                        const isFreeButton = b.textContent.includes('KO Won') || b.textContent.includes('KO Lost') || b.textContent.includes('T/O Lost');
+                        b.disabled = !isFreeButton;
                         b.classList.remove('selected');
                     });
                     document.getElementById('status').textContent = 'Ready - Select a category';
@@ -6042,8 +6182,8 @@
         }
 
         function toggleDesc(btn, desc) {
-            // Check if this is a team event (KO) that doesn't need player selection
-            const isTeamEvent = desc.includes('KO Won') || desc.includes('KO Lost');
+            // Check if this is a team event (KO or T/O) that doesn't need player selection
+            const isTeamEvent = desc.includes('KO Won') || desc.includes('KO Lost') || desc.includes('T/O Lost');
 
             if (!currentType && !isTeamEvent) {
                 if (gameMode === 'post-match') {
@@ -6052,8 +6192,8 @@
                 return;
             }
 
-            // Handle team events (Own/Opp KO Won/Lost)
-            if (isTeamEvent) {
+            // Handle KO team events (Own/Opp KO Won/Lost)
+            if (desc.includes('KO Won') || desc.includes('KO Lost')) {
                 // Check if game has started
                 if (currentPeriod !== '1st Half Started' && currentPeriod !== '2nd Half Started') {
                     alert('Please start 1st Half or 2nd Half before recording events!');
@@ -6094,15 +6234,15 @@
                 return;
             }
 
-            // Handle Save/Short/45 button - open pitch map to capture shot location
-            if (desc === 'Save/Short/45') {
+            // Handle For 45 button - open pitch map to capture shot location
+            if (desc === 'For 45') {
                 // Store event details and open pitch map modal
                 pendingShotEvent = {
                     type: currentType,
                     category: currentCategory,
-                    scoreDescriptor: 'Save/Short/45'
+                    scoreDescriptor: 'For 45'
                 };
-                document.getElementById('pitchMapTitle').textContent = 'Save/Short/45 - Click Shot Location';
+                document.getElementById('pitchMapTitle').textContent = 'For 45 - Click Shot Location';
                 document.getElementById('pitchMapModal').style.display = 'block';
 
                 // Flash the button to show it was registered
@@ -6114,15 +6254,41 @@
                 return;
             }
 
-            // Handle T/O Lost - log with location
-            if (desc === 'T/O Lost') {
+            // Handle Save/Shot button - open pitch map to capture shot location
+            if (desc === 'Save/Shot') {
                 // Store event details and open pitch map modal
+                pendingShotEvent = {
+                    type: currentType,
+                    category: currentCategory,
+                    scoreDescriptor: 'Save/Shot'
+                };
+                document.getElementById('pitchMapTitle').textContent = 'Save/Shot - Click Shot Location';
+                document.getElementById('pitchMapModal').style.display = 'block';
+
+                // Flash the button to show it was registered
+                btn.style.backgroundColor = '#2196F3';
+                setTimeout(() => {
+                    btn.style.backgroundColor = '';
+                }, 200);
+
+                return;
+            }
+
+            // Handle Our/Opp T/O Lost - log with location, no player required
+            if (desc === 'Our T/O Lost' || desc === 'Opp T/O Lost') {
+                // Check if game has started
+                if (currentPeriod !== '1st Half Started' && currentPeriod !== '2nd Half Started') {
+                    alert('Please start 1st Half or 2nd Half before recording events!');
+                    return;
+                }
+                const teamType = desc === 'Our T/O Lost' ? 'OUR' : 'OPP';
                 pendingTurnoverEvent = {
                     descriptor: desc,
-                    type: currentType,
-                    category: currentCategory
+                    type: teamType,
+                    category: 'Team Event',
+                    isTeamEvent: true
                 };
-                document.getElementById('pitchMapTitle').textContent = 'T/O Lost - Click Location';
+                document.getElementById('pitchMapTitle').textContent = desc + ' - Click Location';
                 document.getElementById('pitchMapModal').style.display = 'block';
 
                 // Flash the button to show it was registered
@@ -6173,9 +6339,9 @@
 
                 document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
                 document.querySelectorAll('.descriptor-btn').forEach(b => {
-                    // Keep KO buttons enabled
-                    const isKOButton = b.textContent.includes('KO Won') || b.textContent.includes('KO Lost');
-                    b.disabled = !isKOButton;
+                    // Keep KO and T/O buttons enabled
+                    const isFreeButton = b.textContent.includes('KO Won') || b.textContent.includes('KO Lost') || b.textContent.includes('T/O Lost');
+                    b.disabled = !isFreeButton;
                     b.classList.remove('selected');
                 });
 
@@ -6768,9 +6934,9 @@
 
             document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
             document.querySelectorAll('.descriptor-btn').forEach(b => {
-                // Keep KO buttons enabled
-                const isKOButton = b.textContent.includes('KO Won') || b.textContent.includes('KO Lost');
-                b.disabled = !isKOButton;
+                // Keep KO and T/O buttons enabled
+                const isFreeButton = b.textContent.includes('KO Won') || b.textContent.includes('KO Lost') || b.textContent.includes('T/O Lost');
+                b.disabled = !isFreeButton;
                 b.classList.remove('selected');
             });
             document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
