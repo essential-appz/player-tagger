@@ -1323,10 +1323,25 @@
             max-height: 0;
         }
 
+        .report-halves {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .report-half-panel {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .report-total-panel {
+            width: 100%;
+        }
+
         .report-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 10px;
+            margin-top: 0;
             background: white;
         }
 
@@ -1857,9 +1872,13 @@
                     <label style="display: flex; align-items: center; gap: 4px; font-size: 12px;">
                         <input type="checkbox" id="filterKOLost" checked onchange="updateEventFilters()"> KO Lost
                     </label>
+                    <label style="display: flex; align-items: center; gap: 4px; font-size: 12px;">
+                        <input type="checkbox" id="filterShot" checked onchange="updateEventFilters()"> Shot
+                    </label>
                 </div>
             </div>
         </div>
+        <div id="postMatchEventControls" style="display: none;">
         <div style="margin-bottom: 10px; padding: 8px; background: #e3f2fd; border-radius: 6px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
             <label style="display: flex; align-items: center; gap: 4px; font-size: 12px; margin: 0;">
                 <input type="checkbox" id="selectAllEvents" onchange="toggleSelectAllEvents()"> Select All
@@ -1878,6 +1897,7 @@
                 Add Caption
             </label>
             <button onclick="createClipsFromSelected()" style="padding: 6px 12px; border: none; background: #4CAF50; color: white; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: bold;">🎬 Create Clips</button>
+        </div>
         </div>
         <div class="recent-events-list" id="recentEventsList">
             <div class="no-recent-events">No events yet</div>
@@ -2896,8 +2916,10 @@
             const matchEventsSidebar = document.getElementById('matchEventsSidebar');
             const videoPlayerButtons = document.getElementById('videoPlayerButtons');
             const inMatchPlayerButtons = document.getElementById('inMatchPlayerButtons');
+            const postMatchEventControls = document.getElementById('postMatchEventControls');
 
             if (gameMode === 'post-match') {
+                postMatchEventControls.style.display = 'block';
                 videoSection.style.display = 'block';
                 // Show log attack button if a half has started and possession is set
                 const halfStarted = currentPeriod === '1st Half Started' || currentPeriod === '2nd Half Started';
@@ -2913,6 +2935,7 @@
             } else {
                 videoSection.style.display = 'none';
                 logAttackControl.style.display = 'none';
+                postMatchEventControls.style.display = 'none';
 
                 // Show regular match events section, hide sidebar version
                 matchEventsSection.style.display = 'block';
@@ -4602,28 +4625,23 @@
             const kickoutStatsTotal = getKickoutStats();
             html += '<div class="report-section">';
             html += '<h3>Kickouts</h3>';
-            html += '<table class="report-table">';
-            html += '<tr><th rowspan="2">Team</th><th colspan="2">1st Half</th><th colspan="2" style="border-left: 2px solid #ddd">2nd Half</th><th colspan="2" style="border-left: 2px solid #ddd">Total</th></tr>';
-            html += '<tr><th>Own KO</th><th>Opp KO</th><th style="border-left: 2px solid #ddd">Own KO</th><th>Opp KO</th><th style="border-left: 2px solid #ddd">Own KO</th><th>Opp KO</th></tr>';
-            html += '<tr>';
-            html += '<td>' + team1Name + '</td>';
-            html += '<td>' + kickoutStats1st.ourWon + '/' + kickoutStats1st.ourTotal + ' (' + kickoutStats1st.ourPercent + '%)</td>';
-            html += '<td>' + kickoutStats1st.oppLost + '/' + kickoutStats1st.oppTotal + ' (' + kickoutStats1st.theirPercent + '%)</td>';
-            html += '<td style="border-left: 2px solid #ddd">' + kickoutStats2nd.ourWon + '/' + kickoutStats2nd.ourTotal + ' (' + kickoutStats2nd.ourPercent + '%)</td>';
-            html += '<td>' + kickoutStats2nd.oppLost + '/' + kickoutStats2nd.oppTotal + ' (' + kickoutStats2nd.theirPercent + '%)</td>';
-            html += '<td style="border-left: 2px solid #ddd">' + kickoutStatsTotal.ourWon + '/' + kickoutStatsTotal.ourTotal + ' (' + kickoutStatsTotal.ourPercent + '%)</td>';
-            html += '<td>' + kickoutStatsTotal.oppLost + '/' + kickoutStatsTotal.oppTotal + ' (' + kickoutStatsTotal.theirPercent + '%)</td>';
-            html += '</tr>';
-            html += '<tr>';
-            html += '<td>' + team2Name + '</td>';
-            html += '<td>' + kickoutStats1st.oppWon + '/' + kickoutStats1st.oppTotal + ' (' + kickoutStats1st.oppPercent + '%)</td>';
-            html += '<td>' + kickoutStats1st.ourLost + '/' + kickoutStats1st.ourTotal + ' (' + kickoutStats1st.ourTheirPercent + '%)</td>';
-            html += '<td style="border-left: 2px solid #ddd">' + kickoutStats2nd.oppWon + '/' + kickoutStats2nd.oppTotal + ' (' + kickoutStats2nd.oppPercent + '%)</td>';
-            html += '<td>' + kickoutStats2nd.ourLost + '/' + kickoutStats2nd.ourTotal + ' (' + kickoutStats2nd.ourTheirPercent + '%)</td>';
-            html += '<td style="border-left: 2px solid #ddd">' + kickoutStatsTotal.oppWon + '/' + kickoutStatsTotal.oppTotal + ' (' + kickoutStatsTotal.oppPercent + '%)</td>';
-            html += '<td>' + kickoutStatsTotal.ourLost + '/' + kickoutStatsTotal.ourTotal + ' (' + kickoutStatsTotal.ourTheirPercent + '%)</td>';
-            html += '</tr>';
-            html += '</table>';
+            html += '<div class="report-halves">';
+            html += '<div class="report-half-panel"><table class="report-table">';
+            html += '<tr><th>1st Half</th><th>Own KO</th><th>Opp KO</th></tr>';
+            html += '<tr><td>' + team1Name + '</td><td>' + kickoutStats1st.ourWon + '/' + kickoutStats1st.ourTotal + ' (' + kickoutStats1st.ourPercent + '%)</td><td>' + kickoutStats1st.oppLost + '/' + kickoutStats1st.oppTotal + ' (' + kickoutStats1st.theirPercent + '%)</td></tr>';
+            html += '<tr><td>' + team2Name + '</td><td>' + kickoutStats1st.oppWon + '/' + kickoutStats1st.oppTotal + ' (' + kickoutStats1st.oppPercent + '%)</td><td>' + kickoutStats1st.ourLost + '/' + kickoutStats1st.ourTotal + ' (' + kickoutStats1st.ourTheirPercent + '%)</td></tr>';
+            html += '</table></div>';
+            html += '<div class="report-half-panel"><table class="report-table">';
+            html += '<tr><th>2nd Half</th><th>Own KO</th><th>Opp KO</th></tr>';
+            html += '<tr><td>' + team1Name + '</td><td>' + kickoutStats2nd.ourWon + '/' + kickoutStats2nd.ourTotal + ' (' + kickoutStats2nd.ourPercent + '%)</td><td>' + kickoutStats2nd.oppLost + '/' + kickoutStats2nd.oppTotal + ' (' + kickoutStats2nd.theirPercent + '%)</td></tr>';
+            html += '<tr><td>' + team2Name + '</td><td>' + kickoutStats2nd.oppWon + '/' + kickoutStats2nd.oppTotal + ' (' + kickoutStats2nd.oppPercent + '%)</td><td>' + kickoutStats2nd.ourLost + '/' + kickoutStats2nd.ourTotal + ' (' + kickoutStats2nd.ourTheirPercent + '%)</td></tr>';
+            html += '</table></div>';
+            html += '</div>';
+            html += '<div class="report-total-panel"><table class="report-table">';
+            html += '<tr><th>Total</th><th>Own KO</th><th>Opp KO</th></tr>';
+            html += '<tr><td>' + team1Name + '</td><td>' + kickoutStatsTotal.ourWon + '/' + kickoutStatsTotal.ourTotal + ' (' + kickoutStatsTotal.ourPercent + '%)</td><td>' + kickoutStatsTotal.oppLost + '/' + kickoutStatsTotal.oppTotal + ' (' + kickoutStatsTotal.theirPercent + '%)</td></tr>';
+            html += '<tr><td>' + team2Name + '</td><td>' + kickoutStatsTotal.oppWon + '/' + kickoutStatsTotal.oppTotal + ' (' + kickoutStatsTotal.oppPercent + '%)</td><td>' + kickoutStatsTotal.ourLost + '/' + kickoutStatsTotal.ourTotal + ' (' + kickoutStatsTotal.ourTheirPercent + '%)</td></tr>';
+            html += '</table></div>';
             html += '</div>';
 
             // Turnovers
@@ -4632,28 +4650,23 @@
             const turnoverStatsTotal = getTurnoverStats();
             html += '<div class="report-section">';
             html += '<h3>Turnovers</h3>';
-            html += '<table class="report-table">';
-            html += '<tr><th rowspan="2">Team</th><th colspan="2">1st Half</th><th colspan="2" style="border-left: 2px solid #ddd">2nd Half</th><th colspan="2" style="border-left: 2px solid #ddd">Total</th></tr>';
-            html += '<tr><th>T/O Won</th><th>T/O Lost</th><th style="border-left: 2px solid #ddd">T/O Won</th><th>T/O Lost</th><th style="border-left: 2px solid #ddd">T/O Won</th><th>T/O Lost</th></tr>';
-            html += '<tr>';
-            html += '<td>' + team1Name + '</td>';
-            html += '<td>' + turnoverStats1st.ourWon + '</td>';
-            html += '<td>' + turnoverStats1st.ourLost + '</td>';
-            html += '<td style="border-left: 2px solid #ddd">' + turnoverStats2nd.ourWon + '</td>';
-            html += '<td>' + turnoverStats2nd.ourLost + '</td>';
-            html += '<td style="border-left: 2px solid #ddd">' + turnoverStatsTotal.ourWon + '</td>';
-            html += '<td>' + turnoverStatsTotal.ourLost + '</td>';
-            html += '</tr>';
-            html += '<tr>';
-            html += '<td>' + team2Name + '</td>';
-            html += '<td>' + turnoverStats1st.oppWon + '</td>';
-            html += '<td>' + turnoverStats1st.oppLost + '</td>';
-            html += '<td style="border-left: 2px solid #ddd">' + turnoverStats2nd.oppWon + '</td>';
-            html += '<td>' + turnoverStats2nd.oppLost + '</td>';
-            html += '<td style="border-left: 2px solid #ddd">' + turnoverStatsTotal.oppWon + '</td>';
-            html += '<td>' + turnoverStatsTotal.oppLost + '</td>';
-            html += '</tr>';
-            html += '</table>';
+            html += '<div class="report-halves">';
+            html += '<div class="report-half-panel"><table class="report-table">';
+            html += '<tr><th>1st Half</th><th>T/O Won</th><th>T/O Lost</th></tr>';
+            html += '<tr><td>' + team1Name + '</td><td>' + turnoverStats1st.ourWon + '</td><td>' + turnoverStats1st.ourLost + '</td></tr>';
+            html += '<tr><td>' + team2Name + '</td><td>' + turnoverStats1st.oppWon + '</td><td>' + turnoverStats1st.oppLost + '</td></tr>';
+            html += '</table></div>';
+            html += '<div class="report-half-panel"><table class="report-table">';
+            html += '<tr><th>2nd Half</th><th>T/O Won</th><th>T/O Lost</th></tr>';
+            html += '<tr><td>' + team1Name + '</td><td>' + turnoverStats2nd.ourWon + '</td><td>' + turnoverStats2nd.ourLost + '</td></tr>';
+            html += '<tr><td>' + team2Name + '</td><td>' + turnoverStats2nd.oppWon + '</td><td>' + turnoverStats2nd.oppLost + '</td></tr>';
+            html += '</table></div>';
+            html += '</div>';
+            html += '<div class="report-total-panel"><table class="report-table">';
+            html += '<tr><th>Total</th><th>T/O Won</th><th>T/O Lost</th></tr>';
+            html += '<tr><td>' + team1Name + '</td><td>' + turnoverStatsTotal.ourWon + '</td><td>' + turnoverStatsTotal.ourLost + '</td></tr>';
+            html += '<tr><td>' + team2Name + '</td><td>' + turnoverStatsTotal.oppWon + '</td><td>' + turnoverStatsTotal.oppLost + '</td></tr>';
+            html += '</table></div>';
             html += '</div>';
 
             // Shot Conversion
@@ -4662,52 +4675,23 @@
             const shotStatsTotal = getShotConversion();
             html += '<div class="report-section">';
             html += '<h3>Shot Conversion</h3>';
-            html += '<table class="report-table">';
-            html += '<tr><th rowspan="2">Team</th><th colspan="6">1st Half</th><th colspan="6" style="border-left: 2px solid #ddd">2nd Half</th><th colspan="6" style="border-left: 2px solid #ddd">Total</th></tr>';
-            html += '<tr><th>Shots</th><th>Scores</th><th>Wides</th><th>Short/Save</th><th>For 45s</th><th>%</th><th style="border-left: 2px solid #ddd">Shots</th><th>Scores</th><th>Wides</th><th>Short/Save</th><th>For 45s</th><th>%</th><th style="border-left: 2px solid #ddd">Shots</th><th>Scores</th><th>Wides</th><th>Short/Save</th><th>For 45s</th><th>%</th></tr>';
-            html += '<tr>';
-            html += '<td>' + team1Name + '</td>';
-            html += '<td>' + shotStats1st.ourShots + '</td>';
-            html += '<td>' + shotStats1st.ourScores + '</td>';
-            html += '<td>' + shotStats1st.ourWides + '</td>';
-            html += '<td>' + shotStats1st.ourSaveShot + '</td>';
-            html += '<td>' + shotStats1st.ourFortyFives + '</td>';
-            html += '<td>' + shotStats1st.ourConversion + '%</td>';
-            html += '<td style="border-left: 2px solid #ddd">' + shotStats2nd.ourShots + '</td>';
-            html += '<td>' + shotStats2nd.ourScores + '</td>';
-            html += '<td>' + shotStats2nd.ourWides + '</td>';
-            html += '<td>' + shotStats2nd.ourSaveShot + '</td>';
-            html += '<td>' + shotStats2nd.ourFortyFives + '</td>';
-            html += '<td>' + shotStats2nd.ourConversion + '%</td>';
-            html += '<td style="border-left: 2px solid #ddd">' + shotStatsTotal.ourShots + '</td>';
-            html += '<td>' + shotStatsTotal.ourScores + '</td>';
-            html += '<td>' + shotStatsTotal.ourWides + '</td>';
-            html += '<td>' + shotStatsTotal.ourSaveShot + '</td>';
-            html += '<td>' + shotStatsTotal.ourFortyFives + '</td>';
-            html += '<td>' + shotStatsTotal.ourConversion + '%</td>';
-            html += '</tr>';
-            html += '<tr>';
-            html += '<td>' + team2Name + '</td>';
-            html += '<td>' + shotStats1st.oppShots + '</td>';
-            html += '<td>' + shotStats1st.oppScores + '</td>';
-            html += '<td>' + shotStats1st.oppWides + '</td>';
-            html += '<td>' + shotStats1st.oppSaveShot + '</td>';
-            html += '<td>' + shotStats1st.oppFortyFives + '</td>';
-            html += '<td>' + shotStats1st.oppConversion + '%</td>';
-            html += '<td style="border-left: 2px solid #ddd">' + shotStats2nd.oppShots + '</td>';
-            html += '<td>' + shotStats2nd.oppScores + '</td>';
-            html += '<td>' + shotStats2nd.oppWides + '</td>';
-            html += '<td>' + shotStats2nd.oppSaveShot + '</td>';
-            html += '<td>' + shotStats2nd.oppFortyFives + '</td>';
-            html += '<td>' + shotStats2nd.oppConversion + '%</td>';
-            html += '<td style="border-left: 2px solid #ddd">' + shotStatsTotal.oppShots + '</td>';
-            html += '<td>' + shotStatsTotal.oppScores + '</td>';
-            html += '<td>' + shotStatsTotal.oppWides + '</td>';
-            html += '<td>' + shotStatsTotal.oppSaveShot + '</td>';
-            html += '<td>' + shotStatsTotal.oppFortyFives + '</td>';
-            html += '<td>' + shotStatsTotal.oppConversion + '%</td>';
-            html += '</tr>';
-            html += '</table>';
+            html += '<div class="report-halves">';
+            html += '<div class="report-half-panel"><table class="report-table">';
+            html += '<tr><th>1st Half</th><th>Shots</th><th>Scores</th><th>Wides</th><th>Short/Save</th><th>For 45s</th><th>%</th></tr>';
+            html += '<tr><td>' + team1Name + '</td><td>' + shotStats1st.ourShots + '</td><td>' + shotStats1st.ourScores + '</td><td>' + shotStats1st.ourWides + '</td><td>' + shotStats1st.ourSaveShot + '</td><td>' + shotStats1st.ourFortyFives + '</td><td>' + shotStats1st.ourConversion + '%</td></tr>';
+            html += '<tr><td>' + team2Name + '</td><td>' + shotStats1st.oppShots + '</td><td>' + shotStats1st.oppScores + '</td><td>' + shotStats1st.oppWides + '</td><td>' + shotStats1st.oppSaveShot + '</td><td>' + shotStats1st.oppFortyFives + '</td><td>' + shotStats1st.oppConversion + '%</td></tr>';
+            html += '</table></div>';
+            html += '<div class="report-half-panel"><table class="report-table">';
+            html += '<tr><th>2nd Half</th><th>Shots</th><th>Scores</th><th>Wides</th><th>Short/Save</th><th>For 45s</th><th>%</th></tr>';
+            html += '<tr><td>' + team1Name + '</td><td>' + shotStats2nd.ourShots + '</td><td>' + shotStats2nd.ourScores + '</td><td>' + shotStats2nd.ourWides + '</td><td>' + shotStats2nd.ourSaveShot + '</td><td>' + shotStats2nd.ourFortyFives + '</td><td>' + shotStats2nd.ourConversion + '%</td></tr>';
+            html += '<tr><td>' + team2Name + '</td><td>' + shotStats2nd.oppShots + '</td><td>' + shotStats2nd.oppScores + '</td><td>' + shotStats2nd.oppWides + '</td><td>' + shotStats2nd.oppSaveShot + '</td><td>' + shotStats2nd.oppFortyFives + '</td><td>' + shotStats2nd.oppConversion + '%</td></tr>';
+            html += '</table></div>';
+            html += '</div>';
+            html += '<div class="report-total-panel"><table class="report-table">';
+            html += '<tr><th>Total</th><th>Shots</th><th>Scores</th><th>Wides</th><th>Short/Save</th><th>For 45s</th><th>%</th></tr>';
+            html += '<tr><td>' + team1Name + '</td><td>' + shotStatsTotal.ourShots + '</td><td>' + shotStatsTotal.ourScores + '</td><td>' + shotStatsTotal.ourWides + '</td><td>' + shotStatsTotal.ourSaveShot + '</td><td>' + shotStatsTotal.ourFortyFives + '</td><td>' + shotStatsTotal.ourConversion + '%</td></tr>';
+            html += '<tr><td>' + team2Name + '</td><td>' + shotStatsTotal.oppShots + '</td><td>' + shotStatsTotal.oppScores + '</td><td>' + shotStatsTotal.oppWides + '</td><td>' + shotStatsTotal.oppSaveShot + '</td><td>' + shotStatsTotal.oppFortyFives + '</td><td>' + shotStatsTotal.oppConversion + '%</td></tr>';
+            html += '</table></div>';
             html += '</div>';
 
             // Top 3 Scorers - OUR
@@ -4719,10 +4703,14 @@
                     return bScore - aScore;
                 });
             html += '<div class="report-section">';
-            html += '<h3>' + team1Name + ' - Top 3 Scorers</h3>';
+            html += '<div class="collapsible-header" onclick="toggleCollapsible(this)">';
+            html += '<h3 style="margin: 0;">' + team1Name + ' - Top 6 Scorers</h3>';
+            html += '<span class="collapsible-icon collapsed">▼</span>';
+            html += '</div>';
+            html += '<div class="collapsible-content collapsed">';
             html += '<table class="report-table">';
             html += '<tr><th>Player Number</th><th>Goals</th><th>2-Pointers</th><th>Points</th><th>Total Points</th></tr>';
-            ourScorers.slice(0, 3).forEach(player => {
+            ourScorers.slice(0, 6).forEach(player => {
                 const playerNum = player.category.replace('OUR ', '');
                 const totalPoints = (player.goals * 3) + (player.twoPointers * 2) + player.points;
                 html += '<tr><td>' + playerNum + '</td><td>' + player.goals + '</td><td>' + player.twoPointers + '</td><td>' + player.points + '</td><td>' + totalPoints + '</td></tr>';
@@ -4731,6 +4719,7 @@
                 html += '<tr><td colspan="5" style="text-align: center; color: #999;">No scoring events</td></tr>';
             }
             html += '</table>';
+            html += '</div>';
             html += '</div>';
 
             // Top 3 Scorers - OPP
@@ -4742,10 +4731,14 @@
                     return bScore - aScore;
                 });
             html += '<div class="report-section">';
-            html += '<h3>' + team2Name + ' - Top 3 Scorers</h3>';
+            html += '<div class="collapsible-header" onclick="toggleCollapsible(this)">';
+            html += '<h3 style="margin: 0;">' + team2Name + ' - Top 6 Scorers</h3>';
+            html += '<span class="collapsible-icon collapsed">▼</span>';
+            html += '</div>';
+            html += '<div class="collapsible-content collapsed">';
             html += '<table class="report-table">';
             html += '<tr><th>Player Number</th><th>Goals</th><th>2-Pointers</th><th>Points</th><th>Total Points</th></tr>';
-            oppScorers.slice(0, 3).forEach(player => {
+            oppScorers.slice(0, 6).forEach(player => {
                 const playerNum = player.category.replace('OPP ', '');
                 const totalPoints = (player.goals * 3) + (player.twoPointers * 2) + player.points;
                 html += '<tr><td>' + playerNum + '</td><td>' + player.goals + '</td><td>' + player.twoPointers + '</td><td>' + player.points + '</td><td>' + totalPoints + '</td></tr>';
@@ -4754,6 +4747,7 @@
                 html += '<tr><td colspan="5" style="text-align: center; color: #999;">No scoring events</td></tr>';
             }
             html += '</table>';
+            html += '</div>';
             html += '</div>';
 
             // Possession
@@ -4766,28 +4760,23 @@
             html += '<span class="collapsible-icon collapsed">▼</span>';
             html += '</div>';
             html += '<div class="collapsible-content collapsed">';
-            html += '<table class="report-table">';
-            html += '<tr><th rowspan="2">Team</th><th colspan="2">1st Half</th><th colspan="2" style="border-left: 2px solid #ddd">2nd Half</th><th colspan="2" style="border-left: 2px solid #ddd">Total</th></tr>';
-            html += '<tr><th>Time</th><th>%</th><th style="border-left: 2px solid #ddd">Time</th><th>%</th><th style="border-left: 2px solid #ddd">Time</th><th>%</th></tr>';
-            html += '<tr>';
-            html += '<td>' + team1Name + '</td>';
-            html += '<td>' + possessionStats1st.ourTimeFormatted + '</td>';
-            html += '<td>' + possessionStats1st.ourPercent + '%</td>';
-            html += '<td style="border-left: 2px solid #ddd">' + possessionStats2nd.ourTimeFormatted + '</td>';
-            html += '<td>' + possessionStats2nd.ourPercent + '%</td>';
-            html += '<td style="border-left: 2px solid #ddd">' + possessionStatsTotal.ourTimeFormatted + '</td>';
-            html += '<td>' + possessionStatsTotal.ourPercent + '%</td>';
-            html += '</tr>';
-            html += '<tr>';
-            html += '<td>' + team2Name + '</td>';
-            html += '<td>' + possessionStats1st.oppTimeFormatted + '</td>';
-            html += '<td>' + possessionStats1st.oppPercent + '%</td>';
-            html += '<td style="border-left: 2px solid #ddd">' + possessionStats2nd.oppTimeFormatted + '</td>';
-            html += '<td>' + possessionStats2nd.oppPercent + '%</td>';
-            html += '<td style="border-left: 2px solid #ddd">' + possessionStatsTotal.oppTimeFormatted + '</td>';
-            html += '<td>' + possessionStatsTotal.oppPercent + '%</td>';
-            html += '</tr>';
-            html += '</table>';
+            html += '<div class="report-halves">';
+            html += '<div class="report-half-panel"><table class="report-table">';
+            html += '<tr><th>1st Half</th><th>Time</th><th>%</th></tr>';
+            html += '<tr><td>' + team1Name + '</td><td>' + possessionStats1st.ourTimeFormatted + '</td><td>' + possessionStats1st.ourPercent + '%</td></tr>';
+            html += '<tr><td>' + team2Name + '</td><td>' + possessionStats1st.oppTimeFormatted + '</td><td>' + possessionStats1st.oppPercent + '%</td></tr>';
+            html += '</table></div>';
+            html += '<div class="report-half-panel"><table class="report-table">';
+            html += '<tr><th>2nd Half</th><th>Time</th><th>%</th></tr>';
+            html += '<tr><td>' + team1Name + '</td><td>' + possessionStats2nd.ourTimeFormatted + '</td><td>' + possessionStats2nd.ourPercent + '%</td></tr>';
+            html += '<tr><td>' + team2Name + '</td><td>' + possessionStats2nd.oppTimeFormatted + '</td><td>' + possessionStats2nd.oppPercent + '%</td></tr>';
+            html += '</table></div>';
+            html += '</div>';
+            html += '<div class="report-total-panel"><table class="report-table">';
+            html += '<tr><th>Total</th><th>Time</th><th>%</th></tr>';
+            html += '<tr><td>' + team1Name + '</td><td>' + possessionStatsTotal.ourTimeFormatted + '</td><td>' + possessionStatsTotal.ourPercent + '%</td></tr>';
+            html += '<tr><td>' + team2Name + '</td><td>' + possessionStatsTotal.oppTimeFormatted + '</td><td>' + possessionStatsTotal.oppPercent + '%</td></tr>';
+            html += '</table></div>';
             html += '</div>';
             html += '</div>';
 
@@ -6434,6 +6423,7 @@
             eventTypeFilters.point = document.getElementById('filterPoint').checked;
             eventTypeFilters.koWon = document.getElementById('filterKOWon').checked;
             eventTypeFilters.koLost = document.getElementById('filterKOLost').checked;
+            eventTypeFilters.shot = document.getElementById('filterShot').checked;
 
             // Refresh event list
             updateRecentEvents();
@@ -6768,6 +6758,9 @@
                 if (eventTypeFilters.koLost && (descriptors.includes('ko lost') || descriptors.includes('own ko lost') || descriptors.includes('opp ko lost'))) {
                     matchesFilter = true;
                 }
+                if (eventTypeFilters.shot && descriptors.includes('shot')) {
+                    matchesFilter = true;
+                }
 
                 return matchesFilter;
             });
@@ -6804,10 +6797,10 @@
                     coordsDisplay = ` <span style="color: #888; font-size: 0.9em;">(${event.kickoutX.toFixed(0)}, ${event.kickoutY.toFixed(0)})</span>`;
                 }
 
-                // Add video time display and view/edit buttons if in Post-Match mode
+                // Add video time display and view/edit buttons
                 let videoTimeStr = '';
                 let viewButton = '';
-                let editButton = '';
+                let editButton = `<button class="edit-event-btn" onclick="startEditingEvent(${actualIndex})" title="Edit event">✏️</button>`;
                 if (gameMode === 'post-match') {
                     let videoTime = event.videoTime;
 
@@ -6841,11 +6834,11 @@
 
                 html += `
                     <div class="recent-event-item${editingClass}">
-                        <input type="checkbox"
+                        ${gameMode === 'post-match' ? `<input type="checkbox"
                                class="event-checkbox"
                                ${isSelected ? 'checked' : ''}
                                onchange="toggleEventSelection(${actualIndex})"
-                               style="margin-right: 8px; cursor: pointer;">
+                               style="margin-right: 8px; cursor: pointer;">` : ''}
                         <div class="recent-event-info">
                             <span class="recent-event-time">${event.time}${videoTimeStr}</span>
                             <span class="recent-event-player">${event.type} ${playerNum}</span>
