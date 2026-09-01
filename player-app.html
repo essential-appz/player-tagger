@@ -950,7 +950,7 @@
             background: white;
             border: 2px solid #ddd;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: background-color 0.3s, border-color 0.3s, color 0.3s;
             font-weight: bold;
         }
 
@@ -3317,12 +3317,6 @@
         }
 
         function populateEditEventModal(event) {
-            console.log('populateEditEventModal called with event:', {
-                type: event.type,
-                category: event.category,
-                descriptors: event.descriptors
-            });
-
             // Set team
             const teamSelect = document.getElementById('editEventTeam');
 
@@ -3429,8 +3423,6 @@
         function updateEditPlayerOptions(team, selectedCategory) {
             const playerSelect = document.getElementById('editEventPlayer');
 
-            console.log('updateEditPlayerOptions called with:', { team, selectedCategory });
-
             playerSelect.innerHTML = '';
 
             // Normalize selectedCategory - if it's just a number, prefix with team
@@ -3440,7 +3432,6 @@
                 if (!selectedCategory.startsWith('OUR ') && !selectedCategory.startsWith('OPP ')) {
                     // It's just a number, add team prefix
                     normalizedCategory = `${team} ${selectedCategory}`;
-                    console.log('Normalized category from', selectedCategory, 'to', normalizedCategory);
                 }
             }
 
@@ -3462,40 +3453,16 @@
                 option.value = `${team} ${i}`;
                 option.textContent = `${i}`;
 
-                // Pre-select if this matches the normalizedCategory
                 if (normalizedCategory && option.value === normalizedCategory) {
                     option.selected = true;
-                    console.log('Pre-selecting option:', option.value);
                 }
 
                 playerSelect.appendChild(option);
             }
 
-            // Double-check the value is set after all options are added
+            // Set value after all options are added
             if (normalizedCategory) {
                 playerSelect.value = normalizedCategory;
-
-                console.log('After setting value:', {
-                    attempted: normalizedCategory,
-                    actualValue: playerSelect.value,
-                    selectedIndex: playerSelect.selectedIndex,
-                    selectedOptionValue: playerSelect.options[playerSelect.selectedIndex]?.value
-                });
-
-                // Debug logging if it still didn't work
-                if (playerSelect.value !== normalizedCategory) {
-                    console.error('❌ Failed to set player dropdown:', {
-                        attempted: normalizedCategory,
-                        actualValue: playerSelect.value,
-                        availableOptions: Array.from(playerSelect.options).map(o => ({
-                            value: o.value,
-                            text: o.textContent,
-                            selected: o.selected
-                        }))
-                    });
-                } else {
-                    console.log('✅ Successfully set player to:', playerSelect.value);
-                }
             }
         }
 
