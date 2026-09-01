@@ -1875,6 +1875,9 @@
                     <label style="display: flex; align-items: center; gap: 4px; font-size: 12px;">
                         <input type="checkbox" id="filterShot" checked onchange="updateEventFilters()"> Shot
                     </label>
+                    <label style="display: flex; align-items: center; gap: 4px; font-size: 12px;">
+                        <input type="checkbox" id="filterTOLost" checked onchange="updateEventFilters()"> T/O Lost
+                    </label>
                 </div>
             </div>
         </div>
@@ -6424,6 +6427,7 @@
             eventTypeFilters.koWon = document.getElementById('filterKOWon').checked;
             eventTypeFilters.koLost = document.getElementById('filterKOLost').checked;
             eventTypeFilters.shot = document.getElementById('filterShot').checked;
+            eventTypeFilters.toLost = document.getElementById('filterTOLost').checked;
 
             // Refresh event list
             updateRecentEvents();
@@ -6759,6 +6763,9 @@
                     matchesFilter = true;
                 }
                 if (eventTypeFilters.shot && descriptors.includes('shot')) {
+                    matchesFilter = true;
+                }
+                if (eventTypeFilters.toLost && (descriptors.includes('our t/o lost') || descriptors.includes('opp t/o lost') || descriptors.includes('t/o lost'))) {
                     matchesFilter = true;
                 }
 
