@@ -2340,7 +2340,7 @@
         // Configuration
         const categories = ['OUR 1', 'OUR 2', 'OUR 3', 'OUR 4', 'OUR 5', 'OUR 6', 'OUR 7', 'OUR 8', 'OUR 9', 'OUR 10', 'OUR 11', 'OUR 12', 'OUR 13', 'OUR 14', 'OUR 15', 'OUR 16', 'OUR 17', 'OUR 18', 'OUR 19', 'OUR 20', 'OUR 21', 'OUR 22', 'OUR 23', 'OUR 24', 'OUR 25', 'OUR 26'];
         const opponents = ['OPP 1', 'OPP 2', 'OPP 3', 'OPP 4', 'OPP 5', 'OPP 6', 'OPP 7', 'OPP 8', 'OPP 9', 'OPP 10', 'OPP 11', 'OPP 12', 'OPP 13', 'OPP 14', 'OPP 15', 'OPP 16', 'OPP 17', 'OPP 18', 'OPP 19', 'OPP 20', 'OPP 21', 'OPP 22', 'OPP 23', 'OPP 24', 'OPP 25', 'OPP 26'];
-        const defaultDescriptors = ['Goal', '2 Pointer', 'Point', 'For 45', 'Wide', 'Save/Shot', 'Own KO Won', 'Own KO Lost', 'Our T/O Lost', 'Opp T/O Lost', 'Opp KO Won', 'Opp KO Lost', 'Our Throw-in', 'Opp Throw-in'];
+        const defaultDescriptors = ['Goal', '2 Pointer', 'Point', 'For 45', 'Wide', 'Save/Shot', 'Own KO Won', 'Own KO Lost', 'Our T/O Lost', 'Opp T/O Lost', 'Opp KO Won', 'Opp KO Lost'];
         let descriptors = [];
         let allDescriptors = [];
         let tempDescriptors = []; // Temporary descriptors while editing in modal
@@ -2723,7 +2723,7 @@
         function resetDescriptors() {
             if (!requirePremium('Custom Descriptors')) return;
 
-            if (!confirm('Reset to default descriptors?\n\nThis will restore:\n• Goal\n• 2 Pointer\n• Point\n• For 45\n• Wide\n• Save/Shot\n• Own KO Won\n• Own KO Lost\n• Our T/O Lost\n• Opp T/O Lost\n• Opp KO Won\n• Opp KO Lost\n• Our Throw-in\n• Opp Throw-in\n\nCustom descriptors will be removed.')) {
+            if (!confirm('Reset to default descriptors?\n\nThis will restore:\n• Goal\n• 2 Pointer\n• Point\n• For 45\n• Wide\n• Save/Shot\n• Own KO Won\n• Own KO Lost\n• Our T/O Lost\n• Opp T/O Lost\n• Opp KO Won\n• Opp KO Lost\n\nCustom descriptors will be removed.')) {
                 return;
             }
 
@@ -2797,19 +2797,19 @@
 
                 // Categorize descriptors
                 const scoringDescriptors = ['Goal', '2 Pointer', 'Point', 'Wide', 'For 45', 'Save/Shot'];
-                const koDescriptors = ['Own KO Won', 'Own KO Lost', 'Our T/O Lost', 'Opp T/O Lost', 'Opp KO Won', 'Opp KO Lost', 'Our Throw-in', 'Opp Throw-in'];
+                const koDescriptors = ['Own KO Won', 'Own KO Lost', 'Our T/O Lost', 'Opp T/O Lost', 'Opp KO Won', 'Opp KO Lost'];
 
                 descriptors.forEach(desc => {
                     const btn = document.createElement('button');
                     btn.className = 'descriptor-btn';
                     btn.textContent = desc;
-                    const isFreeButton = desc.includes('KO Won') || desc.includes('KO Lost') || desc.includes('T/O Lost') || desc.includes('Throw-in');
+                    const isFreeButton = desc.includes('KO Won') || desc.includes('KO Lost') || desc.includes('T/O Lost');
                     btn.disabled = isFreeButton ? false : true;
                     btn.onclick = () => toggleDesc(btn, desc);
 
                     // Determine which row this button belongs to
                     let targetRow = row1; // Default to row 1
-                    if (koDescriptors.includes(desc) || desc.includes('T/O') || desc.includes('Throw-in')) {
+                    if (koDescriptors.includes(desc) || desc.includes('T/O')) {
                         targetRow = row2;
                     }
 
@@ -3219,11 +3219,29 @@
         }
 
         function setInitialPossessionFromModal(team) {
+            // Log throw-in as first event of the half
+            const throwInEvent = {
+                timestamp: new Date().toISOString(),
+                time: getFormattedGameTime(),
+                period: currentPeriod,
+                type: team,
+                category: 'Team Event',
+                descriptors: team === 'OUR' ? 'Our Throw-in' : 'Opp Throw-in'
+            };
+            if (gameMode === 'post-match') {
+                const video = document.getElementById('matchVideo');
+                if (video && video.duration) throwInEvent.videoTime = video.currentTime;
+            }
+            events.push(throwInEvent);
+            saveToStorage();
+            updateMatrix();
+            updateRecentEvents();
+            document.getElementById('eventCount').textContent = events.length;
+
             currentPossessionTeam = team;
             updatePossessionDisplay();
             closeInitialPossessionModal();
 
-            // Show Log Attack button in Post-Match mode
             if (gameMode === 'post-match') {
                 document.getElementById('logAttackControl').style.display = 'block';
             }
@@ -4309,7 +4327,7 @@
                     selectedDescriptors = [];
                     document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
                     document.querySelectorAll('.descriptor-btn').forEach(b => {
-                        const isFreeButton = b.textContent.includes('KO Won') || b.textContent.includes('KO Lost') || b.textContent.includes('T/O Lost') || b.textContent.includes('Throw-in');
+                        const isFreeButton = b.textContent.includes('KO Won') || b.textContent.includes('KO Lost') || b.textContent.includes('T/O Lost');
                         b.disabled = !isFreeButton;
                         b.classList.remove('selected');
                     });
@@ -4389,7 +4407,7 @@
                 selectedDescriptors = [];
                 document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
                 document.querySelectorAll('.descriptor-btn').forEach(b => {
-                    const isFreeButton = b.textContent.includes('KO Won') || b.textContent.includes('KO Lost') || b.textContent.includes('T/O Lost') || b.textContent.includes('Throw-in');
+                    const isFreeButton = b.textContent.includes('KO Won') || b.textContent.includes('KO Lost') || b.textContent.includes('T/O Lost');
                     b.disabled = !isFreeButton;
                     b.classList.remove('selected');
                 });
@@ -6135,8 +6153,8 @@
             // Rebuild descriptor buttons to update KO/Update button states
             rebuildDescriptorButtons();
 
-            // Show initial possession modal in Post-Match mode when starting a half
-            if (gameMode === 'post-match' && (period === '1st Half Started' || period === '2nd Half Started')) {
+            // Show throw-in modal when starting a half
+            if (period === '1st Half Started' || period === '2nd Half Started') {
                 openInitialPossessionModal();
             }
 
@@ -6154,7 +6172,7 @@
                     document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
                     document.querySelectorAll('.descriptor-btn').forEach(b => {
                         // Keep KO buttons enabled
-                        const isFreeButton = b.textContent.includes('KO Won') || b.textContent.includes('KO Lost') || b.textContent.includes('T/O Lost') || b.textContent.includes('Throw-in');
+                        const isFreeButton = b.textContent.includes('KO Won') || b.textContent.includes('KO Lost') || b.textContent.includes('T/O Lost');
                         b.disabled = !isFreeButton;
                         b.classList.remove('selected');
                     });
@@ -6180,7 +6198,7 @@
                     document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
                     document.querySelectorAll('.descriptor-btn').forEach(b => {
                         // Keep KO buttons enabled
-                        const isFreeButton = b.textContent.includes('KO Won') || b.textContent.includes('KO Lost') || b.textContent.includes('T/O Lost') || b.textContent.includes('Throw-in');
+                        const isFreeButton = b.textContent.includes('KO Won') || b.textContent.includes('KO Lost') || b.textContent.includes('T/O Lost');
                         b.disabled = !isFreeButton;
                         b.classList.remove('selected');
                     });
@@ -6366,55 +6384,6 @@
                 return;
             }
 
-            // Handle Throw-in team events - log immediately, no pitch map needed
-            if (desc === 'Our Throw-in' || desc === 'Opp Throw-in') {
-                if (currentPeriod !== '1st Half Started' && currentPeriod !== '2nd Half Started') {
-                    alert('Please start 1st Half or 2nd Half before recording events!');
-                    return;
-                }
-                const teamType = desc === 'Our Throw-in' ? 'OUR' : 'OPP';
-
-                let gameTime;
-                if (gameMode === 'post-match') {
-                    const video = document.getElementById('matchVideo');
-                    if (video && video.duration) {
-                        const offset = (currentPeriod === '2nd Half Started' || currentPeriod === '2nd Half Ended') ? videoSecondHalfOffset : videoFirstHalfOffset;
-                        const gameTimeSeconds = Math.max(0, video.currentTime - offset);
-                        const mins = Math.floor(gameTimeSeconds / 60);
-                        const secs = Math.floor(gameTimeSeconds % 60);
-                        gameTime = String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
-                    } else {
-                        gameTime = getFormattedGameTime();
-                    }
-                } else {
-                    gameTime = getFormattedGameTime();
-                }
-
-                const throwInEvent = {
-                    timestamp: new Date().toISOString(),
-                    time: gameTime,
-                    period: currentPeriod,
-                    type: teamType,
-                    category: 'Team Event',
-                    descriptors: desc
-                };
-
-                if (gameMode === 'post-match') {
-                    const video = document.getElementById('matchVideo');
-                    if (video && video.duration) throwInEvent.videoTime = video.currentTime;
-                }
-
-                events.push(throwInEvent);
-                saveToStorage();
-                updateMatrix();
-                updateRecentEvents();
-                document.getElementById('eventCount').textContent = events.length;
-
-                btn.style.backgroundColor = '#2196F3';
-                setTimeout(() => { btn.style.backgroundColor = ''; }, 200);
-                return;
-            }
-
             // Handle scoring descriptors (Goal, Point, 2 Pointer) - open pitch map to capture shot location
             if (desc === 'Goal' || desc === 'Point' || desc === '2 Pointer') {
                 // Store event details and open pitch map modal
@@ -6455,7 +6424,7 @@
                 document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
                 document.querySelectorAll('.descriptor-btn').forEach(b => {
                     // Keep KO and T/O buttons enabled
-                    const isFreeButton = b.textContent.includes('KO Won') || b.textContent.includes('KO Lost') || b.textContent.includes('T/O Lost') || b.textContent.includes('Throw-in');
+                    const isFreeButton = b.textContent.includes('KO Won') || b.textContent.includes('KO Lost') || b.textContent.includes('T/O Lost');
                     b.disabled = !isFreeButton;
                     b.classList.remove('selected');
                 });
@@ -7062,7 +7031,7 @@
             document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
             document.querySelectorAll('.descriptor-btn').forEach(b => {
                 // Keep KO and T/O buttons enabled
-                const isFreeButton = b.textContent.includes('KO Won') || b.textContent.includes('KO Lost') || b.textContent.includes('T/O Lost') || b.textContent.includes('Throw-in');
+                const isFreeButton = b.textContent.includes('KO Won') || b.textContent.includes('KO Lost') || b.textContent.includes('T/O Lost');
                 b.disabled = !isFreeButton;
                 b.classList.remove('selected');
             });
