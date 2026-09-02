@@ -1878,6 +1878,9 @@
                     <label style="display: flex; align-items: center; gap: 4px; font-size: 12px;">
                         <input type="checkbox" id="filterTOLost" checked onchange="updateEventFilters()"> T/O Lost
                     </label>
+                    <label style="display: flex; align-items: center; gap: 4px; font-size: 12px;">
+                        <input type="checkbox" id="filterThrowIn" checked onchange="updateEventFilters()"> Throw-in
+                    </label>
                 </div>
             </div>
         </div>
@@ -2337,7 +2340,7 @@
         // Configuration
         const categories = ['OUR 1', 'OUR 2', 'OUR 3', 'OUR 4', 'OUR 5', 'OUR 6', 'OUR 7', 'OUR 8', 'OUR 9', 'OUR 10', 'OUR 11', 'OUR 12', 'OUR 13', 'OUR 14', 'OUR 15', 'OUR 16', 'OUR 17', 'OUR 18', 'OUR 19', 'OUR 20', 'OUR 21', 'OUR 22', 'OUR 23', 'OUR 24', 'OUR 25', 'OUR 26'];
         const opponents = ['OPP 1', 'OPP 2', 'OPP 3', 'OPP 4', 'OPP 5', 'OPP 6', 'OPP 7', 'OPP 8', 'OPP 9', 'OPP 10', 'OPP 11', 'OPP 12', 'OPP 13', 'OPP 14', 'OPP 15', 'OPP 16', 'OPP 17', 'OPP 18', 'OPP 19', 'OPP 20', 'OPP 21', 'OPP 22', 'OPP 23', 'OPP 24', 'OPP 25', 'OPP 26'];
-        const defaultDescriptors = ['Goal', '2 Pointer', 'Point', 'For 45', 'Wide', 'Save/Shot', 'Own KO Won', 'Own KO Lost', 'Our T/O Lost', 'Opp T/O Lost', 'Opp KO Won', 'Opp KO Lost'];
+        const defaultDescriptors = ['Goal', '2 Pointer', 'Point', 'For 45', 'Wide', 'Save/Shot', 'Own KO Won', 'Own KO Lost', 'Our T/O Lost', 'Opp T/O Lost', 'Opp KO Won', 'Opp KO Lost', 'Our Throw-in', 'Opp Throw-in'];
         let descriptors = [];
         let allDescriptors = [];
         let tempDescriptors = []; // Temporary descriptors while editing in modal
@@ -2379,7 +2382,9 @@
             twoPointer: true,
             point: true,
             koWon: true,
-            koLost: true
+            koLost: true,
+            toLost: true,
+            throwIn: true
         };
         let playerNumberFilter = []; // Array of player numbers to filter by (empty = all players)
         // Event selection state
@@ -2718,7 +2723,7 @@
         function resetDescriptors() {
             if (!requirePremium('Custom Descriptors')) return;
 
-            if (!confirm('Reset to default descriptors?\n\nThis will restore:\n• Goal\n• 2 Pointer\n• Point\n• For 45\n• Wide\n• Save/Shot\n• Own KO Won\n• Own KO Lost\n• Our T/O Lost\n• Opp T/O Lost\n• Opp KO Won\n• Opp KO Lost\n\nCustom descriptors will be removed.')) {
+            if (!confirm('Reset to default descriptors?\n\nThis will restore:\n• Goal\n• 2 Pointer\n• Point\n• For 45\n• Wide\n• Save/Shot\n• Own KO Won\n• Own KO Lost\n• Our T/O Lost\n• Opp T/O Lost\n• Opp KO Won\n• Opp KO Lost\n• Our Throw-in\n• Opp Throw-in\n\nCustom descriptors will be removed.')) {
                 return;
             }
 
@@ -2792,19 +2797,19 @@
 
                 // Categorize descriptors
                 const scoringDescriptors = ['Goal', '2 Pointer', 'Point', 'Wide', 'For 45', 'Save/Shot'];
-                const koDescriptors = ['Own KO Won', 'Own KO Lost', 'Our T/O Lost', 'Opp T/O Lost', 'Opp KO Won', 'Opp KO Lost'];
+                const koDescriptors = ['Own KO Won', 'Own KO Lost', 'Our T/O Lost', 'Opp T/O Lost', 'Opp KO Won', 'Opp KO Lost', 'Our Throw-in', 'Opp Throw-in'];
 
                 descriptors.forEach(desc => {
                     const btn = document.createElement('button');
                     btn.className = 'descriptor-btn';
                     btn.textContent = desc;
-                    const isFreeButton = desc.includes('KO Won') || desc.includes('KO Lost') || desc.includes('T/O Lost');
+                    const isFreeButton = desc.includes('KO Won') || desc.includes('KO Lost') || desc.includes('T/O Lost') || desc.includes('Throw-in');
                     btn.disabled = isFreeButton ? false : true;
                     btn.onclick = () => toggleDesc(btn, desc);
 
                     // Determine which row this button belongs to
                     let targetRow = row1; // Default to row 1
-                    if (koDescriptors.includes(desc) || desc.includes('T/O')) {
+                    if (koDescriptors.includes(desc) || desc.includes('T/O') || desc.includes('Throw-in')) {
                         targetRow = row2;
                     }
 
@@ -4304,7 +4309,7 @@
                     selectedDescriptors = [];
                     document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
                     document.querySelectorAll('.descriptor-btn').forEach(b => {
-                        const isFreeButton = b.textContent.includes('KO Won') || b.textContent.includes('KO Lost') || b.textContent.includes('T/O Lost');
+                        const isFreeButton = b.textContent.includes('KO Won') || b.textContent.includes('KO Lost') || b.textContent.includes('T/O Lost') || b.textContent.includes('Throw-in');
                         b.disabled = !isFreeButton;
                         b.classList.remove('selected');
                     });
@@ -4384,7 +4389,7 @@
                 selectedDescriptors = [];
                 document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
                 document.querySelectorAll('.descriptor-btn').forEach(b => {
-                    const isFreeButton = b.textContent.includes('KO Won') || b.textContent.includes('KO Lost') || b.textContent.includes('T/O Lost');
+                    const isFreeButton = b.textContent.includes('KO Won') || b.textContent.includes('KO Lost') || b.textContent.includes('T/O Lost') || b.textContent.includes('Throw-in');
                     b.disabled = !isFreeButton;
                     b.classList.remove('selected');
                 });
@@ -4786,7 +4791,122 @@
             html += '</div>';
             html += '</div>';
 
+            // Shot Sequences
+            const sequences = buildPossessionSequences();
+            if (sequences.length > 0) {
+                const scoreOutcomes = ['Goal', 'Point', '2 Pointer'];
+                const shotOutcomes = ['Goal', 'Point', '2 Pointer', 'Wide', 'For 45', 'Save/Shot'];
+
+                ['OUR', 'OPP'].forEach(team => {
+                    const teamName = team === 'OUR' ? team1Name : team2Name;
+                    const teamSeqs = sequences.filter(s => s.team === team);
+                    if (teamSeqs.length === 0) return;
+
+                    const withShot = teamSeqs.filter(s => shotOutcomes.includes(s.outcome));
+                    const withScore = teamSeqs.filter(s => scoreOutcomes.includes(s.outcome));
+                    const avgTouches = withShot.length > 0
+                        ? (withShot.reduce((sum, s) => sum + s.touches, 0) / withShot.length).toFixed(1)
+                        : '—';
+                    const shotPct = teamSeqs.length > 0 ? Math.round((withShot.length / teamSeqs.length) * 100) : 0;
+                    const scorePct = withShot.length > 0 ? Math.round((withScore.length / withShot.length) * 100) : 0;
+
+                    html += '<div class="report-section">';
+                    html += '<div class="collapsible-header" onclick="toggleCollapsible(this)">';
+                    html += '<h3 style="margin: 0;">' + teamName + ' — Shot Sequences</h3>';
+                    html += '<span class="collapsible-icon collapsed">▼</span>';
+                    html += '</div>';
+                    html += '<div class="collapsible-content collapsed">';
+
+                    html += '<table class="report-table" style="margin-bottom: 10px;">';
+                    html += '<tr><th>Sequences</th><th>Ended in Shot</th><th>Shot %</th><th>Score %</th><th>Avg Touches (shot seqs)</th></tr>';
+                    html += '<tr><td>' + teamSeqs.length + '</td><td>' + withShot.length + '</td><td>' + shotPct + '%</td><td>' + scorePct + '%</td><td>' + avgTouches + '</td></tr>';
+                    html += '</table>';
+
+                    html += '<table class="report-table">';
+                    html += '<tr><th>Time</th><th>Half</th><th>Start</th><th>Touches</th><th>Players</th><th>Outcome</th></tr>';
+                    teamSeqs.forEach(seq => {
+                        const outcomeStyle = scoreOutcomes.includes(seq.outcome)
+                            ? 'color: #2e7d32; font-weight: bold;'
+                            : seq.outcome === 'No Shot' ? 'color: #999;' : 'color: #c62828;';
+                        const half = seq.period.includes('1st') ? '1st' : seq.period.includes('2nd') ? '2nd' : '—';
+                        html += '<tr>';
+                        html += '<td>' + seq.startTime + '</td>';
+                        html += '<td>' + half + '</td>';
+                        html += '<td>' + seq.startType + '</td>';
+                        html += '<td>' + seq.touches + '</td>';
+                        html += '<td>' + (seq.players.join(', ') || '—') + '</td>';
+                        html += '<td style="' + outcomeStyle + '">' + seq.outcome + '</td>';
+                        html += '</tr>';
+                    });
+                    html += '</table>';
+                    html += '</div>';
+                    html += '</div>';
+                });
+            }
+
             reportsContent.innerHTML = html;
+        }
+
+        function buildPossessionSequences() {
+            const sequences = [];
+            let currentSeq = null;
+            const shotOutcomes = ['Goal', 'Point', '2 Pointer', 'Wide', 'For 45', 'Save/Shot'];
+
+            const getPossessionTeam = descs => {
+                if (descs.includes('Own KO Won') || descs.includes('Opp T/O Lost') || descs.includes('Our Throw-in')) return 'OUR';
+                if (descs.includes('Opp KO Won') || descs.includes('Our T/O Lost') || descs.includes('Opp Throw-in')) return 'OPP';
+                return null;
+            };
+
+            const getStartType = descs => {
+                if (descs.some(d => d.includes('KO Won'))) return 'Kickout';
+                if (descs.some(d => d.includes('T/O Lost'))) return 'Turnover';
+                if (descs.some(d => d.includes('Throw-in'))) return 'Throw-in';
+                return 'Unknown';
+            };
+
+            events.forEach(event => {
+                const descs = event.descriptors.split(', ').map(d => d.trim());
+                const newTeam = getPossessionTeam(descs);
+
+                if (newTeam) {
+                    if (currentSeq) sequences.push(currentSeq);
+                    currentSeq = {
+                        team: newTeam,
+                        startType: getStartType(descs),
+                        startTime: event.time,
+                        period: event.period,
+                        touches: 0,
+                        players: [],
+                        outcome: 'No Shot'
+                    };
+                    return;
+                }
+
+                if (!currentSeq) return;
+
+                // Accumulate player touches for the possessing team
+                if (event.type === currentSeq.team && event.category !== 'Team Event') {
+                    if (descs.includes('Touch')) {
+                        currentSeq.touches++;
+                        const playerNum = event.category.replace('OUR ', '').replace('OPP ', '');
+                        if (!currentSeq.players.includes(playerNum)) {
+                            currentSeq.players.push(playerNum);
+                        }
+                    }
+                }
+
+                // Check for shot outcome (closes the sequence)
+                const outcomeDesc = shotOutcomes.find(s => descs.includes(s));
+                if (outcomeDesc && event.type === currentSeq.team) {
+                    currentSeq.outcome = outcomeDesc;
+                    sequences.push(currentSeq);
+                    currentSeq = null;
+                }
+            });
+
+            if (currentSeq) sequences.push(currentSeq);
+            return sequences;
         }
 
         function calculateScores() {
@@ -6034,7 +6154,7 @@
                     document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
                     document.querySelectorAll('.descriptor-btn').forEach(b => {
                         // Keep KO buttons enabled
-                        const isFreeButton = b.textContent.includes('KO Won') || b.textContent.includes('KO Lost') || b.textContent.includes('T/O Lost');
+                        const isFreeButton = b.textContent.includes('KO Won') || b.textContent.includes('KO Lost') || b.textContent.includes('T/O Lost') || b.textContent.includes('Throw-in');
                         b.disabled = !isFreeButton;
                         b.classList.remove('selected');
                     });
@@ -6060,7 +6180,7 @@
                     document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
                     document.querySelectorAll('.descriptor-btn').forEach(b => {
                         // Keep KO buttons enabled
-                        const isFreeButton = b.textContent.includes('KO Won') || b.textContent.includes('KO Lost') || b.textContent.includes('T/O Lost');
+                        const isFreeButton = b.textContent.includes('KO Won') || b.textContent.includes('KO Lost') || b.textContent.includes('T/O Lost') || b.textContent.includes('Throw-in');
                         b.disabled = !isFreeButton;
                         b.classList.remove('selected');
                     });
@@ -6246,6 +6366,55 @@
                 return;
             }
 
+            // Handle Throw-in team events - log immediately, no pitch map needed
+            if (desc === 'Our Throw-in' || desc === 'Opp Throw-in') {
+                if (currentPeriod !== '1st Half Started' && currentPeriod !== '2nd Half Started') {
+                    alert('Please start 1st Half or 2nd Half before recording events!');
+                    return;
+                }
+                const teamType = desc === 'Our Throw-in' ? 'OUR' : 'OPP';
+
+                let gameTime;
+                if (gameMode === 'post-match') {
+                    const video = document.getElementById('matchVideo');
+                    if (video && video.duration) {
+                        const offset = (currentPeriod === '2nd Half Started' || currentPeriod === '2nd Half Ended') ? videoSecondHalfOffset : videoFirstHalfOffset;
+                        const gameTimeSeconds = Math.max(0, video.currentTime - offset);
+                        const mins = Math.floor(gameTimeSeconds / 60);
+                        const secs = Math.floor(gameTimeSeconds % 60);
+                        gameTime = String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+                    } else {
+                        gameTime = getFormattedGameTime();
+                    }
+                } else {
+                    gameTime = getFormattedGameTime();
+                }
+
+                const throwInEvent = {
+                    timestamp: new Date().toISOString(),
+                    time: gameTime,
+                    period: currentPeriod,
+                    type: teamType,
+                    category: 'Team Event',
+                    descriptors: desc
+                };
+
+                if (gameMode === 'post-match') {
+                    const video = document.getElementById('matchVideo');
+                    if (video && video.duration) throwInEvent.videoTime = video.currentTime;
+                }
+
+                events.push(throwInEvent);
+                saveToStorage();
+                updateMatrix();
+                updateRecentEvents();
+                document.getElementById('eventCount').textContent = events.length;
+
+                btn.style.backgroundColor = '#2196F3';
+                setTimeout(() => { btn.style.backgroundColor = ''; }, 200);
+                return;
+            }
+
             // Handle scoring descriptors (Goal, Point, 2 Pointer) - open pitch map to capture shot location
             if (desc === 'Goal' || desc === 'Point' || desc === '2 Pointer') {
                 // Store event details and open pitch map modal
@@ -6286,7 +6455,7 @@
                 document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
                 document.querySelectorAll('.descriptor-btn').forEach(b => {
                     // Keep KO and T/O buttons enabled
-                    const isFreeButton = b.textContent.includes('KO Won') || b.textContent.includes('KO Lost') || b.textContent.includes('T/O Lost');
+                    const isFreeButton = b.textContent.includes('KO Won') || b.textContent.includes('KO Lost') || b.textContent.includes('T/O Lost') || b.textContent.includes('Throw-in');
                     b.disabled = !isFreeButton;
                     b.classList.remove('selected');
                 });
@@ -6395,6 +6564,7 @@
             eventTypeFilters.koLost = document.getElementById('filterKOLost').checked;
             eventTypeFilters.shot = document.getElementById('filterShot').checked;
             eventTypeFilters.toLost = document.getElementById('filterTOLost').checked;
+            eventTypeFilters.throwIn = document.getElementById('filterThrowIn').checked;
 
             // Refresh event list
             updateRecentEvents();
@@ -6735,6 +6905,9 @@
                 if (eventTypeFilters.toLost && (descriptors.includes('our t/o lost') || descriptors.includes('opp t/o lost') || descriptors.includes('t/o lost'))) {
                     matchesFilter = true;
                 }
+                if (eventTypeFilters.throwIn && (descriptors.includes('our throw-in') || descriptors.includes('opp throw-in'))) {
+                    matchesFilter = true;
+                }
 
                 return matchesFilter;
             });
@@ -6889,7 +7062,7 @@
             document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
             document.querySelectorAll('.descriptor-btn').forEach(b => {
                 // Keep KO and T/O buttons enabled
-                const isFreeButton = b.textContent.includes('KO Won') || b.textContent.includes('KO Lost') || b.textContent.includes('T/O Lost');
+                const isFreeButton = b.textContent.includes('KO Won') || b.textContent.includes('KO Lost') || b.textContent.includes('T/O Lost') || b.textContent.includes('Throw-in');
                 b.disabled = !isFreeButton;
                 b.classList.remove('selected');
             });
