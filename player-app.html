@@ -1878,9 +1878,6 @@
                     <label style="display: flex; align-items: center; gap: 4px; font-size: 12px;">
                         <input type="checkbox" id="filterTOLost" checked onchange="updateEventFilters()"> T/O Lost
                     </label>
-                    <label style="display: flex; align-items: center; gap: 4px; font-size: 12px;">
-                        <input type="checkbox" id="filterThrowIn" checked onchange="updateEventFilters()"> Throw-in
-                    </label>
                 </div>
             </div>
         </div>
@@ -2383,8 +2380,7 @@
             point: true,
             koWon: true,
             koLost: true,
-            toLost: true,
-            throwIn: true
+            toLost: true
         };
         let playerNumberFilter = []; // Array of player numbers to filter by (empty = all players)
         // Event selection state
@@ -4687,6 +4683,55 @@
             html += '</table></div>';
             html += '</div>';
 
+            // Shot Sequences
+            const sequences = buildPossessionSequences();
+            if (sequences.length > 0) {
+                const scoreOutcomes = ['Goal', 'Point', '2 Pointer'];
+                const shotOutcomes = ['Goal', 'Point', '2 Pointer', 'Wide', 'For 45', 'Save/Shot'];
+
+                ['OUR', 'OPP'].forEach(team => {
+                    const teamName = team === 'OUR' ? team1Name : team2Name;
+                    const teamSeqs = sequences.filter(s => s.team === team);
+                    if (teamSeqs.length === 0) return;
+
+                    const withShot = teamSeqs.filter(s => shotOutcomes.includes(s.outcome));
+                    const withScore = teamSeqs.filter(s => scoreOutcomes.includes(s.outcome));
+                    const shotPct = teamSeqs.length > 0 ? Math.round((withShot.length / teamSeqs.length) * 100) : 0;
+                    const scorePct = withShot.length > 0 ? Math.round((withScore.length / withShot.length) * 100) : 0;
+
+                    html += '<div class="report-section">';
+                    html += '<div class="collapsible-header" onclick="toggleCollapsible(this)">';
+                    html += '<h3 style="margin: 0;">' + teamName + ' — Shot Sequences</h3>';
+                    html += '<span class="collapsible-icon collapsed">▼</span>';
+                    html += '</div>';
+                    html += '<div class="collapsible-content collapsed">';
+
+                    html += '<table class="report-table" style="margin-bottom: 10px;">';
+                    html += '<tr><th>Sequences</th><th>Ended in Shot</th><th>Shot %</th><th>Score %</th></tr>';
+                    html += '<tr><td>' + teamSeqs.length + '</td><td>' + withShot.length + '</td><td>' + shotPct + '%</td><td>' + scorePct + '%</td></tr>';
+                    html += '</table>';
+
+                    html += '<table class="report-table">';
+                    html += '<tr><th>Time</th><th>Half</th><th>Start</th><th>Players</th><th>Outcome</th></tr>';
+                    teamSeqs.forEach(seq => {
+                        const outcomeStyle = scoreOutcomes.includes(seq.outcome)
+                            ? 'color: #2e7d32; font-weight: bold;'
+                            : seq.outcome === 'No Shot' ? 'color: #999;' : 'color: #c62828;';
+                        const half = seq.period.includes('1st') ? '1st' : seq.period.includes('2nd') ? '2nd' : '—';
+                        html += '<tr>';
+                        html += '<td>' + seq.startTime + '</td>';
+                        html += '<td>' + half + '</td>';
+                        html += '<td>' + seq.startType + '</td>';
+                        html += '<td>' + (seq.players.join(', ') || '—') + '</td>';
+                        html += '<td style="' + outcomeStyle + '">' + seq.outcome + '</td>';
+                        html += '</tr>';
+                    });
+                    html += '</table>';
+                    html += '</div>';
+                    html += '</div>';
+                });
+            }
+
             // Top 3 Scorers - OUR
             const ourScorers = getPlayerStats('OUR')
                 .filter(p => p.goals > 0 || p.points > 0 || p.twoPointers > 0)
@@ -4809,59 +4854,6 @@
             html += '</div>';
             html += '</div>';
 
-            // Shot Sequences
-            const sequences = buildPossessionSequences();
-            if (sequences.length > 0) {
-                const scoreOutcomes = ['Goal', 'Point', '2 Pointer'];
-                const shotOutcomes = ['Goal', 'Point', '2 Pointer', 'Wide', 'For 45', 'Save/Shot'];
-
-                ['OUR', 'OPP'].forEach(team => {
-                    const teamName = team === 'OUR' ? team1Name : team2Name;
-                    const teamSeqs = sequences.filter(s => s.team === team);
-                    if (teamSeqs.length === 0) return;
-
-                    const withShot = teamSeqs.filter(s => shotOutcomes.includes(s.outcome));
-                    const withScore = teamSeqs.filter(s => scoreOutcomes.includes(s.outcome));
-                    const avgTouches = withShot.length > 0
-                        ? (withShot.reduce((sum, s) => sum + s.touches, 0) / withShot.length).toFixed(1)
-                        : '—';
-                    const shotPct = teamSeqs.length > 0 ? Math.round((withShot.length / teamSeqs.length) * 100) : 0;
-                    const scorePct = withShot.length > 0 ? Math.round((withScore.length / withShot.length) * 100) : 0;
-
-                    html += '<div class="report-section">';
-                    html += '<div class="collapsible-header" onclick="toggleCollapsible(this)">';
-                    html += '<h3 style="margin: 0;">' + teamName + ' — Shot Sequences</h3>';
-                    html += '<span class="collapsible-icon collapsed">▼</span>';
-                    html += '</div>';
-                    html += '<div class="collapsible-content collapsed">';
-
-                    html += '<table class="report-table" style="margin-bottom: 10px;">';
-                    html += '<tr><th>Sequences</th><th>Ended in Shot</th><th>Shot %</th><th>Score %</th><th>Avg Touches (shot seqs)</th></tr>';
-                    html += '<tr><td>' + teamSeqs.length + '</td><td>' + withShot.length + '</td><td>' + shotPct + '%</td><td>' + scorePct + '%</td><td>' + avgTouches + '</td></tr>';
-                    html += '</table>';
-
-                    html += '<table class="report-table">';
-                    html += '<tr><th>Time</th><th>Half</th><th>Start</th><th>Touches</th><th>Players</th><th>Outcome</th></tr>';
-                    teamSeqs.forEach(seq => {
-                        const outcomeStyle = scoreOutcomes.includes(seq.outcome)
-                            ? 'color: #2e7d32; font-weight: bold;'
-                            : seq.outcome === 'No Shot' ? 'color: #999;' : 'color: #c62828;';
-                        const half = seq.period.includes('1st') ? '1st' : seq.period.includes('2nd') ? '2nd' : '—';
-                        html += '<tr>';
-                        html += '<td>' + seq.startTime + '</td>';
-                        html += '<td>' + half + '</td>';
-                        html += '<td>' + seq.startType + '</td>';
-                        html += '<td>' + seq.touches + '</td>';
-                        html += '<td>' + (seq.players.join(', ') || '—') + '</td>';
-                        html += '<td style="' + outcomeStyle + '">' + seq.outcome + '</td>';
-                        html += '</tr>';
-                    });
-                    html += '</table>';
-                    html += '</div>';
-                    html += '</div>';
-                });
-            }
-
             reportsContent.innerHTML = html;
         }
 
@@ -4878,10 +4870,10 @@
                 return null;
             };
 
-            const getStartType = descs => {
-                if (descs.some(d => d.includes('KO Won') || d.includes('KO Lost'))) return 'Kickout';
-                if (descs.some(d => d.includes('T/O Lost'))) return 'Turnover';
-                if (descs.some(d => d.includes('Throw-in'))) return 'Throw-in';
+            const getStartType = (descs, team) => {
+                if (descs.some(d => d.includes('KO Won') || d.includes('KO Lost'))) return team + ' KO Won';
+                if (descs.some(d => d.includes('T/O Lost'))) return team + ' T/O Won';
+                if (descs.some(d => d.includes('Throw-in'))) return team + ' Throw-in';
                 return 'Unknown';
             };
 
@@ -4893,7 +4885,7 @@
                     if (currentSeq) sequences.push(currentSeq);
                     currentSeq = {
                         team: newTeam,
-                        startType: getStartType(descs),
+                        startType: getStartType(descs, newTeam),
                         startTime: event.time,
                         period: event.period,
                         touches: 0,
@@ -6554,7 +6546,6 @@
             eventTypeFilters.koLost = document.getElementById('filterKOLost').checked;
             eventTypeFilters.shot = document.getElementById('filterShot').checked;
             eventTypeFilters.toLost = document.getElementById('filterTOLost').checked;
-            eventTypeFilters.throwIn = document.getElementById('filterThrowIn').checked;
 
             // Refresh event list
             updateRecentEvents();
@@ -6895,10 +6886,6 @@
                 if (eventTypeFilters.toLost && (descriptors.includes('our t/o lost') || descriptors.includes('opp t/o lost') || descriptors.includes('t/o lost'))) {
                     matchesFilter = true;
                 }
-                if (eventTypeFilters.throwIn && (descriptors.includes('our throw-in') || descriptors.includes('opp throw-in'))) {
-                    matchesFilter = true;
-                }
-
                 return matchesFilter;
             });
 
