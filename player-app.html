@@ -2184,9 +2184,17 @@
                     <line x1="10" y1="200" x2="390" y2="200" stroke="white" stroke-width="2"/>
                     <line x1="10" y1="400" x2="390" y2="400" stroke="white" stroke-width="2"/>
 
-                    <!-- 21m arcs -->
-                    <path d="M 80 70 Q 200 100 320 70" fill="none" stroke="white" stroke-width="2"/>
-                    <path d="M 80 530 Q 200 500 320 530" fill="none" stroke="white" stroke-width="2"/>
+                    <!-- 21m lines -->
+                    <line x1="10" y1="97" x2="390" y2="97" stroke="white" stroke-width="2"/>
+                    <line x1="10" y1="503" x2="390" y2="503" stroke="white" stroke-width="2"/>
+
+                    <!-- 40m arcs (from 21m line, apex pulled back 15m from 45m line) -->
+                    <path d="M 30 97 A 170 88 0 0 0 370 97" fill="none" stroke="white" stroke-width="2"/>
+                    <path d="M 30 503 A 170 88 0 0 1 370 503" fill="none" stroke="white" stroke-width="2"/>
+
+                    <!-- 13m arcs from center of 21m line -->
+                    <path d="M 120 97 A 80 52 0 0 0 280 97" fill="none" stroke="white" stroke-width="2"/>
+                    <path d="M 120 503 A 80 52 0 0 1 280 503" fill="none" stroke="white" stroke-width="2"/>
 
                     <!-- Goals -->
                     <rect x="185" y="5" width="30" height="10" fill="white" stroke="black" stroke-width="1"/>
@@ -2337,7 +2345,7 @@
         // Configuration
         const categories = ['OUR 1', 'OUR 2', 'OUR 3', 'OUR 4', 'OUR 5', 'OUR 6', 'OUR 7', 'OUR 8', 'OUR 9', 'OUR 10', 'OUR 11', 'OUR 12', 'OUR 13', 'OUR 14', 'OUR 15', 'OUR 16', 'OUR 17', 'OUR 18', 'OUR 19', 'OUR 20', 'OUR 21', 'OUR 22', 'OUR 23', 'OUR 24', 'OUR 25', 'OUR 26'];
         const opponents = ['OPP 1', 'OPP 2', 'OPP 3', 'OPP 4', 'OPP 5', 'OPP 6', 'OPP 7', 'OPP 8', 'OPP 9', 'OPP 10', 'OPP 11', 'OPP 12', 'OPP 13', 'OPP 14', 'OPP 15', 'OPP 16', 'OPP 17', 'OPP 18', 'OPP 19', 'OPP 20', 'OPP 21', 'OPP 22', 'OPP 23', 'OPP 24', 'OPP 25', 'OPP 26'];
-        const defaultDescriptors = ['Goal', '2 Pointer', 'Point', 'For 45', 'Wide', 'Save/Shot', 'Own KO Won', 'Own KO Lost', 'Our T/O Lost', 'Opp T/O Lost', 'Opp KO Won', 'Opp KO Lost'];
+        const defaultDescriptors = ['Goal', '2 Pointer', 'Point', 'For 45', 'Wide', 'Save/Shot', 'Own KO Won', 'Own KO Lost', 'Our T/O Lost', 'Opp KO Won', 'Opp KO Lost', 'Opp T/O Lost'];
         let descriptors = [];
         let allDescriptors = [];
         let tempDescriptors = []; // Temporary descriptors while editing in modal
@@ -2719,7 +2727,7 @@
         function resetDescriptors() {
             if (!requirePremium('Custom Descriptors')) return;
 
-            if (!confirm('Reset to default descriptors?\n\nThis will restore:\n• Goal\n• 2 Pointer\n• Point\n• For 45\n• Wide\n• Save/Shot\n• Own KO Won\n• Own KO Lost\n• Our T/O Lost\n• Opp T/O Lost\n• Opp KO Won\n• Opp KO Lost\n\nCustom descriptors will be removed.')) {
+            if (!confirm('Reset to default descriptors?\n\nThis will restore:\n• Goal\n• 2 Pointer\n• Point\n• For 45\n• Wide\n• Save/Shot\n• Own KO Won\n• Own KO Lost\n• Our T/O Lost\n• Opp KO Won\n• Opp KO Lost\n• Opp T/O Lost\n\nCustom descriptors will be removed.')) {
                 return;
             }
 
@@ -2793,39 +2801,88 @@
 
                 // Categorize descriptors
                 const scoringDescriptors = ['Goal', '2 Pointer', 'Point', 'Wide', 'For 45', 'Save/Shot'];
-                const koDescriptors = ['Own KO Won', 'Own KO Lost', 'Our T/O Lost', 'Opp T/O Lost', 'Opp KO Won', 'Opp KO Lost'];
+                const koDescriptors = ['Own KO Won', 'Own KO Lost', 'Our T/O Lost', 'Opp KO Won', 'Opp KO Lost', 'Opp T/O Lost'];
+
+                // Create team sections for row 2
+                const ourTeamSection = document.createElement('div');
+                ourTeamSection.style.display = 'flex';
+                ourTeamSection.style.flexDirection = 'column';
+                ourTeamSection.style.flex = '1';
+                ourTeamSection.style.marginRight = '8px';
+
+                const ourTeamNameLabel = document.createElement('div');
+                ourTeamNameLabel.className = 'team-label';
+                ourTeamNameLabel.style.textAlign = 'center';
+                ourTeamNameLabel.style.marginBottom = '4px';
+                ourTeamNameLabel.style.fontSize = '14px';
+                ourTeamNameLabel.style.fontWeight = 'bold';
+                ourTeamNameLabel.style.fontStyle = 'normal';
+                ourTeamNameLabel.textContent = team1Name;
+
+                const ourButtonsContainer = document.createElement('div');
+                ourButtonsContainer.className = 'button-grid';
+                ourButtonsContainer.style.margin = '0';
+
+                ourTeamSection.appendChild(ourTeamNameLabel);
+                ourTeamSection.appendChild(ourButtonsContainer);
+
+                const oppTeamSection = document.createElement('div');
+                oppTeamSection.style.display = 'flex';
+                oppTeamSection.style.flexDirection = 'column';
+                oppTeamSection.style.flex = '1';
+
+                const oppTeamNameLabel = document.createElement('div');
+                oppTeamNameLabel.className = 'team-label';
+                oppTeamNameLabel.style.textAlign = 'center';
+                oppTeamNameLabel.style.marginBottom = '4px';
+                oppTeamNameLabel.style.fontSize = '14px';
+                oppTeamNameLabel.style.fontWeight = 'bold';
+                oppTeamNameLabel.style.fontStyle = 'normal';
+                oppTeamNameLabel.textContent = team2Name;
+
+                const oppButtonsContainer = document.createElement('div');
+                oppButtonsContainer.className = 'button-grid';
+                oppButtonsContainer.style.margin = '0';
+
+                oppTeamSection.appendChild(oppTeamNameLabel);
+                oppTeamSection.appendChild(oppButtonsContainer);
 
                 descriptors.forEach(desc => {
                     const btn = document.createElement('button');
                     btn.className = 'descriptor-btn';
-                    btn.textContent = desc;
+
+                    // Shorten button text for display while keeping full descriptor for logic
+                    let displayText = desc;
+                    if (desc === 'Own KO Won') displayText = 'KO Won';
+                    else if (desc === 'Own KO Lost') displayText = 'KO Lost';
+                    else if (desc === 'Our T/O Lost') displayText = 'T/O Lost';
+                    else if (desc === 'Opp T/O Lost') displayText = 'T/O Lost';
+                    else if (desc === 'Opp KO Won') displayText = 'KO Won';
+                    else if (desc === 'Opp KO Lost') displayText = 'KO Lost';
+
+                    btn.textContent = displayText;
+                    btn.setAttribute('data-descriptor', desc); // Store full descriptor for logic
                     const isFreeButton = desc.includes('KO Won') || desc.includes('KO Lost') || desc.includes('T/O Lost');
                     btn.disabled = isFreeButton ? false : true;
                     btn.onclick = () => toggleDesc(btn, desc);
 
                     // Determine which row this button belongs to
-                    let targetRow = row1; // Default to row 1
                     if (koDescriptors.includes(desc) || desc.includes('T/O')) {
-                        targetRow = row2;
-                    }
+                        // Add to appropriate team section
+                        const isOurTeam = desc.includes('Own KO') || desc.includes('Our T/O');
+                        const targetContainer = isOurTeam ? ourButtonsContainer : oppButtonsContainer;
 
-                    // Wrap KO buttons with team label
-                    const isKOButton = desc.includes('KO Won') || desc.includes('KO Lost');
-                    if (isKOButton) {
-                        const wrapper = document.createElement('div');
-                        wrapper.className = 'descriptor-wrapper';
-
-                        const label = document.createElement('div');
-                        label.className = 'team-label';
-                        label.textContent = desc.includes('Own KO') ? `By ${team1Name}` : `By ${team2Name}`;
-
-                        wrapper.appendChild(btn);
-                        wrapper.appendChild(label);
-                        targetRow.appendChild(wrapper);
+                        // Add button directly (no wrapper needed now that team name is above)
+                        targetContainer.appendChild(btn);
                     } else {
-                        targetRow.appendChild(btn);
+                        // Scoring buttons go to row 1
+                        row1.appendChild(btn);
                     }
                 });
+
+                // Add team sections to row2
+                row2.appendChild(ourTeamSection);
+                row2.appendChild(oppTeamSection);
 
                 targetGrid.appendChild(row1);
                 targetGrid.appendChild(row2);
@@ -2834,7 +2891,18 @@
                 descriptors.forEach(desc => {
                     const btn = document.createElement('button');
                     btn.className = 'descriptor-btn';
-                    btn.textContent = desc;
+
+                    // Shorten button text for display while keeping full descriptor for logic
+                    let displayText = desc;
+                    if (desc === 'Own KO Won') displayText = 'KO Won';
+                    else if (desc === 'Own KO Lost') displayText = 'KO Lost';
+                    else if (desc === 'Our T/O Lost') displayText = 'T/O Lost';
+                    else if (desc === 'Opp T/O Lost') displayText = 'T/O Lost';
+                    else if (desc === 'Opp KO Won') displayText = 'KO Won';
+                    else if (desc === 'Opp KO Lost') displayText = 'KO Lost';
+
+                    btn.textContent = displayText;
+                    btn.setAttribute('data-descriptor', desc); // Store full descriptor for logic
                     btn.disabled = false;
                     btn.onclick = () => toggleDesc(btn, desc);
                     btn.style.width = '100%';
@@ -2848,7 +2916,8 @@
             if (currentType && currentCategory) {
                 document.querySelectorAll('.descriptor-btn').forEach(b => {
                     b.disabled = false;
-                    if (selectedDescriptors.includes(b.textContent)) {
+                    const descriptor = b.getAttribute('data-descriptor') || b.textContent;
+                    if (selectedDescriptors.includes(descriptor)) {
                         b.classList.add('selected');
                     }
                 });
@@ -3359,7 +3428,18 @@
             allDescriptors.forEach(desc => {
                 const btn = document.createElement('button');
                 btn.className = 'descriptor-btn';
-                btn.textContent = desc;
+
+                // Shorten button text for display while keeping full descriptor for logic
+                let displayText = desc;
+                if (desc === 'Own KO Won') displayText = 'KO Won';
+                else if (desc === 'Own KO Lost') displayText = 'KO Lost';
+                else if (desc === 'Our T/O Lost') displayText = 'T/O Lost';
+                else if (desc === 'Opp T/O Lost') displayText = 'T/O Lost';
+                else if (desc === 'Opp KO Won') displayText = 'KO Won';
+                else if (desc === 'Opp KO Lost') displayText = 'KO Lost';
+
+                btn.textContent = displayText;
+                btn.setAttribute('data-descriptor', desc); // Store full descriptor for logic
                 btn.style.padding = '8px';
                 btn.style.fontSize = '12px';
 
@@ -3840,9 +3920,17 @@
                     <line x1="10" y1="200" x2="390" y2="200" stroke="white" stroke-width="2"/>
                     <line x1="10" y1="400" x2="390" y2="400" stroke="white" stroke-width="2"/>
 
-                    <!-- 21m arcs -->
-                    <path d="M 80 70 Q 200 100 320 70" fill="none" stroke="white" stroke-width="2"/>
-                    <path d="M 80 530 Q 200 500 320 530" fill="none" stroke="white" stroke-width="2"/>
+                    <!-- 21m lines -->
+                    <line x1="10" y1="97" x2="390" y2="97" stroke="white" stroke-width="2"/>
+                    <line x1="10" y1="503" x2="390" y2="503" stroke="white" stroke-width="2"/>
+
+                    <!-- 40m arcs (from 21m line, apex pulled back 15m from 45m line) -->
+                    <path d="M 30 97 A 170 88 0 0 0 370 97" fill="none" stroke="white" stroke-width="2"/>
+                    <path d="M 30 503 A 170 88 0 0 1 370 503" fill="none" stroke="white" stroke-width="2"/>
+
+                    <!-- 13m arcs from center of 21m line -->
+                    <path d="M 120 97 A 80 52 0 0 0 280 97" fill="none" stroke="white" stroke-width="2"/>
+                    <path d="M 120 503 A 80 52 0 0 1 280 503" fill="none" stroke="white" stroke-width="2"/>
 
                     <!-- Goals -->
                     <rect x="185" y="5" width="30" height="10" fill="white" stroke="black" stroke-width="1"/>
@@ -3949,9 +4037,17 @@
                     <line x1="10" y1="200" x2="390" y2="200" stroke="white" stroke-width="2"/>
                     <line x1="10" y1="400" x2="390" y2="400" stroke="white" stroke-width="2"/>
 
-                    <!-- 21m arcs -->
-                    <path d="M 80 70 Q 200 100 320 70" fill="none" stroke="white" stroke-width="2"/>
-                    <path d="M 80 530 Q 200 500 320 530" fill="none" stroke="white" stroke-width="2"/>
+                    <!-- 21m lines -->
+                    <line x1="10" y1="97" x2="390" y2="97" stroke="white" stroke-width="2"/>
+                    <line x1="10" y1="503" x2="390" y2="503" stroke="white" stroke-width="2"/>
+
+                    <!-- 40m arcs (from 21m line, apex pulled back 15m from 45m line) -->
+                    <path d="M 30 97 A 170 88 0 0 0 370 97" fill="none" stroke="white" stroke-width="2"/>
+                    <path d="M 30 503 A 170 88 0 0 1 370 503" fill="none" stroke="white" stroke-width="2"/>
+
+                    <!-- 13m arcs from center of 21m line -->
+                    <path d="M 120 97 A 80 52 0 0 0 280 97" fill="none" stroke="white" stroke-width="2"/>
+                    <path d="M 120 503 A 80 52 0 0 1 280 503" fill="none" stroke="white" stroke-width="2"/>
 
                     <!-- Goals -->
                     <rect x="185" y="5" width="30" height="10" fill="white" stroke="black" stroke-width="1"/>
@@ -4105,9 +4201,17 @@
                     <line x1="10" y1="200" x2="390" y2="200" stroke="white" stroke-width="2"/>
                     <line x1="10" y1="400" x2="390" y2="400" stroke="white" stroke-width="2"/>
 
-                    <!-- 21m arcs -->
-                    <path d="M 80 70 Q 200 100 320 70" fill="none" stroke="white" stroke-width="2"/>
-                    <path d="M 80 530 Q 200 500 320 530" fill="none" stroke="white" stroke-width="2"/>
+                    <!-- 21m lines -->
+                    <line x1="10" y1="97" x2="390" y2="97" stroke="white" stroke-width="2"/>
+                    <line x1="10" y1="503" x2="390" y2="503" stroke="white" stroke-width="2"/>
+
+                    <!-- 40m arcs (from 21m line, apex pulled back 15m from 45m line) -->
+                    <path d="M 30 97 A 170 88 0 0 0 370 97" fill="none" stroke="white" stroke-width="2"/>
+                    <path d="M 30 503 A 170 88 0 0 1 370 503" fill="none" stroke="white" stroke-width="2"/>
+
+                    <!-- 13m arcs from center of 21m line -->
+                    <path d="M 120 97 A 80 52 0 0 0 280 97" fill="none" stroke="white" stroke-width="2"/>
+                    <path d="M 120 503 A 80 52 0 0 1 280 503" fill="none" stroke="white" stroke-width="2"/>
 
                     <!-- Goals -->
                     <rect x="185" y="5" width="30" height="10" fill="white" stroke="black" stroke-width="1"/>
