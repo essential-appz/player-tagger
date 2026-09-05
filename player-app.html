@@ -7464,6 +7464,34 @@
         // Initialize
         init();
 
+        // Apply setup passed from setup.html via localStorage
+        (function applyPendingSetup() {
+            const raw = localStorage.getItem('pendingTeamSetup');
+            if (!raw) {
+                // Still honour ?mode= URL param for direct links (e.g. Analyse my game)
+                const urlMode = new URLSearchParams(window.location.search).get('mode');
+                if (urlMode === 'post-match' || urlMode === 'in-match') setGameMode(urlMode);
+                return;
+            }
+            try {
+                localStorage.removeItem('pendingTeamSetup');
+                const setup = JSON.parse(raw);
+                if (setup.team1Name) {
+                    team1Name = setup.team1Name;
+                    document.querySelectorAll('.stat-label')[0].textContent = team1Name;
+                }
+                if (setup.team2Name) {
+                    team2Name = setup.team2Name;
+                    document.querySelectorAll('.stat-label')[2].textContent = team2Name;
+                }
+                if (setup.gameName) {
+                    gameName = setup.gameName;
+                    document.querySelector('h1').textContent = gameName;
+                }
+                if (setup.mode) setGameMode(setup.mode);
+            } catch (e) {}
+        })();
+
         // ============================================
         // PWA: SERVICE WORKER REGISTRATION
         // ============================================

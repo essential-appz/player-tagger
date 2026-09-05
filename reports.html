@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#2196F3">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Game Report - Player Tagger</title>
+    <link rel="manifest" href="./manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192x192.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="./icons/icon-192x192.png">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            padding-bottom: 30px;
+        }
+
+        .header {
+            position: relative;
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            color: white;
+            padding: 16px 60px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-top: 2px;
+        }
+
+        .back-btn {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.2);
+            color: white;
+            text-decoration: none;
+            padding: 7px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .content {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 16px;
+        }
+
+        /* Game selector */
+        .game-selector {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 14px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+
+        .game-selector h2 {
+            font-size: 11px;
+            font-weight: 700;
+            color: #2196F3;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        .game-selector select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 7px;
+            font-size: 14px;
+            font-family: inherit;
+            background: white;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .game-selector select:focus {
+            border-color: #2196F3;
+        }
+
+        /* No data message */
+        .no-data {
+            background: white;
+            border-radius: 12px;
+            padding: 40px 20px;
+            text-align: center;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+
+        .no-data p {
+            color: #999;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+
+        .no-data a {
+            display: inline-block;
+            background: #2196F3;
+            color: white;
+            text-decoration: none;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        /* Report sections */
+        .report-section {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+
+        .report-section > h3 {
+            font-size: 14px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 12px;
+        }
+
+        .collapsible-header {
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2px 0;
+        }
+
+        .collapsible-header:hover { opacity: 0.8; }
+
+        .collapsible-icon {
+            font-size: 13px;
+            transition: transform 0.25s;
+        }
+
+        .collapsible-icon.collapsed { transform: rotate(-90deg); }
+
+        .collapsible-content {
+            max-height: 2000px;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .collapsible-content.collapsed { max-height: 0; }
+
+        .report-halves {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .report-half-panel { flex: 1; min-width: 0; }
+        .report-total-panel { width: 100%; }
+
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        .report-table th,
+        .report-table td {
+            padding: 7px 8px;
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 12px;
+        }
+
+        .report-table th {
+            background: #2196F3;
+            color: white;
+            font-weight: 600;
+        }
+
+        .report-table tr:last-child td { border-bottom: none; }
+
+        .game-title {
+            background: #e3f2fd;
+            border-radius: 8px;
+            padding: 12px 14px;
+            margin-bottom: 14px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #1565C0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="home.html" class="back-btn">← Home</a>
+        <h1>Game Report</h1>
+        <p id="headerSubtitle"></p>
+    </div>
+
+    <div class="content">
+        <div class="game-selector">
+            <h2>Select Game</h2>
+            <select id="gameSelect" onchange="onGameSelected()">
+                <option value="">— Choose a game —</option>
+            </select>
+        </div>
+
+        <div id="reportOutput"></div>
+    </div>
+
+    <script>
+        let events = [];
+        let team1Name = 'Us';
+        let team2Name = 'Opposition';
+        let gameName = '';
+
+        // ─── Initialise ───────────────────────────────────────────────────────
+        function init() {
+            const select = document.getElementById('gameSelect');
+
+            // Option 1: current in-progress game
+            const currentEvents = JSON.parse(localStorage.getItem('categoryEvents') || '[]');
+            if (currentEvents.length > 0) {
+                const opt = document.createElement('option');
+                opt.value = '__current__';
+                opt.textContent = 'Current Game (' + currentEvents.length + ' events)';
+                select.appendChild(opt);
+            }
+
+            // Option 2: saved games
+            const saves = JSON.parse(localStorage.getItem('gameSaves') || '[]');
+            saves.forEach((save, index) => {
+                const opt = document.createElement('option');
+                opt.value = '__save__' + index;
+                const saveType = save.isFinalGame ? 'full' : 'in-progress';
+                opt.textContent = (save.gameName || 'Game') + ' [' + saveType + '] (' + save.eventCount + ' events)';
+                select.appendChild(opt);
+            });
+
+            // Auto-select first option if available
+            if (select.options.length > 1) {
+                select.selectedIndex = 1;
+                onGameSelected();
+            }
+        }
+
+        function onGameSelected() {
+            const val = document.getElementById('gameSelect').value;
+            const output = document.getElementById('reportOutput');
+
+            if (!val) {
+                output.innerHTML = '';
+                document.getElementById('headerSubtitle').textContent = '';
+                return;
+            }
+
+            if (val === '__current__') {
+                events = JSON.parse(localStorage.getItem('categoryEvents') || '[]');
+                // Try to get team names from the most recent save
+                const saves = JSON.parse(localStorage.getItem('gameSaves') || '[]');
+                const recent = saves.length > 0 ? saves[saves.length - 1] : null;
+                team1Name = (recent && recent.team1Name) ? recent.team1Name : 'Us';
+                team2Name = (recent && recent.team2Name) ? recent.team2Name : 'Opposition';
+                gameName = (recent && recent.gameName) ? recent.gameName : 'Current Game';
+            } else if (val.startsWith('__save__')) {
+                const index = parseInt(val.replace('__save__', ''), 10);
+                const saves = JSON.parse(localStorage.getItem('gameSaves') || '[]');
+                const save = saves[index];
+                if (!save) { output.innerHTML = ''; return; }
+                events = save.events || [];
+                team1Name = save.team1Name || 'Us';
+                team2Name = save.team2Name || 'Opposition';
+                gameName = save.gameName || 'Game';
+            }
+
+            document.getElementById('headerSubtitle').textContent = gameName;
+            renderReports();
+        }
+
+        // ─── Report rendering ─────────────────────────────────────────────────
+        function renderReports() {
+            const output = document.getElementById('reportOutput');
+
+            if (events.length === 0) {
+                output.innerHTML = '<div class="no-data"><p>No events found for this game.</p><a href="setup.html">Set up a game</a></div>';
+                return;
+            }
+
+            let html = '<div class="game-title">' + gameName + '</div>';
+
+            // Kickouts
+            const ko1 = getKickoutStats('1st');
+            const ko2 = getKickoutStats('2nd');
+            const koT = getKickoutStats();
+            html += '<div class="report-section">';
+            html += '<h3>Kickouts</h3>';
+            html += '<div class="report-halves">';
+            html += '<div class="report-half-panel"><table class="report-table">';
+            html += '<tr><th>1st Half</th><th>Own KO</th><th>Opp KO</th></tr>';
+            html += '<tr><td>' + team1Name + '</td><td>' + ko1.ourWon + '/' + ko1.ourTotal + ' (' + ko1.ourPercent + '%)</td><td>' + ko1.oppLost + '/' + ko1.oppTotal + ' (' + ko1.theirPercent + '%)</td></tr>';
+            html += '<tr><td>' + team2Name + '</td><td>' + ko1.oppWon + '/' + ko1.oppTotal + ' (' + ko1.oppPercent + '%)</td><td>' + ko1.ourLost + '/' + ko1.ourTotal + ' (' + ko1.ourTheirPercent + '%)</td></tr>';
+            html += '</table></div>';
+            html += '<div class="report-half-panel"><table class="report-table">';
+            html += '<tr><th>2nd Half</th><th>Own KO</th><th>Opp KO</th></tr>';
+            html += '<tr><td>' + team1Name + '</td><td>' + ko2.ourWon + '/' + ko2.ourTotal + ' (' + ko2.ourPercent + '%)</td><td>' + ko2.oppLost + '/' + ko2.oppTotal + ' (' + ko2.theirPercent + '%)</td></tr>';
+            html += '<tr><td>' + team2Name + '</td><td>' + ko2.oppWon + '/' + ko2.oppTotal + ' (' + ko2.oppPercent + '%)</td><td>' + ko2.ourLost + '/' + ko2.ourTotal + ' (' + ko2.ourTheirPercent + '%)</td></tr>';
+            html += '</table></div>';
+            html += '</div>';
+            html += '<div class="report-total-panel"><table class="report-table">';
+            html += '<tr><th>Total</th><th>Own KO</th><th>Opp KO</th></tr>';
+            html += '<tr><td>' + team1Name + '</td><td>' + koT.ourWon + '/' + koT.ourTotal + ' (' + koT.ourPercent + '%)</td><td>' + koT.oppLost + '/' + koT.oppTotal + ' (' + koT.theirPercent + '%)</td></tr>';
+            html += '<tr><td>' + team2Name + '</td><td>' + koT.oppWon + '/' + koT.oppTotal + ' (' + koT.oppPercent + '%)</td><td>' + koT.ourLost + '/' + koT.ourTotal + ' (' + koT.ourTheirPercent + '%)</td></tr>';
+            html += '</table></div>';
+            html += '</div>';
+
+            // Turnovers
+            const to1 = getTurnoverStats('1st');
+            const to2 = getTurnoverStats('2nd');
+            const toT = getTurnoverStats();
+            html += '<div class="report-section">';
+            html += '<h3>Turnovers</h3>';
+            html += '<div class="report-halves">';
+            html += '<div class="report-half-panel"><table class="report-table">';
+            html += '<tr><th>1st Half</th><th>T/O Won</th><th>T/O Lost</th></tr>';
+            html += '<tr><td>' + team1Name + '</td><td>' + to1.ourWon + '</td><td>' + to1.ourLost + '</td></tr>';
+            html += '<tr><td>' + team2Name + '</td><td>' + to1.oppWon + '</td><td>' + to1.oppLost + '</td></tr>';
+            html += '</table></div>';
+            html += '<div class="report-half-panel"><table class="report-table">';
+            html += '<tr><th>2nd Half</th><th>T/O Won</th><th>T/O Lost</th></tr>';
+            html += '<tr><td>' + team1Name + '</td><td>' + to2.ourWon + '</td><td>' + to2.ourLost + '</td></tr>';
+            html += '<tr><td>' + team2Name + '</td><td>' + to2.oppWon + '</td><td>' + to2.oppLost + '</td></tr>';
+            html += '</table></div>';
+            html += '</div>';
+            html += '<div class="report-total-panel"><table class="report-table">';
+            html += '<tr><th>Total</th><th>T/O Won</th><th>T/O Lost</th></tr>';
+            html += '<tr><td>' + team1Name + '</td><td>' + toT.ourWon + '</td><td>' + toT.ourLost + '</td></tr>';
+            html += '<tr><td>' + team2Name + '</td><td>' + toT.oppWon + '</td><td>' + toT.oppLost + '</td></tr>';
+            html += '</table></div>';
+            html += '</div>';
+
+            // Shot Conversion
+            const sh1 = getShotConversion('1st');
+            const sh2 = getShotConversion('2nd');
+            const shT = getShotConversion();
+            html += '<div class="report-section">';
+            html += '<h3>Shot Conversion</h3>';
+            html += '<div class="report-halves">';
+            html += '<div class="report-half-panel"><table class="report-table">';
+            html += '<tr><th>1st Half</th><th>Shots</th><th>Scores</th><th>Wides</th><th>Short/Save</th><th>For 45s</th><th>%</th></tr>';
+            html += '<tr><td>' + team1Name + '</td><td>' + sh1.ourShots + '</td><td>' + sh1.ourScores + '</td><td>' + sh1.ourWides + '</td><td>' + sh1.ourSaveShot + '</td><td>' + sh1.ourFortyFives + '</td><td>' + sh1.ourConversion + '%</td></tr>';
+            html += '<tr><td>' + team2Name + '</td><td>' + sh1.oppShots + '</td><td>' + sh1.oppScores + '</td><td>' + sh1.oppWides + '</td><td>' + sh1.oppSaveShot + '</td><td>' + sh1.oppFortyFives + '</td><td>' + sh1.oppConversion + '%</td></tr>';
+            html += '</table></div>';
+            html += '<div class="report-half-panel"><table class="report-table">';
+            html += '<tr><th>2nd Half</th><th>Shots</th><th>Scores</th><th>Wides</th><th>Short/Save</th><th>For 45s</th><th>%</th></tr>';
+            html += '<tr><td>' + team1Name + '</td><td>' + sh2.ourShots + '</td><td>' + sh2.ourScores + '</td><td>' + sh2.ourWides + '</td><td>' + sh2.ourSaveShot + '</td><td>' + sh2.ourFortyFives + '</td><td>' + sh2.ourConversion + '%</td></tr>';
+            html += '<tr><td>' + team2Name + '</td><td>' + sh2.oppShots + '</td><td>' + sh2.oppScores + '</td><td>' + sh2.oppWides + '</td><td>' + sh2.oppSaveShot + '</td><td>' + sh2.oppFortyFives + '</td><td>' + sh2.oppConversion + '%</td></tr>';
+            html += '</table></div>';
+            html += '</div>';
+            html += '<div class="report-total-panel"><table class="report-table">';
+            html += '<tr><th>Total</th><th>Shots</th><th>Scores</th><th>Wides</th><th>Short/Save</th><th>For 45s</th><th>%</th></tr>';
+            html += '<tr><td>' + team1Name + '</td><td>' + shT.ourShots + '</td><td>' + shT.ourScores + '</td><td>' + shT.ourWides + '</td><td>' + shT.ourSaveShot + '</td><td>' + shT.ourFortyFives + '</td><td>' + shT.ourConversion + '%</td></tr>';
+            html += '<tr><td>' + team2Name + '</td><td>' + shT.oppShots + '</td><td>' + shT.oppScores + '</td><td>' + shT.oppWides + '</td><td>' + shT.oppSaveShot + '</td><td>' + shT.oppFortyFives + '</td><td>' + shT.oppConversion + '%</td></tr>';
+            html += '</table></div>';
+            html += '</div>';
+
+            // Shot Sequences
+            const sequences = buildPossessionSequences();
+            if (sequences.length > 0) {
+                const scoreOutcomes = ['Goal', 'Point', '2 Pointer'];
+                const shotOutcomes = ['Goal', 'Point', '2 Pointer', 'Wide', 'For 45', 'Save/Shot'];
+
+                ['OUR', 'OPP'].forEach(team => {
+                    const teamName = team === 'OUR' ? team1Name : team2Name;
+                    const teamSeqs = sequences.filter(s => s.team === team);
+                    if (teamSeqs.length === 0) return;
+
+                    const withShot = teamSeqs.filter(s => shotOutcomes.includes(s.outcome));
+                    const withScore = teamSeqs.filter(s => scoreOutcomes.includes(s.outcome));
+                    const shotPct = Math.round((withShot.length / teamSeqs.length) * 100);
+                    const scorePct = withShot.length > 0 ? Math.round((withScore.length / withShot.length) * 100) : 0;
+
+                    html += '<div class="report-section">';
+                    html += '<div class="collapsible-header" onclick="toggleCollapsible(this)">';
+                    html += '<h3 style="margin:0">' + teamName + ' — Shot Sequences</h3>';
+                    html += '<span class="collapsible-icon collapsed">&#9660;</span>';
+                    html += '</div>';
+                    html += '<div class="collapsible-content collapsed" style="margin-top:10px">';
+                    html += '<table class="report-table" style="margin-bottom:10px">';
+                    html += '<tr><th>Sequences</th><th>Ended in Shot</th><th>Shot %</th><th>Score %</th></tr>';
+                    html += '<tr><td>' + teamSeqs.length + '</td><td>' + withShot.length + '</td><td>' + shotPct + '%</td><td>' + scorePct + '%</td></tr>';
+                    html += '</table>';
+                    html += '<table class="report-table">';
+                    html += '<tr><th>Time</th><th>Half</th><th>Start</th><th>Players</th><th>Outcome</th></tr>';
+                    teamSeqs.forEach(seq => {
+                        const outcomeStyle = scoreOutcomes.includes(seq.outcome)
+                            ? 'color:#2e7d32;font-weight:bold'
+                            : seq.outcome === 'No Shot' ? 'color:#bbb' : 'color:#c62828';
+                        const half = seq.period.includes('1st') ? '1st' : seq.period.includes('2nd') ? '2nd' : '—';
+                        html += '<tr>';
+                        html += '<td>' + seq.startTime + '</td>';
+                        html += '<td>' + half + '</td>';
+                        html += '<td>' + seq.startType + '</td>';
+                        html += '<td>' + (seq.players.join(', ') || '—') + '</td>';
+                        html += '<td style="' + outcomeStyle + '">' + seq.outcome + '</td>';
+                        html += '</tr>';
+                    });
+                    html += '</table>';
+                    html += '</div></div>';
+                });
+            }
+
+            // Top 6 Scorers — OUR
+            const ourScorers = getPlayerStats('OUR')
+                .filter(p => p.goals > 0 || p.points > 0 || p.twoPointers > 0)
+                .sort((a, b) => ((b.goals*3)+(b.twoPointers*2)+b.points) - ((a.goals*3)+(a.twoPointers*2)+a.points));
+            html += '<div class="report-section">';
+            html += '<div class="collapsible-header" onclick="toggleCollapsible(this)">';
+            html += '<h3 style="margin:0">' + team1Name + ' — Top 6 Scorers</h3>';
+            html += '<span class="collapsible-icon collapsed">&#9660;</span>';
+            html += '</div>';
+            html += '<div class="collapsible-content collapsed" style="margin-top:10px">';
+            html += '<table class="report-table">';
+            html += '<tr><th>Player</th><th>Goals</th><th>2-Ptrs</th><th>Points</th><th>Total</th></tr>';
+            ourScorers.slice(0, 6).forEach(p => {
+                html += '<tr><td>' + p.category.replace('OUR ','') + '</td><td>' + p.goals + '</td><td>' + p.twoPointers + '</td><td>' + p.points + '</td><td>' + ((p.goals*3)+(p.twoPointers*2)+p.points) + '</td></tr>';
+            });
+            if (ourScorers.length === 0) html += '<tr><td colspan="5" style="text-align:center;color:#bbb">No scoring events</td></tr>';
+            html += '</table></div></div>';
+
+            // Top 6 Scorers — OPP
+            const oppScorers = getPlayerStats('OPP')
+                .filter(p => p.goals > 0 || p.points > 0 || p.twoPointers > 0)
+                .sort((a, b) => ((b.goals*3)+(b.twoPointers*2)+b.points) - ((a.goals*3)+(a.twoPointers*2)+a.points));
+            html += '<div class="report-section">';
+            html += '<div class="collapsible-header" onclick="toggleCollapsible(this)">';
+            html += '<h3 style="margin:0">' + team2Name + ' — Top 6 Scorers</h3>';
+            html += '<span class="collapsible-icon collapsed">&#9660;</span>';
+            html += '</div>';
+            html += '<div class="collapsible-content collapsed" style="margin-top:10px">';
+            html += '<table class="report-table">';
+            html += '<tr><th>Player</th><th>Goals</th><th>2-Ptrs</th><th>Points</th><th>Total</th></tr>';
+            oppScorers.slice(0, 6).forEach(p => {
+                html += '<tr><td>' + p.category.replace('OPP ','') + '</td><td>' + p.goals + '</td><td>' + p.twoPointers + '</td><td>' + p.points + '</td><td>' + ((p.goals*3)+(p.twoPointers*2)+p.points) + '</td></tr>';
+            });
+            if (oppScorers.length === 0) html += '<tr><td colspan="5" style="text-align:center;color:#bbb">No scoring events</td></tr>';
+            html += '</table></div></div>';
+
+            // Possession
+            const pos1 = getPossessionStats('1st');
+            const pos2 = getPossessionStats('2nd');
+            const posT = getPossessionStats();
+            html += '<div class="report-section">';
+            html += '<div class="collapsible-header" onclick="toggleCollapsible(this)">';
+            html += '<h3 style="margin:0">Possession</h3>';
+            html += '<span class="collapsible-icon collapsed">&#9660;</span>';
+            html += '</div>';
+            html += '<div class="collapsible-content collapsed" style="margin-top:10px">';
+            html += '<div class="report-halves">';
+            html += '<div class="report-half-panel"><table class="report-table">';
+            html += '<tr><th>1st Half</th><th>Time</th><th>%</th></tr>';
+            html += '<tr><td>' + team1Name + '</td><td>' + pos1.ourTimeFormatted + '</td><td>' + pos1.ourPercent + '%</td></tr>';
+            html += '<tr><td>' + team2Name + '</td><td>' + pos1.oppTimeFormatted + '</td><td>' + pos1.oppPercent + '%</td></tr>';
+            html += '</table></div>';
+            html += '<div class="report-half-panel"><table class="report-table">';
+            html += '<tr><th>2nd Half</th><th>Time</th><th>%</th></tr>';
+            html += '<tr><td>' + team1Name + '</td><td>' + pos2.ourTimeFormatted + '</td><td>' + pos2.ourPercent + '%</td></tr>';
+            html += '<tr><td>' + team2Name + '</td><td>' + pos2.oppTimeFormatted + '</td><td>' + pos2.oppPercent + '%</td></tr>';
+            html += '</table></div>';
+            html += '</div>';
+            html += '<div class="report-total-panel"><table class="report-table">';
+            html += '<tr><th>Total</th><th>Time</th><th>%</th></tr>';
+            html += '<tr><td>' + team1Name + '</td><td>' + posT.ourTimeFormatted + '</td><td>' + posT.ourPercent + '%</td></tr>';
+            html += '<tr><td>' + team2Name + '</td><td>' + posT.oppTimeFormatted + '</td><td>' + posT.oppPercent + '%</td></tr>';
+            html += '</table></div>';
+            html += '</div></div>';
+
+            // Top 3 Possessions — OUR
+            const ourStats = getPlayerStats('OUR');
+            html += '<div class="report-section">';
+            html += '<div class="collapsible-header" onclick="toggleCollapsible(this)">';
+            html += '<h3 style="margin:0">' + team1Name + ' — Top 3 Possessions</h3>';
+            html += '<span class="collapsible-icon collapsed">&#9660;</span>';
+            html += '</div>';
+            html += '<div class="collapsible-content collapsed" style="margin-top:10px">';
+            html += '<table class="report-table">';
+            html += '<tr><th>Player</th><th>Possessions</th></tr>';
+            ourStats.slice(0, 3).forEach(p => {
+                html += '<tr><td>' + p.category.replace('OUR ','') + '</td><td>' + p.touches + '</td></tr>';
+            });
+            html += '</table></div></div>';
+
+            // Top 3 Possessions — OPP
+            const oppStats = getPlayerStats('OPP');
+            html += '<div class="report-section">';
+            html += '<div class="collapsible-header" onclick="toggleCollapsible(this)">';
+            html += '<h3 style="margin:0">' + team2Name + ' — Top 3 Possessions</h3>';
+            html += '<span class="collapsible-icon collapsed">&#9660;</span>';
+            html += '</div>';
+            html += '<div class="collapsible-content collapsed" style="margin-top:10px">';
+            html += '<table class="report-table">';
+            html += '<tr><th>Player</th><th>Possessions</th></tr>';
+            oppStats.slice(0, 3).forEach(p => {
+                html += '<tr><td>' + p.category.replace('OPP ','') + '</td><td>' + p.touches + '</td></tr>';
+            });
+            html += '</table></div></div>';
+
+            output.innerHTML = html;
+        }
+
+        // ─── Collapsible ──────────────────────────────────────────────────────
+        function toggleCollapsible(header) {
+            const content = header.nextElementSibling;
+            const icon = header.querySelector('.collapsible-icon');
+            content.classList.toggle('collapsed');
+            icon.classList.toggle('collapsed');
+        }
+
+        // ─── Stats helpers (mirrored from player-app.html, read-only) ─────────
+        function getKickoutStats(periodFilter) {
+            let evts = filterByPeriod(events, periodFilter);
+            let ourWon = 0, ourLost = 0, oppWon = 0, oppLost = 0;
+
+            evts.forEach(event => {
+                const dl = event.descriptors.split(',').map(d => d.trim());
+                if (event.type === 'OUR') {
+                    if (dl.includes('Own KO Won')) ourWon++;
+                    if (dl.includes('Own KO Lost')) ourLost++;
+                } else if (event.type === 'OPP') {
+                    if (dl.includes('Opp KO Won') || dl.includes('Own KO Won')) oppWon++;
+                    if (dl.includes('Opp KO Lost') || dl.includes('Own KO Lost')) oppLost++;
+                }
+            });
+
+            const ourTotal = ourWon + ourLost;
+            const oppTotal = oppWon + oppLost;
+            return {
+                ourWon, ourLost, ourTotal,
+                ourPercent: ourTotal > 0 ? Math.round((ourWon / ourTotal) * 100) : 0,
+                ourTheirPercent: ourTotal > 0 ? Math.round((ourLost / ourTotal) * 100) : 0,
+                oppWon, oppLost, oppTotal,
+                oppPercent: oppTotal > 0 ? Math.round((oppWon / oppTotal) * 100) : 0,
+                theirPercent: oppTotal > 0 ? Math.round((oppLost / oppTotal) * 100) : 0
+            };
+        }
+
+        function getTurnoverStats(periodFilter) {
+            let evts = filterByPeriod(events, periodFilter);
+            let ourWon = 0, ourLost = 0, oppWon = 0, oppLost = 0;
+
+            evts.forEach(event => {
+                if (event.fromSaveShot) return;
+                if (event.descriptors.includes('Our T/O Lost')) { ourLost++; oppWon++; }
+                else if (event.descriptors.includes('Opp T/O Lost')) { oppLost++; ourWon++; }
+                else if (event.descriptors.includes('Save/Shot')) {
+                    if (event.type === 'OUR') { ourLost++; oppWon++; }
+                    else if (event.type === 'OPP') { oppLost++; ourWon++; }
+                }
+            });
+
+            return { ourWon, ourLost, oppWon, oppLost };
+        }
+
+        function getShotConversion(periodFilter) {
+            let evts = filterByPeriod(events, periodFilter);
+            let ourShots = 0, ourScores = 0, ourWides = 0, ourSaveShot = 0, ourFortyFives = 0;
+            let oppShots = 0, oppScores = 0, oppWides = 0, oppSaveShot = 0, oppFortyFives = 0;
+
+            evts.forEach(event => {
+                const dl = event.descriptors.split(',').map(d => d.trim());
+                const hasShot    = dl.includes('Shot');
+                const hasScore   = dl.includes('Goal') || dl.includes('Point') || dl.includes('2 Pointer');
+                const hasWide    = dl.includes('Wide');
+                const hasSave    = dl.includes('Save/Shot') || dl.includes('Save/Short/45');
+                const has45      = dl.includes('For 45');
+
+                if (event.type === 'OUR') {
+                    if (hasShot)  ourShots++;
+                    if (hasScore) ourScores++;
+                    if (hasWide)  ourWides++;
+                    if (hasSave)  ourSaveShot++;
+                    if (has45)    ourFortyFives++;
+                } else if (event.type === 'OPP') {
+                    if (hasShot)  oppShots++;
+                    if (hasScore) oppScores++;
+                    if (hasWide)  oppWides++;
+                    if (hasSave)  oppSaveShot++;
+                    if (has45)    oppFortyFives++;
+                }
+            });
+
+            return {
+                ourShots, ourScores, ourWides, ourSaveShot, ourFortyFives,
+                ourConversion: ourShots > 0 ? Math.round((ourScores / ourShots) * 100) : 0,
+                oppShots, oppScores, oppWides, oppSaveShot, oppFortyFives,
+                oppConversion: oppShots > 0 ? Math.round((oppScores / oppShots) * 100) : 0
+            };
+        }
+
+        function getPlayerStats(type) {
+            const stats = {};
+            events.forEach(event => {
+                if (event.type !== type) return;
+                if (!stats[event.category]) {
+                    stats[event.category] = { category: event.category, touches: 0, goals: 0, points: 0, twoPointers: 0 };
+                }
+                const dl = event.descriptors.split(',').map(d => d.trim());
+                if (dl.includes('Touch'))      stats[event.category].touches++;
+                if (dl.includes('Goal'))       stats[event.category].goals++;
+                if (dl.includes('Point'))      stats[event.category].points++;
+                if (dl.includes('2 Pointer'))  stats[event.category].twoPointers++;
+            });
+            return Object.values(stats).sort((a, b) => b.touches - a.touches);
+        }
+
+        function getPossessionStats(periodFilter) {
+            const evts = filterByPeriod(events, periodFilter);
+            const touchEvents = evts.filter(e => e.descriptors.split(',').map(d => d.trim()).includes('Touch'));
+
+            if (touchEvents.length < 2) {
+                return { ourTime: 0, oppTime: 0, ourTimeFormatted: '00:00', oppTimeFormatted: '00:00', ourPercent: 0, oppPercent: 0 };
+            }
+
+            function parseTime(t) {
+                const p = t.split(':');
+                return parseInt(p[0]) * 60 + parseInt(p[1]);
+            }
+            function formatTime(s) {
+                return String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0');
+            }
+
+            let ourSec = 0, oppSec = 0;
+            for (let i = 0; i < touchEvents.length - 1; i++) {
+                const dur = parseTime(touchEvents[i+1].time) - parseTime(touchEvents[i].time);
+                if (dur > 0) {
+                    if (touchEvents[i].type === 'OUR') ourSec += dur;
+                    else if (touchEvents[i].type === 'OPP') oppSec += dur;
+                }
+            }
+
+            const total = ourSec + oppSec;
+            return {
+                ourTime: ourSec, oppTime: oppSec,
+                ourTimeFormatted: formatTime(ourSec),
+                oppTimeFormatted: formatTime(oppSec),
+                ourPercent: total > 0 ? Math.round((ourSec / total) * 100) : 0,
+                oppPercent: total > 0 ? Math.round((oppSec / total) * 100) : 0
+            };
+        }
+
+        function buildPossessionSequences() {
+            const sequences = [];
+            let currentSeq = null;
+            const shotOutcomes = ['Goal', 'Point', '2 Pointer', 'Wide', 'For 45', 'Save/Shot'];
+
+            const getPossessionTeam = descs => {
+                if (descs.includes('Own KO Won') || descs.includes('Opp KO Lost') || descs.includes('Opp T/O Lost') || descs.includes('Our Throw-in')) return 'OUR';
+                if (descs.includes('Opp KO Won') || descs.includes('Own KO Lost') || descs.includes('Our T/O Lost') || descs.includes('Opp Throw-in')) return 'OPP';
+                return null;
+            };
+
+            const getStartType = descs => {
+                if (descs.includes('Own KO Won'))  return 'We won our own KO';
+                if (descs.includes('Opp KO Lost')) return 'We won their KO';
+                if (descs.includes('Opp KO Won'))  return 'Opp won their own KO';
+                if (descs.includes('Own KO Lost')) return 'Opp won our KO';
+                if (descs.some(d => d.includes('T/O Lost'))) return 'T/O Won';
+                if (descs.some(d => d.includes('Throw-in'))) return 'Throw-in';
+                return 'Unknown';
+            };
+
+            events.forEach(event => {
+                const descs = event.descriptors.split(', ').map(d => d.trim());
+                const newTeam = getPossessionTeam(descs);
+
+                if (newTeam) {
+                    if (currentSeq) sequences.push(currentSeq);
+                    currentSeq = { team: newTeam, startType: getStartType(descs), startTime: event.time, period: event.period, touches: 0, players: [], outcome: 'No Shot' };
+                    return;
+                }
+
+                const outcomeDesc = shotOutcomes.find(s => descs.includes(s));
+                if (outcomeDesc) {
+                    if (currentSeq && event.type === currentSeq.team) {
+                        currentSeq.outcome = outcomeDesc;
+                        sequences.push(currentSeq);
+                        currentSeq = null;
+                    } else {
+                        if (currentSeq) { sequences.push(currentSeq); currentSeq = null; }
+                        sequences.push({ team: event.type, startType: 'Unknown', startTime: event.time, period: event.period, touches: 0, players: [], outcome: outcomeDesc });
+                    }
+                    return;
+                }
+
+                if (!currentSeq) return;
+                if (event.type === currentSeq.team && event.category !== 'Team Event') {
+                    if (descs.includes('Touch')) {
+                        currentSeq.touches++;
+                        const num = event.category.replace('OUR ','').replace('OPP ','');
+                        if (!currentSeq.players.includes(num)) currentSeq.players.push(num);
+                    }
+                }
+            });
+
+            if (currentSeq) sequences.push(currentSeq);
+            return sequences;
+        }
+
+        // ─── Period filter helper ─────────────────────────────────────────────
+        function filterByPeriod(evts, periodFilter) {
+            if (!periodFilter) return evts;
+            if (periodFilter === '1st') return evts.filter(e => e.period === '1st Half Started' || e.period === '1st Half Ended');
+            if (periodFilter === '2nd') return evts.filter(e => e.period === '2nd Half Started' || e.period === '2nd Half Ended');
+            return evts;
+        }
+
+        init();
+    </script>
+</body>
+</html>
