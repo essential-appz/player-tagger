@@ -4975,7 +4975,10 @@
             };
 
             const getStartType = (descs, team) => {
-                if (descs.some(d => d.includes('KO Won') || d.includes('KO Lost'))) return team + ' KO Won';
+                if (descs.includes('Own KO Won')) return 'We won our own KO';
+                if (descs.includes('Opp KO Lost')) return 'We won their KO';
+                if (descs.includes('Opp KO Won')) return 'Opp won their own KO';
+                if (descs.includes('Own KO Lost')) return 'Opp won our KO';
                 if (descs.some(d => d.includes('T/O Lost'))) return team + ' T/O Won';
                 if (descs.some(d => d.includes('Throw-in'))) return team + ' Throw-in';
                 return 'Unknown';
