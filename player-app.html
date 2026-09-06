@@ -6218,6 +6218,7 @@
                 event.descriptors = event.descriptors.split(', ').map(d => {
                     if (d.trim() === '45') return 'For 45';
                     if (d.trim() === 'Save/Short/45') return 'Save/Shot';
+                    if (d.trim() === 'Point') return 'Point from Play';
                     return d;
                 }).join(', ');
             });
