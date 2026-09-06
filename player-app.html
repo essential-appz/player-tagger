@@ -2345,7 +2345,7 @@
         // Configuration
         const categories = ['OUR 1', 'OUR 2', 'OUR 3', 'OUR 4', 'OUR 5', 'OUR 6', 'OUR 7', 'OUR 8', 'OUR 9', 'OUR 10', 'OUR 11', 'OUR 12', 'OUR 13', 'OUR 14', 'OUR 15', 'OUR 16', 'OUR 17', 'OUR 18', 'OUR 19', 'OUR 20', 'OUR 21', 'OUR 22', 'OUR 23', 'OUR 24', 'OUR 25', 'OUR 26'];
         const opponents = ['OPP 1', 'OPP 2', 'OPP 3', 'OPP 4', 'OPP 5', 'OPP 6', 'OPP 7', 'OPP 8', 'OPP 9', 'OPP 10', 'OPP 11', 'OPP 12', 'OPP 13', 'OPP 14', 'OPP 15', 'OPP 16', 'OPP 17', 'OPP 18', 'OPP 19', 'OPP 20', 'OPP 21', 'OPP 22', 'OPP 23', 'OPP 24', 'OPP 25', 'OPP 26'];
-        const defaultDescriptors = ['Goal', '2 Pointer', 'Point', 'For 45', 'Wide', 'Save/Shot', 'Own KO Won', 'Own KO Lost', 'Our T/O Lost', 'Opp KO Won', 'Opp KO Lost', 'Opp T/O Lost'];
+        const defaultDescriptors = ['Goal', '2 Pointer', 'Point from Play', 'Point from Free', 'For 45', 'Wide', 'Save/Shot', 'Own KO Won', 'Own KO Lost', 'Our T/O Lost', 'Opp KO Won', 'Opp KO Lost', 'Opp T/O Lost'];
         let descriptors = [];
         let allDescriptors = [];
         let tempDescriptors = []; // Temporary descriptors while editing in modal
@@ -2727,7 +2727,7 @@
         function resetDescriptors() {
             if (!requirePremium('Custom Descriptors')) return;
 
-            if (!confirm('Reset to default descriptors?\n\nThis will restore:\n• Goal\n• 2 Pointer\n• Point\n• For 45\n• Wide\n• Save/Shot\n• Own KO Won\n• Own KO Lost\n• Our T/O Lost\n• Opp KO Won\n• Opp KO Lost\n• Opp T/O Lost\n\nCustom descriptors will be removed.')) {
+            if (!confirm('Reset to default descriptors?\n\nThis will restore:\n• Goal\n• 2 Pointer\n• Point from Play\n• Point from Free\n• For 45\n• Wide\n• Save/Shot\n• Own KO Won\n• Own KO Lost\n• Our T/O Lost\n• Opp KO Won\n• Opp KO Lost\n• Opp T/O Lost\n\nCustom descriptors will be removed.')) {
                 return;
             }
 
@@ -2800,7 +2800,7 @@
                 row2.className = 'button-grid';
 
                 // Categorize descriptors
-                const scoringDescriptors = ['Goal', '2 Pointer', 'Point', 'Wide', 'For 45', 'Save/Shot'];
+                const scoringDescriptors = ['Goal', '2 Pointer', 'Point from Play', 'Point from Free', 'Wide', 'For 45', 'Save/Shot'];
                 const koDescriptors = ['Own KO Won', 'Own KO Lost', 'Our T/O Lost', 'Opp KO Won', 'Opp KO Lost', 'Opp T/O Lost'];
 
                 // Create team sections for row 2
@@ -3358,9 +3358,9 @@
             } else if (eventDescriptors.includes('T/O Lost')) {
                 // Turnover lost means opposition gains possession
                 currentPossessionTeam = eventType === 'OUR' ? 'OPP' : 'OUR';
-            } else if (eventDescriptors.includes('Goal') || eventDescriptors.includes('Point') ||
-                       eventDescriptors.includes('2 Pointer') || eventDescriptors.includes('Wide') ||
-                       eventDescriptors.includes('For 45') ||
+            } else if (eventDescriptors.includes('Goal') || eventDescriptors.includes('Point from Play') ||
+                       eventDescriptors.includes('Point from Free') || eventDescriptors.includes('2 Pointer') ||
+                       eventDescriptors.includes('Wide') || eventDescriptors.includes('For 45') ||
                        eventDescriptors.includes('Save/Shot')) {
                 // Shots end possession
                 currentPossessionTeam = null;
@@ -4137,7 +4137,7 @@
                 // First check if the shot event itself has a result descriptor (edited events)
                 if (shot.descriptors.includes('Goal')) {
                     color = '#4CAF50'; // Goal (green)
-                } else if (shot.descriptors.includes('Point') && !shot.descriptors.includes('2 Pointer')) {
+                } else if (shot.descriptors.includes('Point from Play') || shot.descriptors.includes('Point from Free')) {
                     color = '#ffffff'; // Point (white)
                 } else if (shot.descriptors.includes('2 Pointer')) {
                     color = '#ff9800'; // 2 Pointer (orange)
@@ -4154,7 +4154,7 @@
                         const nextEvent = events[shotIndex + 1];
                         if (nextEvent.descriptors === 'Goal') {
                             color = '#4CAF50'; // Goal (green)
-                        } else if (nextEvent.descriptors === 'Point') {
+                        } else if (nextEvent.descriptors === 'Point from Play' || nextEvent.descriptors === 'Point from Free') {
                             color = '#ffffff'; // Point (white)
                         } else if (nextEvent.descriptors === '2 Pointer') {
                             color = '#ff9800'; // 2 Pointer (orange)
@@ -4592,7 +4592,7 @@
             // Filter events that have scoring descriptors
             const scoringEvents = events.filter(event => {
                 const descriptorList = event.descriptors.split(',').map(d => d.trim());
-                return descriptorList.some(d => ['Goal', 'Point', '2 Pointer'].includes(d));
+                return descriptorList.some(d => ['Goal', 'Point from Play', 'Point from Free', '2 Pointer'].includes(d));
             });
 
             if (scoringEvents.length === 0) {
@@ -4640,8 +4640,12 @@
                         scoreText = '2 Pointer';
                         if (event.type === 'OUR') ourPoints += 2;
                         else oppPoints += 2;
-                    } else if (descriptorList.includes('Point')) {
-                        scoreText = 'Point';
+                    } else if (descriptorList.includes('Point from Play')) {
+                        scoreText = 'Point from Play';
+                        if (event.type === 'OUR') ourPoints += 1;
+                        else oppPoints += 1;
+                    } else if (descriptorList.includes('Point from Free')) {
+                        scoreText = 'Point from Free';
                         if (event.type === 'OUR') ourPoints += 1;
                         else oppPoints += 1;
                     }
@@ -4770,28 +4774,28 @@
             html += '<h3>Shot Conversion</h3>';
             html += '<div class="report-halves">';
             html += '<div class="report-half-panel"><table class="report-table">';
-            html += '<tr><th>1st Half</th><th>Shots</th><th>Scores</th><th>Wides</th><th>Short/Save</th><th>For 45s</th><th>%</th></tr>';
-            html += '<tr><td>' + team1Name + '</td><td>' + shotStats1st.ourShots + '</td><td>' + shotStats1st.ourScores + '</td><td>' + shotStats1st.ourWides + '</td><td>' + shotStats1st.ourSaveShot + '</td><td>' + shotStats1st.ourFortyFives + '</td><td>' + shotStats1st.ourConversion + '%</td></tr>';
-            html += '<tr><td>' + team2Name + '</td><td>' + shotStats1st.oppShots + '</td><td>' + shotStats1st.oppScores + '</td><td>' + shotStats1st.oppWides + '</td><td>' + shotStats1st.oppSaveShot + '</td><td>' + shotStats1st.oppFortyFives + '</td><td>' + shotStats1st.oppConversion + '%</td></tr>';
+            html += '<tr><th>1st Half</th><th>Shots</th><th>Sc. Play</th><th>Sc. Free</th><th>Wides</th><th>Short/Save</th><th>For 45s</th><th>%</th></tr>';
+            html += '<tr><td>' + team1Name + '</td><td>' + shotStats1st.ourShots + '</td><td>' + shotStats1st.ourScoresPlay + '</td><td>' + shotStats1st.ourScoresFree + '</td><td>' + shotStats1st.ourWides + '</td><td>' + shotStats1st.ourSaveShot + '</td><td>' + shotStats1st.ourFortyFives + '</td><td>' + shotStats1st.ourConversion + '%</td></tr>';
+            html += '<tr><td>' + team2Name + '</td><td>' + shotStats1st.oppShots + '</td><td>' + shotStats1st.oppScoresPlay + '</td><td>' + shotStats1st.oppScoresFree + '</td><td>' + shotStats1st.oppWides + '</td><td>' + shotStats1st.oppSaveShot + '</td><td>' + shotStats1st.oppFortyFives + '</td><td>' + shotStats1st.oppConversion + '%</td></tr>';
             html += '</table></div>';
             html += '<div class="report-half-panel"><table class="report-table">';
-            html += '<tr><th>2nd Half</th><th>Shots</th><th>Scores</th><th>Wides</th><th>Short/Save</th><th>For 45s</th><th>%</th></tr>';
-            html += '<tr><td>' + team1Name + '</td><td>' + shotStats2nd.ourShots + '</td><td>' + shotStats2nd.ourScores + '</td><td>' + shotStats2nd.ourWides + '</td><td>' + shotStats2nd.ourSaveShot + '</td><td>' + shotStats2nd.ourFortyFives + '</td><td>' + shotStats2nd.ourConversion + '%</td></tr>';
-            html += '<tr><td>' + team2Name + '</td><td>' + shotStats2nd.oppShots + '</td><td>' + shotStats2nd.oppScores + '</td><td>' + shotStats2nd.oppWides + '</td><td>' + shotStats2nd.oppSaveShot + '</td><td>' + shotStats2nd.oppFortyFives + '</td><td>' + shotStats2nd.oppConversion + '%</td></tr>';
+            html += '<tr><th>2nd Half</th><th>Shots</th><th>Sc. Play</th><th>Sc. Free</th><th>Wides</th><th>Short/Save</th><th>For 45s</th><th>%</th></tr>';
+            html += '<tr><td>' + team1Name + '</td><td>' + shotStats2nd.ourShots + '</td><td>' + shotStats2nd.ourScoresPlay + '</td><td>' + shotStats2nd.ourScoresFree + '</td><td>' + shotStats2nd.ourWides + '</td><td>' + shotStats2nd.ourSaveShot + '</td><td>' + shotStats2nd.ourFortyFives + '</td><td>' + shotStats2nd.ourConversion + '%</td></tr>';
+            html += '<tr><td>' + team2Name + '</td><td>' + shotStats2nd.oppShots + '</td><td>' + shotStats2nd.oppScoresPlay + '</td><td>' + shotStats2nd.oppScoresFree + '</td><td>' + shotStats2nd.oppWides + '</td><td>' + shotStats2nd.oppSaveShot + '</td><td>' + shotStats2nd.oppFortyFives + '</td><td>' + shotStats2nd.oppConversion + '%</td></tr>';
             html += '</table></div>';
             html += '</div>';
             html += '<div class="report-total-panel"><table class="report-table">';
-            html += '<tr><th>Total</th><th>Shots</th><th>Scores</th><th>Wides</th><th>Short/Save</th><th>For 45s</th><th>%</th></tr>';
-            html += '<tr><td>' + team1Name + '</td><td>' + shotStatsTotal.ourShots + '</td><td>' + shotStatsTotal.ourScores + '</td><td>' + shotStatsTotal.ourWides + '</td><td>' + shotStatsTotal.ourSaveShot + '</td><td>' + shotStatsTotal.ourFortyFives + '</td><td>' + shotStatsTotal.ourConversion + '%</td></tr>';
-            html += '<tr><td>' + team2Name + '</td><td>' + shotStatsTotal.oppShots + '</td><td>' + shotStatsTotal.oppScores + '</td><td>' + shotStatsTotal.oppWides + '</td><td>' + shotStatsTotal.oppSaveShot + '</td><td>' + shotStatsTotal.oppFortyFives + '</td><td>' + shotStatsTotal.oppConversion + '%</td></tr>';
+            html += '<tr><th>Total</th><th>Shots</th><th>Sc. Play</th><th>Sc. Free</th><th>Wides</th><th>Short/Save</th><th>For 45s</th><th>%</th></tr>';
+            html += '<tr><td>' + team1Name + '</td><td>' + shotStatsTotal.ourShots + '</td><td>' + shotStatsTotal.ourScoresPlay + '</td><td>' + shotStatsTotal.ourScoresFree + '</td><td>' + shotStatsTotal.ourWides + '</td><td>' + shotStatsTotal.ourSaveShot + '</td><td>' + shotStatsTotal.ourFortyFives + '</td><td>' + shotStatsTotal.ourConversion + '%</td></tr>';
+            html += '<tr><td>' + team2Name + '</td><td>' + shotStatsTotal.oppShots + '</td><td>' + shotStatsTotal.oppScoresPlay + '</td><td>' + shotStatsTotal.oppScoresFree + '</td><td>' + shotStatsTotal.oppWides + '</td><td>' + shotStatsTotal.oppSaveShot + '</td><td>' + shotStatsTotal.oppFortyFives + '</td><td>' + shotStatsTotal.oppConversion + '%</td></tr>';
             html += '</table></div>';
             html += '</div>';
 
             // Shot Sequences
             const sequences = buildPossessionSequences();
             if (sequences.length > 0) {
-                const scoreOutcomes = ['Goal', 'Point', '2 Pointer'];
-                const shotOutcomes = ['Goal', 'Point', '2 Pointer', 'Wide', 'For 45', 'Save/Shot'];
+                const scoreOutcomes = ['Goal', 'Point from Play', 'Point from Free', '2 Pointer'];
+                const shotOutcomes = ['Goal', 'Point from Play', 'Point from Free', '2 Pointer', 'Wide', 'For 45', 'Save/Shot'];
 
                 ['OUR', 'OPP'].forEach(team => {
                     const teamName = team === 'OUR' ? team1Name : team2Name;
@@ -4964,7 +4968,7 @@
         function buildPossessionSequences() {
             const sequences = [];
             let currentSeq = null;
-            const shotOutcomes = ['Goal', 'Point', '2 Pointer', 'Wide', 'For 45', 'Save/Shot'];
+            const shotOutcomes = ['Goal', 'Point from Play', 'Point from Free', '2 Pointer', 'Wide', 'For 45', 'Save/Shot'];
 
             // Own KO Won / Opp KO Lost → OUR gains possession
             // Opp KO Won / Own KO Lost → OPP gains possession
@@ -5054,11 +5058,11 @@
                 const descriptorList = event.descriptors.split(',').map(d => d.trim());
                 if (event.type === 'OUR') {
                     if (descriptorList.includes('Goal')) ourGoals++;
-                    if (descriptorList.includes('Point')) ourPoints += 1;
+                    if (descriptorList.includes('Point from Play') || descriptorList.includes('Point from Free')) ourPoints += 1;
                     if (descriptorList.includes('2 Pointer')) ourPoints += 2;
                 } else if (event.type === 'OPP') {
                     if (descriptorList.includes('Goal')) oppGoals++;
-                    if (descriptorList.includes('Point')) oppPoints += 1;
+                    if (descriptorList.includes('Point from Play') || descriptorList.includes('Point from Free')) oppPoints += 1;
                     if (descriptorList.includes('2 Pointer')) oppPoints += 2;
                 }
             });
@@ -5079,7 +5083,7 @@
                 const descriptorList = event.descriptors.split(',').map(d => d.trim());
                 if (descriptorList.includes('Touch')) playerStats[event.category].touches++;
                 if (descriptorList.includes('Goal')) playerStats[event.category].goals++;
-                if (descriptorList.includes('Point')) playerStats[event.category].points++;
+                if (descriptorList.includes('Point from Play') || descriptorList.includes('Point from Free')) playerStats[event.category].points++;
                 if (descriptorList.includes('2 Pointer')) playerStats[event.category].twoPointers++;
             });
 
@@ -5119,45 +5123,54 @@
                 filteredEvents = events.filter(e => e.period === '2nd Half Started' || e.period === '2nd Half Ended');
             }
 
-            let ourShots = 0, ourScores = 0, ourWides = 0, ourSaveShot = 0, ourFortyFives = 0;
-            let oppShots = 0, oppScores = 0, oppWides = 0, oppSaveShot = 0, oppFortyFives = 0;
+            let ourShots = 0, ourScoresPlay = 0, ourScoresFree = 0, ourWides = 0, ourSaveShot = 0, ourFortyFives = 0;
+            let oppShots = 0, oppScoresPlay = 0, oppScoresFree = 0, oppWides = 0, oppSaveShot = 0, oppFortyFives = 0;
 
             filteredEvents.forEach(event => {
                 const descriptorList = event.descriptors.split(',').map(d => d.trim());
                 const hasShot = descriptorList.includes('Shot');
-                const hasScore = descriptorList.includes('Goal') ||
-                                descriptorList.includes('Point') ||
-                                descriptorList.includes('2 Pointer');
+                const hasScorePlay = descriptorList.includes('Goal') ||
+                                    descriptorList.includes('2 Pointer') ||
+                                    descriptorList.includes('Point from Play');
+                const hasScoreFree = descriptorList.includes('Point from Free');
                 const hasWide = descriptorList.includes('Wide');
                 const hasSaveShot = descriptorList.includes('Save/Shot') || descriptorList.includes('Save/Short/45');
                 const has45 = descriptorList.includes('For 45');
 
                 if (event.type === 'OUR') {
                     if (hasShot) ourShots++;
-                    if (hasScore) ourScores++;
+                    if (hasScorePlay) ourScoresPlay++;
+                    if (hasScoreFree) ourScoresFree++;
                     if (hasWide) ourWides++;
                     if (hasSaveShot) ourSaveShot++;
                     if (has45) ourFortyFives++;
                 } else if (event.type === 'OPP') {
                     if (hasShot) oppShots++;
-                    if (hasScore) oppScores++;
+                    if (hasScorePlay) oppScoresPlay++;
+                    if (hasScoreFree) oppScoresFree++;
                     if (hasWide) oppWides++;
                     if (hasSaveShot) oppSaveShot++;
                     if (has45) oppFortyFives++;
                 }
             });
 
+            const ourScores = ourScoresPlay + ourScoresFree;
+            const oppScores = oppScoresPlay + oppScoresFree;
             const ourConversion = ourShots > 0 ? Math.round((ourScores / ourShots) * 100) : 0;
             const oppConversion = oppShots > 0 ? Math.round((oppScores / oppShots) * 100) : 0;
 
             return {
                 ourShots,
+                ourScoresPlay,
+                ourScoresFree,
                 ourScores,
                 ourWides,
                 ourSaveShot,
                 ourFortyFives,
                 ourConversion,
                 oppShots,
+                oppScoresPlay,
+                oppScoresFree,
                 oppScores,
                 oppWides,
                 oppSaveShot,
@@ -6120,7 +6133,7 @@
                     if (descriptorList.includes('Goal')) {
                         ckGoals++;
                     }
-                    if (descriptorList.includes('Point')) {
+                    if (descriptorList.includes('Point from Play') || descriptorList.includes('Point from Free')) {
                         ckPoints += 1;
                     }
                     if (descriptorList.includes('2 Pointer')) {
@@ -6130,7 +6143,7 @@
                     if (descriptorList.includes('Goal')) {
                         oppGoals++;
                     }
-                    if (descriptorList.includes('Point')) {
+                    if (descriptorList.includes('Point from Play') || descriptorList.includes('Point from Free')) {
                         oppPoints += 1;
                     }
                     if (descriptorList.includes('2 Pointer')) {
@@ -6504,8 +6517,8 @@
                 return;
             }
 
-            // Handle scoring descriptors (Goal, Point, 2 Pointer) - open pitch map to capture shot location
-            if (desc === 'Goal' || desc === 'Point' || desc === '2 Pointer') {
+            // Handle scoring descriptors (Goal, Point from Play, Point from Free, 2 Pointer) - open pitch map to capture shot location
+            if (desc === 'Goal' || desc === 'Point from Play' || desc === 'Point from Free' || desc === '2 Pointer') {
                 // Store event details and open pitch map modal
                 pendingShotEvent = {
                     type: currentType,
@@ -6978,7 +6991,7 @@
                 if (eventTypeFilters.twoPointer && descriptors.includes('2 pointer')) {
                     matchesFilter = true;
                 }
-                if (eventTypeFilters.point && descriptors.includes('point') && !descriptors.includes('2 pointer')) {
+                if (eventTypeFilters.point && (descriptors.includes('point from play') || descriptors.includes('point from free'))) {
                     matchesFilter = true;
                 }
                 if (eventTypeFilters.koWon && (descriptors.includes('ko won') || descriptors.includes('own ko won') || descriptors.includes('opp ko won'))) {
@@ -7352,11 +7365,11 @@
                                 const descriptorList = event.descriptors.split(',').map(d => d.trim());
                                 if (event.type === 'OUR') {
                                     if (descriptorList.includes('Goal')) ourGoals++;
-                                    if (descriptorList.includes('Point')) ourPoints += 1;
+                                    if (descriptorList.includes('Point from Play') || descriptorList.includes('Point from Free')) ourPoints += 1;
                                     if (descriptorList.includes('2 Pointer')) ourPoints += 2;
                                 } else if (event.type === 'OPP') {
                                     if (descriptorList.includes('Goal')) oppGoals++;
-                                    if (descriptorList.includes('Point')) oppPoints += 1;
+                                    if (descriptorList.includes('Point from Play') || descriptorList.includes('Point from Free')) oppPoints += 1;
                                     if (descriptorList.includes('2 Pointer')) oppPoints += 2;
                                 }
                             }
