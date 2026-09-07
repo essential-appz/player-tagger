@@ -1864,7 +1864,10 @@
                         <input type="checkbox" id="filter2Pointer" checked onchange="updateEventFilters()"> 2-Pointer
                     </label>
                     <label style="display: flex; align-items: center; gap: 4px; font-size: 12px;">
-                        <input type="checkbox" id="filterPoint" checked onchange="updateEventFilters()"> Point
+                        <input type="checkbox" id="filterPointFromPlay" checked onchange="updateEventFilters()"> Point from Play
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 4px; font-size: 12px;">
+                        <input type="checkbox" id="filterPointFromFree" checked onchange="updateEventFilters()"> Point from Free
                     </label>
                     <label style="display: flex; align-items: center; gap: 4px; font-size: 12px;">
                         <input type="checkbox" id="filterKOWon" checked onchange="updateEventFilters()"> KO Won
@@ -2385,7 +2388,8 @@
             shot: true,
             goal: true,
             twoPointer: true,
-            point: true,
+            pointFromPlay: true,
+            pointFromFree: true,
             koWon: true,
             koLost: true,
             toLost: true
@@ -6662,7 +6666,8 @@
             // Update filter state from checkboxes
             eventTypeFilters.goal = document.getElementById('filterGoal').checked;
             eventTypeFilters.twoPointer = document.getElementById('filter2Pointer').checked;
-            eventTypeFilters.point = document.getElementById('filterPoint').checked;
+            eventTypeFilters.pointFromPlay = document.getElementById('filterPointFromPlay').checked;
+            eventTypeFilters.pointFromFree = document.getElementById('filterPointFromFree').checked;
             eventTypeFilters.koWon = document.getElementById('filterKOWon').checked;
             eventTypeFilters.koLost = document.getElementById('filterKOLost').checked;
             eventTypeFilters.shot = document.getElementById('filterShot').checked;
@@ -6992,7 +6997,10 @@
                 if (eventTypeFilters.twoPointer && descriptors.includes('2 pointer')) {
                     matchesFilter = true;
                 }
-                if (eventTypeFilters.point && (descriptors.includes('point from play') || descriptors.includes('point from free'))) {
+                if (eventTypeFilters.pointFromPlay && descriptors.includes('point from play')) {
+                    matchesFilter = true;
+                }
+                if (eventTypeFilters.pointFromFree && descriptors.includes('point from free')) {
                     matchesFilter = true;
                 }
                 if (eventTypeFilters.koWon && (descriptors.includes('ko won') || descriptors.includes('own ko won') || descriptors.includes('opp ko won'))) {
