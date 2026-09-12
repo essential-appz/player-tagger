@@ -43,102 +43,127 @@
 
         .main {
             flex: 1;
-            padding: 18px 16px 24px;
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-            max-width: 560px;
+            padding: 20px 16px 28px;
+            max-width: 480px;
             width: 100%;
             margin: 0 auto;
         }
 
-        /* Section group */
-        .section {
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.07);
-            overflow: hidden;
-        }
-
-        .section-header {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 11px 16px 10px;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .section-label {
-            font-size: 11px;
+        .journey-title {
+            font-size: 13px;
             font-weight: 700;
+            color: #999;
             text-transform: uppercase;
-            letter-spacing: 0.9px;
-        }
-
-        .section-sublabel {
-            font-size: 11px;
-            color: #aaa;
-            margin-left: auto;
-        }
-
-        .match-day .section-header { background: #e8f5e9; }
-        .match-day .section-label  { color: #2e7d32; }
-
-        .post-match .section-header { background: #e3f2fd; }
-        .post-match .section-label  { color: #1565C0; }
-
-        /* Tile row inside section */
-        .tile-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-        }
-
-        .tile {
-            position: relative;
-            padding: 20px 12px 18px;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
             text-align: center;
-            text-decoration: none;
-            color: #333;
+        }
+
+        /* Step tile */
+        .step {
+            display: flex;
+            align-items: stretch;
+            gap: 0;
+            margin-bottom: 0;
+        }
+
+        /* Left track */
+        .step-track {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 8px;
-            transition: background 0.15s;
-            border-right: 1px solid #f5f5f5;
+            width: 36px;
+            flex-shrink: 0;
         }
 
-        .tile:last-child { border-right: none; }
-
-        .tile:active { background: #f5f5f5; }
-
-        .tile-icon {
-            font-size: 36px;
-            line-height: 1;
-        }
-
-        .tile-title {
+        .step-number {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #2196F3;
+            color: white;
             font-size: 14px;
             font-weight: 700;
-            color: #1a1a1a;
-            line-height: 1.2;
-        }
-
-        .tile-desc {
-            font-size: 11px;
-            color: #999;
-            line-height: 1.4;
-        }
-
-        /* Device badge */
-        .device-badge {
-            display: inline-flex;
+            display: flex;
             align-items: center;
-            gap: 3px;
+            justify-content: center;
+            flex-shrink: 0;
+            z-index: 1;
+        }
+
+        .step-line {
+            width: 2px;
+            flex: 1;
+            background: #d0e4f7;
+            margin: 4px 0;
+            min-height: 24px;
+        }
+
+        /* Tile card */
+        .step-card {
+            flex: 1;
+            background: white;
+            border-radius: 12px;
+            padding: 14px 16px;
+            text-decoration: none;
+            color: #333;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            border: 2px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-left: 12px;
+            margin-bottom: 8px;
+            transition: border-color 0.2s, box-shadow 0.15s;
+        }
+
+        .step-card:active {
+            background: #f9f9f9;
+        }
+
+        .step-card:hover {
+            border-color: #2196F3;
+            box-shadow: 0 4px 14px rgba(33,150,243,0.15);
+        }
+
+        .step-icon {
+            font-size: 32px;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+
+        .step-text {
+            flex: 1;
+        }
+
+        .step-label {
             font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #2196F3;
+            margin-bottom: 2px;
+        }
+
+        .step-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 3px;
+        }
+
+        .step-desc {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .device-badge {
+            font-size: 11px;
             font-weight: 600;
-            padding: 2px 7px;
+            padding: 3px 8px;
             border-radius: 10px;
-            margin-top: 2px;
+            white-space: nowrap;
+            flex-shrink: 0;
         }
 
         .badge-tablet {
@@ -151,11 +176,67 @@
             color: #1565C0;
         }
 
+        /* Connector arrow between steps */
+        .connector {
+            display: flex;
+            align-items: center;
+            padding-left: 48px;
+            margin-bottom: 8px;
+            color: #b0c8e8;
+            font-size: 18px;
+        }
+
+        /* Optional branch */
+        .optional-block {
+            margin-top: 10px;
+            margin-left: 48px;
+            background: #f8f9fa;
+            border: 2px dashed #d0e4f7;
+            border-radius: 12px;
+            padding: 14px 16px;
+            text-decoration: none;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            transition: border-color 0.2s, background 0.15s;
+        }
+
+        .optional-block:hover {
+            border-color: #2196F3;
+            background: white;
+        }
+
+        .optional-block:active {
+            background: #f0f4f8;
+        }
+
+        .optional-label {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #aaa;
+            margin-bottom: 2px;
+        }
+
+        .optional-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 3px;
+        }
+
+        .optional-desc {
+            font-size: 12px;
+            color: #aaa;
+        }
+
         .footer {
             text-align: center;
-            padding: 14px;
+            padding: 16px;
             font-size: 11px;
-            color: #bbb;
+            color: #ccc;
         }
     </style>
 </head>
@@ -166,49 +247,66 @@
     </div>
 
     <div class="main">
+        <div class="journey-title">Your Game Journey</div>
 
-        <!-- Match Day -->
-        <div class="section match-day">
-            <div class="section-header">
-                <span class="section-label">Match Day</span>
-                <span class="section-sublabel">Set up before kick-off, tag during the game</span>
+        <!-- Step 1 -->
+        <div class="step">
+            <div class="step-track">
+                <div class="step-number">1</div>
+                <div class="step-line"></div>
             </div>
-            <div class="tile-row">
-                <a href="setup.html" class="tile">
-                    <div class="tile-icon">&#9881;&#65039;</div>
-                    <div class="tile-title">Set up my game</div>
-                    <div class="tile-desc">Teams, mode &amp; descriptors</div>
-                </a>
-                <a href="player-app.html" class="tile">
-                    <div class="tile-icon">&#127991;</div>
-                    <div class="tile-title">Tag my game</div>
-                    <div class="tile-desc">Live event tracking</div>
-                    <span class="device-badge badge-tablet">&#128250; Tablet</span>
-                </a>
-            </div>
+            <a href="setup.html" class="step-card">
+                <div class="step-icon">&#9881;&#65039;</div>
+                <div class="step-text">
+                    <div class="step-label">Before</div>
+                    <div class="step-title">Set up my game</div>
+                    <div class="step-desc">Teams, mode &amp; descriptors</div>
+                </div>
+            </a>
         </div>
 
-        <!-- Post Match -->
-        <div class="section post-match">
-            <div class="section-header">
-                <span class="section-label">Post Match</span>
-                <span class="section-sublabel">Review and analyse after the game</span>
+        <!-- Step 2 -->
+        <div class="step">
+            <div class="step-track">
+                <div class="step-number">2</div>
+                <div class="step-line"></div>
             </div>
-            <div class="tile-row">
-                <a href="reports.html" class="tile">
-                    <div class="tile-icon">&#128203;</div>
-                    <div class="tile-title">Report my game</div>
-                    <div class="tile-desc">Stats &amp; summaries</div>
-                </a>
-                <a href="player-app.html?mode=post-match" class="tile">
-                    <div class="tile-icon">&#128200;</div>
-                    <div class="tile-title">Analyse my game</div>
-                    <div class="tile-desc">Deep dive analysis</div>
-                    <span class="device-badge badge-desktop">&#128187; Desktop</span>
-                </a>
-            </div>
+            <a href="player-app.html" class="step-card">
+                <div class="step-icon">&#127991;</div>
+                <div class="step-text">
+                    <div class="step-label">During</div>
+                    <div class="step-title">Tag my game</div>
+                    <div class="step-desc">Live event tracking</div>
+                </div>
+                <span class="device-badge badge-tablet">&#128250; Tablet</span>
+            </a>
         </div>
 
+        <!-- Step 3 -->
+        <div class="step">
+            <div class="step-track">
+                <div class="step-number">3</div>
+            </div>
+            <a href="reports.html" class="step-card">
+                <div class="step-icon">&#128203;</div>
+                <div class="step-text">
+                    <div class="step-label">Finish</div>
+                    <div class="step-title">Report my game</div>
+                    <div class="step-desc">Stats &amp; summaries</div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Optional: Analyse -->
+        <a href="player-app.html?mode=post-match" class="optional-block">
+            <div class="step-icon">&#128200;</div>
+            <div class="step-text">
+                <div class="optional-label">&#128161; Want deeper insights?</div>
+                <div class="optional-title">Analyse my game</div>
+                <div class="optional-desc">Optional &mdash; deeper post-match analysis</div>
+            </div>
+            <span class="device-badge badge-desktop">&#128187; Desktop</span>
+        </a>
     </div>
 
     <div class="footer">Player Tagger</div>
