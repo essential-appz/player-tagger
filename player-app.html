@@ -1338,6 +1338,20 @@
             width: 100%;
         }
 
+        .report-total-panel .report-table th,
+        .report-total-panel .report-table td,
+        .report-half-panel .report-table th,
+        .report-half-panel .report-table td {
+            text-align: center;
+        }
+
+        .report-half-panel .report-table td:first-child,
+        .report-half-panel .report-table th:first-child,
+        .report-total-panel .report-table td:first-child,
+        .report-total-panel .report-table th:first-child {
+            text-align: left;
+        }
+
         .report-table {
             width: 100%;
             border-collapse: collapse;
@@ -4778,18 +4792,18 @@
             html += '<h3>Shot Conversion</h3>';
             html += '<div class="report-halves">';
             html += '<div class="report-half-panel"><table class="report-table">';
-            html += '<tr><th>1st Half</th><th>Shots</th><th>Sc. Play</th><th>Sc. Free</th><th>Wides</th><th>Short/Save</th><th>For 45s</th><th>%</th></tr>';
+            html += '<tr><th>1st Half</th><th>Shots</th><th>From<br>Play</th><th>From<br>Free</th><th>Wides</th><th>Short<br>Save</th><th>For<br>45</th><th>%</th></tr>';
             html += '<tr><td>' + team1Name + '</td><td>' + shotStats1st.ourShots + '</td><td>' + shotStats1st.ourScoresPlay + '</td><td>' + shotStats1st.ourScoresFree + '</td><td>' + shotStats1st.ourWides + '</td><td>' + shotStats1st.ourSaveShot + '</td><td>' + shotStats1st.ourFortyFives + '</td><td>' + shotStats1st.ourConversion + '%</td></tr>';
             html += '<tr><td>' + team2Name + '</td><td>' + shotStats1st.oppShots + '</td><td>' + shotStats1st.oppScoresPlay + '</td><td>' + shotStats1st.oppScoresFree + '</td><td>' + shotStats1st.oppWides + '</td><td>' + shotStats1st.oppSaveShot + '</td><td>' + shotStats1st.oppFortyFives + '</td><td>' + shotStats1st.oppConversion + '%</td></tr>';
             html += '</table></div>';
             html += '<div class="report-half-panel"><table class="report-table">';
-            html += '<tr><th>2nd Half</th><th>Shots</th><th>Sc. Play</th><th>Sc. Free</th><th>Wides</th><th>Short/Save</th><th>For 45s</th><th>%</th></tr>';
+            html += '<tr><th>2nd Half</th><th>Shots</th><th>From<br>Play</th><th>From<br>Free</th><th>Wides</th><th>Short<br>Save</th><th>For<br>45</th><th>%</th></tr>';
             html += '<tr><td>' + team1Name + '</td><td>' + shotStats2nd.ourShots + '</td><td>' + shotStats2nd.ourScoresPlay + '</td><td>' + shotStats2nd.ourScoresFree + '</td><td>' + shotStats2nd.ourWides + '</td><td>' + shotStats2nd.ourSaveShot + '</td><td>' + shotStats2nd.ourFortyFives + '</td><td>' + shotStats2nd.ourConversion + '%</td></tr>';
             html += '<tr><td>' + team2Name + '</td><td>' + shotStats2nd.oppShots + '</td><td>' + shotStats2nd.oppScoresPlay + '</td><td>' + shotStats2nd.oppScoresFree + '</td><td>' + shotStats2nd.oppWides + '</td><td>' + shotStats2nd.oppSaveShot + '</td><td>' + shotStats2nd.oppFortyFives + '</td><td>' + shotStats2nd.oppConversion + '%</td></tr>';
             html += '</table></div>';
             html += '</div>';
             html += '<div class="report-total-panel"><table class="report-table">';
-            html += '<tr><th>Total</th><th>Shots</th><th>Sc. Play</th><th>Sc. Free</th><th>Wides</th><th>Short/Save</th><th>For 45s</th><th>%</th></tr>';
+            html += '<tr><th>Total</th><th>Shots</th><th>From<br>Play</th><th>From<br>Free</th><th>Wides</th><th>Short<br>Save</th><th>For<br>45</th><th>%</th></tr>';
             html += '<tr><td>' + team1Name + '</td><td>' + shotStatsTotal.ourShots + '</td><td>' + shotStatsTotal.ourScoresPlay + '</td><td>' + shotStatsTotal.ourScoresFree + '</td><td>' + shotStatsTotal.ourWides + '</td><td>' + shotStatsTotal.ourSaveShot + '</td><td>' + shotStatsTotal.ourFortyFives + '</td><td>' + shotStatsTotal.ourConversion + '%</td></tr>';
             html += '<tr><td>' + team2Name + '</td><td>' + shotStatsTotal.oppShots + '</td><td>' + shotStatsTotal.oppScoresPlay + '</td><td>' + shotStatsTotal.oppScoresFree + '</td><td>' + shotStatsTotal.oppWides + '</td><td>' + shotStatsTotal.oppSaveShot + '</td><td>' + shotStatsTotal.oppFortyFives + '</td><td>' + shotStatsTotal.oppConversion + '%</td></tr>';
             html += '</table></div>';
