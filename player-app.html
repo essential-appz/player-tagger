@@ -59,6 +59,7 @@
             text-align: center;
             margin: 0;
             font-size: 20px;
+            color: #2196F3;
         }
 
         .version {
@@ -181,7 +182,7 @@
         /* Team panels side by side */
         .teams-container {
             display: flex;
-            flex-direction: row !important;
+            flex-direction: row;
             flex-wrap: nowrap;
             gap: 10px;
             margin-bottom: 15px;
@@ -1873,16 +1874,38 @@
     <div style="display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:6px;">
         <span style="font-size:12px; font-weight:bold; color:#555;">Direction of Play</span>
         <button id="formationLayoutBtn" onclick="cycleFormationLayout()" style="font-size:12px; padding:5px 14px; border:1px solid #ccc; border-radius:6px; background:#f5f5f5; font-weight:bold; cursor:pointer;">↕ Default</button>
+        <button id="swapPanelsBtn" onclick="swapPanels()" style="display:none; font-size:12px; padding:5px 14px; border:1px solid #ccc; border-radius:6px; background:#f5f5f5; font-weight:bold; cursor:pointer;">⇄ Swap</button>
     </div>
     <div class="teams-container" id="inMatchPlayerButtons">
         <div class="team-panel">
-            <h2>Our Players</h2>
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+                <h2 style="margin:0;">Our Players</h2>
+                <button onclick="openPlayerNamesModal('OUR')" style="font-size:11px; padding:4px 8px; border:1px solid #ccc; border-radius:5px; background:#f5f5f5; cursor:pointer; font-weight:bold;">Add Player Names</button>
+            </div>
             <div id="ckGrid"></div>
         </div>
 
         <div class="team-panel">
-            <h2>Opposition Players</h2>
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+                <h2 style="margin:0;">Opposition Players</h2>
+                <button onclick="openPlayerNamesModal('OPP')" style="font-size:11px; padding:4px 8px; border:1px solid #ccc; border-radius:5px; background:#f5f5f5; cursor:pointer; font-weight:bold;">Add Player Names</button>
+            </div>
             <div id="oppGrid"></div>
+        </div>
+    </div>
+
+    <!-- Player Names Modal -->
+    <div id="playerNamesModal" class="modal">
+        <div class="modal-content" style="max-width:320px; width:90%;">
+            <div class="modal-header">
+                <h2 id="playerNamesTitle">Player Names</h2>
+                <button class="modal-close" onclick="closePlayerNamesModal()">&times;</button>
+            </div>
+            <div id="playerNamesInputs" style="max-height:60vh; overflow-y:auto; padding-right:4px; margin-top:10px;"></div>
+            <div style="display:flex; gap:8px; margin-top:14px;">
+                <button class="control-btn primary" onclick="savePlayerNamesModal()">Save</button>
+                <button class="control-btn" onclick="closePlayerNamesModal()" style="background:#999;">Cancel</button>
+            </div>
         </div>
     </div>
 
@@ -2426,6 +2449,8 @@
         let team2Name = 'Opposition';
         let gameMode = 'in-match'; // 'in-match' or 'post-match'
         let formationLayout = 'default'; // 'default', 'ltr', 'rtl'
+        let ourPlayerNames = {}; // { 1: 'John', 2: 'Tom', ... }
+        let oppPlayerNames = {};
         let htOurGoals = null;
         let htOurPoints = null;
         let htOppGoals = null;
@@ -2461,6 +2486,7 @@
             checkLicenseStatus();
             loadCustomDescriptors();
             loadGameMode();
+            loadPlayerNames();
             createButtons();
             buildMatrix();
             loadEvents();
@@ -3016,7 +3042,18 @@
             formationLayout = layouts[(layouts.indexOf(formationLayout) + 1) % 3];
             const btn = document.getElementById('formationLayoutBtn');
             if (btn) btn.textContent = labels[formationLayout];
+            const swapBtn = document.getElementById('swapPanelsBtn');
+            if (swapBtn) swapBtn.style.display = formationLayout === 'default' ? 'none' : '';
             createButtons();
+        }
+
+        let panelsSwapped = false;
+        function swapPanels() {
+            panelsSwapped = !panelsSwapped;
+            const container = document.getElementById('inMatchPlayerButtons');
+            if (container) container.style.flexDirection = panelsSwapped ? 'row-reverse' : 'row';
+            const btn = document.getElementById('swapPanelsBtn');
+            if (btn) btn.textContent = panelsSwapped ? '⇄ Swap' : '⇄ Swap';
         }
 
         function setGameMode(mode) {
@@ -6035,7 +6072,12 @@
                         const cat = teamPrefix + num;
                         const btn = document.createElement('button');
                         btn.className = 'category-btn';
-                        btn.textContent = num;
+                        const name = (isOur ? ourPlayerNames : oppPlayerNames)[num];
+                        if (name) {
+                            btn.innerHTML = `<span style="display:block;line-height:1.2;">${num}</span><span style="display:block;font-size:9px;font-weight:normal;line-height:1.2;overflow:hidden;max-width:100%;white-space:nowrap;text-overflow:ellipsis;">${name}</span>`;
+                        } else {
+                            btn.textContent = num;
+                        }
                         btn.onclick = () => selectCat(btn, isOur ? 'OUR' : 'OPP', cat);
                         rowDiv.appendChild(btn);
                     });
@@ -6057,7 +6099,12 @@
                     const cat = teamPrefix + num;
                     const btn = document.createElement('button');
                     btn.className = 'category-btn';
-                    btn.textContent = num;
+                    const name = (isOur ? ourPlayerNames : oppPlayerNames)[num];
+                    if (name) {
+                        btn.innerHTML = `<span style="display:block;line-height:1.2;">${num}</span><span style="display:block;font-size:9px;font-weight:normal;line-height:1.2;overflow:hidden;max-width:100%;white-space:nowrap;text-overflow:ellipsis;">${name}</span>`;
+                    } else {
+                        btn.textContent = num;
+                    }
                     btn.onclick = () => selectCat(btn, isOur ? 'OUR' : 'OPP', cat);
                     subsRow1.appendChild(btn);
                 });
@@ -6069,7 +6116,12 @@
                     const cat = teamPrefix + num;
                     const btn = document.createElement('button');
                     btn.className = 'category-btn';
-                    btn.textContent = num;
+                    const name = (isOur ? ourPlayerNames : oppPlayerNames)[num];
+                    if (name) {
+                        btn.innerHTML = `<span style="display:block;line-height:1.2;">${num}</span><span style="display:block;font-size:9px;font-weight:normal;line-height:1.2;overflow:hidden;max-width:100%;white-space:nowrap;text-overflow:ellipsis;">${name}</span>`;
+                    } else {
+                        btn.textContent = num;
+                    }
                     btn.onclick = () => selectCat(btn, isOur ? 'OUR' : 'OPP', cat);
                     subsRow2.appendChild(btn);
                 });
@@ -6427,6 +6479,56 @@
             } catch (e) {
                 console.log('Could not save');
             }
+        }
+
+        function loadPlayerNames() {
+            try {
+                const saved = localStorage.getItem('playerNames');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    ourPlayerNames = parsed.our || {};
+                    oppPlayerNames = parsed.opp || {};
+                }
+            } catch (e) {}
+        }
+
+        function persistPlayerNames() {
+            localStorage.setItem('playerNames', JSON.stringify({ our: ourPlayerNames, opp: oppPlayerNames }));
+        }
+
+        let editingNamesTeam = 'OUR';
+        function openPlayerNamesModal(team) {
+            editingNamesTeam = team;
+            const names = team === 'OUR' ? ourPlayerNames : oppPlayerNames;
+            document.getElementById('playerNamesTitle').textContent = team === 'OUR' ? 'Our Player Names' : 'Opposition Player Names';
+            const container = document.getElementById('playerNamesInputs');
+            container.innerHTML = '';
+            for (let i = 1; i <= 26; i++) {
+                const row = document.createElement('div');
+                row.style.cssText = 'display:flex; align-items:center; gap:8px; margin-bottom:6px;';
+                row.innerHTML = `<span style="width:22px; text-align:right; font-weight:bold; color:#555; font-size:13px;">${i}</span>
+                                 <input type="text" value="${names[i] || ''}" placeholder="Player ${i}"
+                                        data-num="${i}" style="flex:1; padding:6px 8px; border:1px solid #ddd; border-radius:4px; font-size:14px;">`;
+                container.appendChild(row);
+            }
+            document.getElementById('playerNamesModal').classList.add('active');
+        }
+
+        function savePlayerNamesModal() {
+            const names = editingNamesTeam === 'OUR' ? ourPlayerNames : oppPlayerNames;
+            document.querySelectorAll('#playerNamesInputs input').forEach(input => {
+                const num = parseInt(input.dataset.num);
+                const val = input.value.trim();
+                if (val) names[num] = val;
+                else delete names[num];
+            });
+            persistPlayerNames();
+            createButtons();
+            closePlayerNamesModal();
+        }
+
+        function closePlayerNamesModal() {
+            document.getElementById('playerNamesModal').classList.remove('active');
         }
 
         function updatePeriodButtons() {
