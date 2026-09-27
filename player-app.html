@@ -44,6 +44,12 @@
             flex: 1;
         }
 
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
         .header-right {
             display: flex;
             align-items: stretch;
@@ -53,6 +59,37 @@
         .header-right .header-btn {
             flex: 1;
             justify-content: center;
+        }
+
+        .mode-btn {
+            background: #e0e0e0 !important;
+            color: #333 !important;
+        }
+
+        .mode-btn.active-mode {
+            background: #2196F3 !important;
+            color: white !important;
+        }
+
+        /* Split layout for Post-Match mode */
+        #splitLayout {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        #splitLayout.split-active {
+            flex-direction: row;
+            align-items: flex-start;
+            height: calc(100vh - 140px);
+        }
+
+        #splitLayout.split-active #leftPanel,
+        #splitLayout.split-active #rightPanel {
+            flex: 1;
+            min-width: 0;
+            height: 100%;
+            overflow-y: auto;
         }
 
         h1 {
@@ -348,12 +385,40 @@
         /* Video Player Styles */
         .video-container {
             display: flex;
-            gap: 15px;
+            flex-direction: column;
+            gap: 0;
             background: #000;
             border-radius: 8px;
-            padding: 15px;
+            overflow: hidden;
             margin-bottom: 20px;
             transition: all 0.3s ease;
+        }
+
+        #videoControlsBar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0;
+            background: #1a1a1a;
+            padding: 10px 12px;
+        }
+
+        #videoControlsBar .control-section {
+            flex: 1 1 auto;
+            min-width: 140px;
+            padding: 6px 12px;
+            border-right: 1px solid #333;
+        }
+
+        #videoControlsBar .control-section:last-child {
+            border-right: none;
+        }
+
+        #videoControlsBar h4 {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #888;
+            margin: 0 0 6px 0;
         }
 
         .video-player-wrapper {
@@ -371,8 +436,6 @@
             display: flex;
             flex-direction: column;
             gap: 15px;
-            overflow-y: auto;
-            max-height: 500px;
         }
 
         #matchEventsSidebar {
@@ -1687,9 +1750,11 @@
     </div>
 
     <div class="header">
-        <button onclick="openNewGameModal()" class="header-btn">
-            ⚙️ Settings
-        </button>
+        <div class="header-left">
+            <button onclick="openNewGameModal()" class="header-btn">⚙️ Settings</button>
+            <button id="headerInMatchBtn" onclick="setGameMode('in-match')" class="header-btn mode-btn active-mode">In-Match</button>
+            <button id="headerPostMatchBtn" onclick="setGameMode('post-match')" class="header-btn mode-btn">Post-Match</button>
+        </div>
         <h1>Player Tagger <span class="version">v3.0</span></h1>
         <div class="header-right">
             <button onclick="openLicenseModal()" class="header-btn premium-badge" id="premiumBadge">
@@ -1749,6 +1814,15 @@
         <div id="periodStatus" style="margin-top:8px; font-size:13px; font-weight:bold; text-align:center; color:#555;">Not Started · 0 events</div>
     </div>
 
+    <!-- Video load controls (Post-Match Mode Only) -->
+    <div id="videoLoadControls" style="display:none; align-items:center; gap:8px; margin-bottom:6px; flex-wrap:wrap;">
+        <span style="font-size:12px; font-weight:bold; color:#555;">Match Video</span>
+        <input type="text" id="videoUrlInput" placeholder="Enter video URL" style="font-size:12px; padding:5px 8px; border:1px solid #ccc; border-radius:6px; flex:1; min-width:120px;">
+        <button onclick="loadVideoFromUrl()" style="font-size:12px; padding:5px 14px; border:1px solid #ccc; border-radius:6px; background:#f5f5f5; font-weight:bold; cursor:pointer;">Load URL</button>
+        <button onclick="document.getElementById('videoFileInput').click()" style="font-size:12px; padding:5px 14px; border:1px solid #ccc; border-radius:6px; background:#f5f5f5; font-weight:bold; cursor:pointer;">📁 Load File</button>
+        <input type="file" id="videoFileInput" accept="video/*" style="display:none;" onchange="loadVideoFile(event)">
+    </div>
+
     <!-- Video Player Section (Post-Match Mode Only) -->
     <div id="videoSection" class="section" style="display: none;">
         <h2>Match Video</h2>
@@ -1762,29 +1836,21 @@
             </div>
 
             <!-- Video Player -->
-            <div class="video-player-wrapper">
-                <div class="video-controls-top">
-                    <input type="text" id="videoUrlInput" placeholder="Enter video URL (MP4, YouTube, etc.)" class="video-url-input">
-                    <button onclick="loadVideoFromUrl()" class="btn-load-video">Load Video</button>
-                    <button onclick="document.getElementById('videoFileInput').click()" class="btn-load-video">📁 Load File</button>
-                </div>
+            <div class="video-player-wrapper" style="padding:12px 12px 0;">
                 <video id="matchVideo" class="match-video" controls controlsList="nodownload">
                     <source id="videoSource" src="" type="video/mp4">
                     Your browser does not support the video tag.
                 </video>
-                <input type="file" id="videoFileInput" accept="video/*" style="display: none;" onchange="loadVideoFile(event)">
             </div>
 
-            <!-- Video Controls Sidebar -->
-            <div class="video-controls-sidebar">
+            <!-- Controls bar below video -->
+            <div id="videoControlsBar">
                 <div class="control-section">
                     <h4>Playback</h4>
                     <div class="control-group">
                         <button onclick="skipBackward()" class="video-btn">⏪ -5s</button>
                         <button onclick="togglePlayPause()" class="video-btn" id="playPauseBtn">▶️ Play</button>
                         <button onclick="skipForward()" class="video-btn">⏩ +5s</button>
-                    </div>
-                    <div class="control-group">
                         <button onclick="toggleVideoZoom()" class="video-btn secondary" id="zoomBtn">🔍 Zoom</button>
                         <select id="playbackSpeed" onchange="changeSpeed()" class="speed-select">
                             <option value="0.25">0.25x</option>
@@ -1795,15 +1861,14 @@
                             <option value="1.5">1.5x</option>
                             <option value="2">2x</option>
                         </select>
+                        <span id="videoTime" class="video-time">00:00 / 00:00</span>
                     </div>
-                    <span id="videoTime" class="video-time">00:00 / 00:00</span>
                 </div>
 
                 <div class="control-section" id="editEventSection" style="display: none;">
                     <h4 style="color: #FF9800;">Editing Event</h4>
-                    <p style="font-size: 11px; color: #999; margin-bottom: 8px;">Adjust video position, then update timestamp</p>
-                    <button class="video-btn" onclick="updateEventTimestamp()" style="width: 100%; background: #FF9800;">💾 Update Event Timestamp</button>
-                    <button class="video-btn secondary" onclick="cancelEditingEvent()" style="width: 100%; margin-top: 5px;">Cancel</button>
+                    <button class="video-btn" onclick="updateEventTimestamp()" style="background: #FF9800;">💾 Update Timestamp</button>
+                    <button class="video-btn secondary" onclick="cancelEditingEvent()" style="margin-top: 4px;">Cancel</button>
                 </div>
 
                 <div class="control-section">
@@ -1812,23 +1877,21 @@
                         <span class="possession-label">Current:</span>
                         <span class="possession-team none" id="possessionTeam">No possession</span>
                     </div>
-
-                    <!-- Log Attack Button (Post-Match Mode Only) -->
-                    <div id="logAttackControl" style="display: none; margin-top: 10px;">
-                        <button class="video-btn" onclick="logAttack()" style="width: 100%; background: #FF9800;">⚡ Log Attack</button>
+                    <div id="logAttackControl" style="display: none; margin-top: 6px;">
+                        <button class="video-btn" onclick="logAttack()" style="background: #FF9800;">⚡ Log Attack</button>
                     </div>
                 </div>
 
                 <div class="control-section">
                     <h4>Half Markers</h4>
                     <div class="control-group">
-                        <label>1st Half:</label>
-                        <input type="text" id="firstHalfOffset" placeholder="00:00" value="00:00" onchange="updateFirstHalfOffset()">
+                        <label>1st:</label>
+                        <input type="text" id="firstHalfOffset" placeholder="00:00" value="00:00" onchange="updateFirstHalfOffset()" style="width:60px;">
                         <button class="video-btn" onclick="playFromFirstHalf()">▶️</button>
                     </div>
                     <div class="control-group">
-                        <label>2nd Half:</label>
-                        <input type="text" id="secondHalfOffset" placeholder="30:00" value="" onchange="updateSecondHalfOffset()">
+                        <label>2nd:</label>
+                        <input type="text" id="secondHalfOffset" placeholder="30:00" value="" onchange="updateSecondHalfOffset()" style="width:60px;">
                         <button class="video-btn" onclick="playFromSecondHalf()">▶️</button>
                     </div>
                 </div>
@@ -1836,7 +1899,7 @@
                 <div class="control-section">
                     <h4>Filters</h4>
                     <div class="control-group">
-                        <label>Brightness:</label>
+                        <label>Bright:</label>
                         <input type="range" id="brightnessSlider" min="50" max="150" value="100" step="5" oninput="updateVideoFilters()">
                         <span id="brightnessValue" class="filter-value">100%</span>
                     </div>
@@ -1845,7 +1908,7 @@
                         <input type="range" id="contrastSlider" min="50" max="150" value="100" step="5" oninput="updateVideoFilters()">
                         <span id="contrastValue" class="filter-value">100%</span>
                     </div>
-                    <button class="video-btn secondary" onclick="resetVideoFilters()" style="width: 100%;">Reset Filters</button>
+                    <button class="video-btn secondary" onclick="resetVideoFilters()">Reset</button>
                 </div>
             </div>
 
@@ -1870,6 +1933,9 @@
             </div>
         </div>
     </div>
+
+    <div id="splitLayout">
+    <div id="leftPanel">
 
     <div style="display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:6px;">
         <span style="font-size:12px; font-weight:bold; color:#555;">Direction of Play</span>
@@ -1913,6 +1979,10 @@
         <h2>Match Events</h2>
         <div id="descGrid"></div>
     </div>
+
+    </div><!-- end #leftPanel -->
+    <div id="rightPanel"></div>
+    </div><!-- end #splitLayout -->
 
     <div class="recent-events">
         <h3>Logged Events</h3>
@@ -2428,7 +2498,7 @@
         // Configuration
         const categories = ['OUR 1', 'OUR 2', 'OUR 3', 'OUR 4', 'OUR 5', 'OUR 6', 'OUR 7', 'OUR 8', 'OUR 9', 'OUR 10', 'OUR 11', 'OUR 12', 'OUR 13', 'OUR 14', 'OUR 15', 'OUR 16', 'OUR 17', 'OUR 18', 'OUR 19', 'OUR 20', 'OUR 21', 'OUR 22', 'OUR 23', 'OUR 24', 'OUR 25', 'OUR 26'];
         const opponents = ['OPP 1', 'OPP 2', 'OPP 3', 'OPP 4', 'OPP 5', 'OPP 6', 'OPP 7', 'OPP 8', 'OPP 9', 'OPP 10', 'OPP 11', 'OPP 12', 'OPP 13', 'OPP 14', 'OPP 15', 'OPP 16', 'OPP 17', 'OPP 18', 'OPP 19', 'OPP 20', 'OPP 21', 'OPP 22', 'OPP 23', 'OPP 24', 'OPP 25', 'OPP 26'];
-        const defaultDescriptors = ['Goal', '2 Pointer', 'Point from Play', 'Point from Free', 'For 45', 'Wide', 'Save/Shot', 'Own KO Won', 'Own KO Lost', 'Our T/O Lost', 'Opp KO Won', 'Opp KO Lost', 'Opp T/O Lost'];
+        const defaultDescriptors = ['Goal', '2 Pointer', 'Point from Play', 'Point from Free', 'For 45', 'Wide', 'Save/Short', 'Own KO Won', 'Own KO Lost', 'Our T/O Lost', 'Opp KO Won', 'Opp KO Lost', 'Opp T/O Lost'];
         let descriptors = [];
         let allDescriptors = [];
         let tempDescriptors = []; // Temporary descriptors while editing in modal
@@ -2493,6 +2563,8 @@
             updateGameName();
             updatePeriodButtons();
             updatePremiumUI();
+            updateModeUI();
+            updateVideoVisibility();
         }
 
         // ============================================
@@ -2704,8 +2776,11 @@
                         }
                     });
 
+                    // Rename descriptors (in-place migration) and deduplicate
+                    descriptors = [...new Set(descriptors.map(d => d === 'Save/Shot' ? 'Save/Short' : d))];
+
                     // Check for removed descriptors (e.g., "No Score" and "Shot" were removed)
-                    const obsoleteDescriptors = ['No Score', 'Shot', 'Save/Short/45', '45'];
+                    const obsoleteDescriptors = ['No Score', 'Shot', 'Save/Short/45', '45', 'Our Throw-in', 'Opp Throw-in'];
                     obsoleteDescriptors.forEach(desc => {
                         if (descriptors.includes(desc)) {
                             removedDescriptors.push(desc);
@@ -2722,7 +2797,7 @@
                         }
 
                         // If missing critical descriptors, reset to defaults
-                        if (missingDescriptors.length > 2 || (missingDescriptors.includes('For 45') && missingDescriptors.includes('Save/Shot'))) {
+                        if (missingDescriptors.length > 2 || (missingDescriptors.includes('For 45') && missingDescriptors.includes('Save/Short'))) {
                             console.log('🔄 Resetting to default descriptors (too many missing)');
                             descriptors = [...defaultDescriptors];
                         } else {
@@ -2815,7 +2890,7 @@
         function resetDescriptors() {
             if (!requirePremium('Custom Descriptors')) return;
 
-            if (!confirm('Reset to default descriptors?\n\nThis will restore:\n• Goal\n• 2 Pointer\n• Point from Play\n• Point from Free\n• For 45\n• Wide\n• Save/Shot\n• Own KO Won\n• Own KO Lost\n• Our T/O Lost\n• Opp KO Won\n• Opp KO Lost\n• Opp T/O Lost\n\nCustom descriptors will be removed.')) {
+            if (!confirm('Reset to default descriptors?\n\nThis will restore:\n• Goal\n• 2 Pointer\n• Point from Play\n• Point from Free\n• For 45\n• Wide\n• Save/Short\n• Own KO Won\n• Own KO Lost\n• Our T/O Lost\n• Opp KO Won\n• Opp KO Lost\n• Opp T/O Lost\n\nCustom descriptors will be removed.')) {
                 return;
             }
 
@@ -2874,11 +2949,11 @@
             descGrid.innerHTML = '';
             descGridPostMatch.innerHTML = '';
 
-            // Determine which grid to populate based on game mode
-            const targetGrid = gameMode === 'post-match' ? descGridPostMatch : descGrid;
+            // Always populate the main descGrid (left panel); descGridPostMatch no longer used
+            const targetGrid = descGrid;
 
-            // In-match mode: organize into two rows
-            if (gameMode !== 'post-match') {
+            // Always use the in-match two-row layout
+            if (true) {
                 // Create row containers
                 const row1 = document.createElement('div');
                 row1.className = 'button-grid';
@@ -2888,7 +2963,7 @@
                 row2.className = 'button-grid';
 
                 // Categorize descriptors
-                const scoringDescriptors = ['Goal', '2 Pointer', 'Point from Play', 'Point from Free', 'Wide', 'For 45', 'Save/Shot'];
+                const scoringDescriptors = ['Goal', '2 Pointer', 'Point from Play', 'Point from Free', 'Wide', 'For 45', 'Save/Short'];
                 const koDescriptors = ['Own KO Won', 'Own KO Lost', 'Our T/O Lost', 'Opp KO Won', 'Opp KO Lost', 'Opp T/O Lost'];
 
                 // Create team sections for row 2
@@ -3070,15 +3145,19 @@
         }
 
         function updateModeUI() {
+            // Settings modal buttons
             const inMatchBtn = document.getElementById('inMatchMode');
             const postMatchBtn = document.getElementById('postMatchMode');
-
-            if (gameMode === 'in-match') {
-                inMatchBtn.classList.add('active');
-                postMatchBtn.classList.remove('active');
-            } else {
-                inMatchBtn.classList.remove('active');
-                postMatchBtn.classList.add('active');
+            if (inMatchBtn && postMatchBtn) {
+                inMatchBtn.classList.toggle('active', gameMode === 'in-match');
+                postMatchBtn.classList.toggle('active', gameMode === 'post-match');
+            }
+            // Header buttons
+            const headerIn = document.getElementById('headerInMatchBtn');
+            const headerPost = document.getElementById('headerPostMatchBtn');
+            if (headerIn && headerPost) {
+                headerIn.classList.toggle('active-mode', gameMode === 'in-match');
+                headerPost.classList.toggle('active-mode', gameMode === 'post-match');
             }
         }
 
@@ -3090,33 +3169,47 @@
             const videoPlayerButtons = document.getElementById('videoPlayerButtons');
             const inMatchPlayerButtons = document.getElementById('inMatchPlayerButtons');
             const postMatchEventControls = document.getElementById('postMatchEventControls');
+            const splitLayout = document.getElementById('splitLayout');
+            const rightPanel = document.getElementById('rightPanel');
+            const recentEvents = document.querySelector('.recent-events');
+            const videoLoadControls = document.getElementById('videoLoadControls');
 
             if (gameMode === 'post-match') {
+                // Move video load controls, video and event log into right panel
+                rightPanel.insertBefore(videoLoadControls, rightPanel.firstChild);
+                rightPanel.insertBefore(videoSection, rightPanel.children[1] || null);
+                rightPanel.appendChild(recentEvents);
+
                 postMatchEventControls.style.display = 'block';
                 videoSection.style.display = 'block';
-                // Show log attack button if a half has started and possession is set
+                videoLoadControls.style.display = 'flex';
                 const halfStarted = currentPeriod === '1st Half Started' || currentPeriod === '2nd Half Started';
                 logAttackControl.style.display = (halfStarted && currentPossessionTeam) ? 'block' : 'none';
 
-                // Hide regular match events section, show sidebar version
-                matchEventsSection.style.display = 'none';
-                matchEventsSidebar.style.display = 'block';
+                // Keep left-panel sections visible; hide the video-section duplicates
+                matchEventsSection.style.display = 'block';
+                matchEventsSidebar.style.display = 'none';
+                inMatchPlayerButtons.style.display = 'flex';
+                videoPlayerButtons.style.display = 'none';
 
-                // Show player buttons in video panel, hide in-match player buttons
-                videoPlayerButtons.style.display = 'block';
-                inMatchPlayerButtons.style.display = 'none';
+                splitLayout.classList.add('split-active');
             } else {
+                // Move video load controls, video and event log back to original positions
+                splitLayout.parentNode.insertBefore(videoLoadControls, splitLayout);
+                splitLayout.parentNode.insertBefore(videoSection, splitLayout);
+                splitLayout.parentNode.insertBefore(recentEvents, splitLayout.nextSibling);
+
                 videoSection.style.display = 'none';
+                videoLoadControls.style.display = 'none';
                 logAttackControl.style.display = 'none';
                 postMatchEventControls.style.display = 'none';
 
-                // Show regular match events section, hide sidebar version
                 matchEventsSection.style.display = 'block';
                 matchEventsSidebar.style.display = 'none';
-
-                // Show in-match player buttons, hide video panel player buttons
                 videoPlayerButtons.style.display = 'none';
                 inMatchPlayerButtons.style.display = 'flex';
+
+                splitLayout.classList.remove('split-active');
             }
         }
 
@@ -3357,6 +3450,18 @@
             const duration = formatVideoTime(video.duration);
 
             timeDisplay.textContent = `${current} / ${duration}`;
+
+            if (gameMode === 'post-match') {
+                let offset = 0;
+                if (currentPeriod === '1st Half Started' || currentPeriod === '1st Half Ended') {
+                    offset = videoFirstHalfOffset;
+                } else if (currentPeriod === '2nd Half Started' || currentPeriod === '2nd Half Ended') {
+                    offset = videoSecondHalfOffset;
+                }
+                const gameTimeSecs = Math.max(0, Math.floor(video.currentTime - offset));
+                const clockEl = document.getElementById('gameClock');
+                if (clockEl) clockEl.textContent = formatVideoTime(gameTimeSecs);
+            }
         }
 
         function formatVideoTime(seconds) {
@@ -3462,7 +3567,7 @@
             } else if (eventDescriptors.includes('Goal') || eventDescriptors.includes('Point from Play') ||
                        eventDescriptors.includes('Point from Free') || eventDescriptors.includes('2 Pointer') ||
                        eventDescriptors.includes('Wide') || eventDescriptors.includes('For 45') ||
-                       eventDescriptors.includes('Save/Shot')) {
+                       eventDescriptors.includes('Save/Short')) {
                 // Shots end possession
                 currentPossessionTeam = null;
             }
@@ -4331,7 +4436,7 @@
                     <g transform="translate(20, 575)">
                         <circle cx="0" cy="0" r="13" fill="none" stroke="white" stroke-width="2" opacity="0.8"/>
                         <circle cx="0" cy="0" r="8" fill="${color}" opacity="0.5"/>
-                        <text x="20" y="5" fill="white" font-size="11" font-weight="bold">= Save/Shot T/O</text>
+                        <text x="20" y="5" fill="white" font-size="11" font-weight="bold">= Save/Short T/O</text>
                     </g>
                 </svg>
             `;
@@ -4393,7 +4498,7 @@
                 const playerNum = playerNumMatch ? playerNumMatch[0] : '';
 
                 // Determine color based on shot result
-                let color = '#f44336'; // Default: Save/Shot or 45 (red)
+                let color = '#f44336'; // Default: Save/Short or 45 (red)
 
                 // First check if the shot event itself has a result descriptor (edited events)
                 if (shot.descriptors.includes('Goal')) {
@@ -4404,8 +4509,8 @@
                     color = '#ff9800'; // 2 Pointer (orange)
                 } else if (shot.descriptors.includes('Wide')) {
                     color = '#9C27B0'; // Wide (purple)
-                } else if (shot.descriptors.includes('Save/Shot')) {
-                    color = '#f44336'; // Save/Shot (red)
+                } else if (shot.descriptors.includes('Save/Short')) {
+                    color = '#f44336'; // Save/Short (red)
                 } else if (shot.descriptors.includes('For 45')) {
                     color = '#00BCD4'; // For 45 (cyan)
                 } else {
@@ -4421,8 +4526,8 @@
                             color = '#ff9800'; // 2 Pointer (orange)
                         } else if (nextEvent.descriptors === 'Wide') {
                             color = '#9C27B0'; // Wide (purple)
-                        } else if (nextEvent.descriptors === 'Save/Shot') {
-                            color = '#f44336'; // Save/Shot (red)
+                        } else if (nextEvent.descriptors === 'Save/Short') {
+                            color = '#f44336'; // Save/Short (red)
                         } else if (nextEvent.descriptors === 'For 45') {
                             color = '#00BCD4'; // For 45 (cyan)
                         }
@@ -4502,7 +4607,7 @@
                         <text x="95" y="27" fill="white" font-size="12" font-weight="bold">Wide</text>
 
                         <circle cx="0" cy="44" r="8" fill="#f44336" opacity="0.8"/>
-                        <text x="15" y="49" fill="white" font-size="12" font-weight="bold">Save/Shot</text>
+                        <text x="15" y="49" fill="white" font-size="12" font-weight="bold">Save/Short</text>
 
                         <circle cx="80" cy="44" r="8" fill="#00BCD4" opacity="0.8"/>
                         <text x="95" y="49" fill="white" font-size="12" font-weight="bold">For 45</text>
@@ -4741,8 +4846,8 @@
                     }
                     events.push(scoreEvent);
 
-                    // Save/Shot means the shooting team loses possession - auto-add T/O Lost
-                    if (pendingShotEvent.scoreDescriptor === 'Save/Shot') {
+                    // Save/Short means the shooting team loses possession - auto-add T/O Lost
+                    if (pendingShotEvent.scoreDescriptor === 'Save/Short') {
                         const toDescriptor = pendingShotEvent.type === 'OUR' ? 'Our T/O Lost' : 'Opp T/O Lost';
                         const toEvent = {
                             timestamp: new Date().toISOString(),
@@ -5057,7 +5162,7 @@
             const sequences = buildPossessionSequences();
             if (sequences.length > 0) {
                 const scoreOutcomes = ['Goal', 'Point from Play', 'Point from Free', '2 Pointer'];
-                const shotOutcomes = ['Goal', 'Point from Play', 'Point from Free', '2 Pointer', 'Wide', 'For 45', 'Save/Shot'];
+                const shotOutcomes = ['Goal', 'Point from Play', 'Point from Free', '2 Pointer', 'Wide', 'For 45', 'Save/Short'];
 
                 ['OUR', 'OPP'].forEach(team => {
                     const teamName = team === 'OUR' ? team1Name : team2Name;
@@ -5230,7 +5335,7 @@
         function buildPossessionSequences() {
             const sequences = [];
             let currentSeq = null;
-            const shotOutcomes = ['Goal', 'Point from Play', 'Point from Free', '2 Pointer', 'Wide', 'For 45', 'Save/Shot'];
+            const shotOutcomes = ['Goal', 'Point from Play', 'Point from Free', '2 Pointer', 'Wide', 'For 45', 'Save/Short'];
 
             // Own KO Won / Opp KO Lost → OUR gains possession
             // Opp KO Won / Own KO Lost → OPP gains possession
@@ -5396,7 +5501,7 @@
                                     descriptorList.includes('Point from Play');
                 const hasScoreFree = descriptorList.includes('Point from Free');
                 const hasWide = descriptorList.includes('Wide');
-                const hasSaveShot = descriptorList.includes('Save/Shot') || descriptorList.includes('Save/Short/45');
+                const hasSaveShot = descriptorList.includes('Save/Short') || descriptorList.includes('Save/Short/45');
                 const has45 = descriptorList.includes('For 45');
 
                 if (event.type === 'OUR') {
@@ -5497,7 +5602,7 @@
             let ourWon = 0, ourLost = 0, oppWon = 0, oppLost = 0;
 
             filteredEvents.forEach(event => {
-                // Skip auto-generated T/O events from Save/Shot (counted via Save/Shot event below)
+                // Skip auto-generated T/O events from Save/Short (counted via Save/Short event below)
                 if (event.fromSaveShot) return;
 
                 if (event.descriptors.includes('Our T/O Lost')) {
@@ -5506,7 +5611,7 @@
                 } else if (event.descriptors.includes('Opp T/O Lost')) {
                     oppLost++;
                     ourWon++;
-                } else if (event.descriptors.includes('Save/Shot')) {
+                } else if (event.descriptors.includes('Save/Short')) {
                     if (event.type === 'OUR') { ourLost++; oppWon++; }
                     else if (event.type === 'OPP') { oppLost++; ourWon++; }
                 }
@@ -5665,7 +5770,7 @@
 
             console.log('Test data setup: period =', currentPeriod, ', timer =', timerSeconds);
 
-            const scoreTypes = ['Goal', 'Point', '2 Pointer'];
+            const scoreTypes = ['Goal', 'Point from Play', 'Point from Free', '2 Pointer'];
             const players = [7, 9, 12, 14, 15, 5, 11, 13];
             const oppPlayers = [8, 10, 11, 13, 15, 6, 9, 14];
 
@@ -6448,7 +6553,7 @@
                 if (!event.descriptors) return;
                 event.descriptors = event.descriptors.split(', ').map(d => {
                     if (d.trim() === '45') return 'For 45';
-                    if (d.trim() === 'Save/Short/45') return 'Save/Shot';
+                    if (d.trim() === 'Save/Short/45') return 'Save/Short';
                     if (d.trim() === 'Point') return 'Point from Play';
                     return d;
                 }).join(', ');
@@ -6650,6 +6755,7 @@
         }
 
         function updateClockDisplay() {
+            if (gameMode === 'post-match') return;
             const minutes = Math.floor(timerSeconds / 60);
             const seconds = timerSeconds % 60;
             const display = String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
@@ -6760,15 +6866,15 @@
                 return;
             }
 
-            // Handle Save/Shot button - open pitch map to capture shot location
-            if (desc === 'Save/Shot') {
+            // Handle Save/Short button - open pitch map to capture shot location
+            if (desc === 'Save/Short') {
                 // Store event details and open pitch map modal
                 pendingShotEvent = {
                     type: currentType,
                     category: currentCategory,
-                    scoreDescriptor: 'Save/Shot'
+                    scoreDescriptor: 'Save/Short'
                 };
-                document.getElementById('pitchMapTitle').textContent = 'Save/Shot - Click Shot Location';
+                document.getElementById('pitchMapTitle').textContent = 'Save/Short - Click Shot Location';
                 document.getElementById('pitchMapModal').style.display = 'block';
 
                 // Flash the button to show it was registered
