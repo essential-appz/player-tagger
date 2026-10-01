@@ -195,6 +195,30 @@
             margin-bottom: 10px;
         }
 
+        #videoSection {
+            padding: 0;
+        }
+
+
+        #videoWithPanels {
+            display: flex;
+            align-items: stretch;
+        }
+
+        #videoWithPanels #videoContainer {
+            flex: 1;
+            min-width: 0;
+            margin-bottom: 0;
+        }
+
+        .video-side-panel {
+            width: 150px;
+            flex-shrink: 0;
+            background: #111;
+            padding: 8px;
+            overflow-y: auto;
+        }
+
         .button-grid {
             display: flex;
             flex-wrap: wrap;
@@ -588,9 +612,10 @@
 
         .match-video {
             width: 100%;
-            max-height: 450px;
-            border-radius: 6px;
+            height: auto;
+            border-radius: 0;
             background: #000;
+            display: block;
         }
 
         .video-btn {
@@ -1814,18 +1839,25 @@
         <div id="periodStatus" style="margin-top:8px; font-size:13px; font-weight:bold; text-align:center; color:#555;">Not Started · 0 events</div>
     </div>
 
-    <!-- Video load controls (Post-Match Mode Only) -->
-    <div id="videoLoadControls" style="display:none; align-items:center; gap:8px; margin-bottom:6px; flex-wrap:wrap;">
-        <span style="font-size:12px; font-weight:bold; color:#555;">Match Video</span>
-        <input type="text" id="videoUrlInput" placeholder="Enter video URL" style="font-size:12px; padding:5px 8px; border:1px solid #ccc; border-radius:6px; flex:1; min-width:120px;">
-        <button onclick="loadVideoFromUrl()" style="font-size:12px; padding:5px 14px; border:1px solid #ccc; border-radius:6px; background:#f5f5f5; font-weight:bold; cursor:pointer;">Load URL</button>
-        <button onclick="document.getElementById('videoFileInput').click()" style="font-size:12px; padding:5px 14px; border:1px solid #ccc; border-radius:6px; background:#f5f5f5; font-weight:bold; cursor:pointer;">📁 Load File</button>
-        <input type="file" id="videoFileInput" accept="video/*" style="display:none;" onchange="loadVideoFile(event)">
-    </div>
-
     <!-- Video Player Section (Post-Match Mode Only) -->
     <div id="videoSection" class="section" style="display: none;">
-        <h2>Match Video</h2>
+        <div id="videoLoadControls" style="display:flex; align-items:center; gap:8px; padding:10px 15px 8px; flex-wrap:wrap;">
+            <input type="text" id="videoUrlInput" placeholder="Enter video URL" style="font-size:12px; padding:5px 8px; border:1px solid #ccc; border-radius:6px; flex:1; min-width:120px;">
+            <button onclick="loadVideoFromUrl()" style="font-size:12px; padding:5px 14px; border:1px solid #ccc; border-radius:6px; background:#f5f5f5; font-weight:bold; cursor:pointer;">Load URL</button>
+            <button onclick="document.getElementById('videoFileInput').click()" style="font-size:12px; padding:5px 14px; border:1px solid #ccc; border-radius:6px; background:#f5f5f5; font-weight:bold; cursor:pointer;">📁 Load File</button>
+            <input type="file" id="videoFileInput" accept="video/*" style="display:none;" onchange="loadVideoFile(event)">
+        </div>
+        <div id="videoWithPanels">
+            <!-- Our Players (left, post-match only) -->
+            <div class="video-side-panel" id="ourPlayersPanel" style="display:none;">
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; gap:4px;">
+                    <span style="font-size:12px; font-weight:bold; color:#ccc;">Our Players</span>
+                    <button onclick="openPlayerNamesModal('OUR')" style="font-size:10px; padding:3px 6px; border:1px solid #555; border-radius:4px; background:#2a2a2a; color:#ccc; cursor:pointer; white-space:nowrap;">+ Names</button>
+                </div>
+                <div id="ckGridPostMatch"></div>
+                <div id="descGridOur" style="margin-top:10px; padding-top:8px; border-top:1px solid #333;"></div>
+            </div>
+
         <div class="video-container" id="videoContainer">
             <!-- Match Events Sidebar (Left) -->
             <div class="video-controls-sidebar" id="matchEventsSidebar">
@@ -1836,7 +1868,7 @@
             </div>
 
             <!-- Video Player -->
-            <div class="video-player-wrapper" style="padding:12px 12px 0;">
+            <div class="video-player-wrapper" style="padding:0;">
                 <video id="matchVideo" class="match-video" controls controlsList="nodownload">
                     <source id="videoSource" src="" type="video/mp4">
                     Your browser does not support the video tag.
@@ -1918,19 +1950,20 @@
             </div>
         </div>
 
-        <!-- Player Buttons (Post-Match Mode) -->
-        <div id="videoPlayerButtons" style="display: none; margin-top: 20px;">
-            <div class="teams-container">
-                <div class="team-panel">
-                    <h2>Our Players</h2>
-                    <div id="ckGridPostMatch"></div>
+            <!-- Opposition Players (right, post-match only) -->
+            <div class="video-side-panel" id="oppPlayersPanel" style="display:none;">
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; gap:4px;">
+                    <span style="font-size:12px; font-weight:bold; color:#ccc;">Opp Players</span>
+                    <button onclick="openPlayerNamesModal('OPP')" style="font-size:10px; padding:3px 6px; border:1px solid #555; border-radius:4px; background:#2a2a2a; color:#ccc; cursor:pointer; white-space:nowrap;">+ Names</button>
                 </div>
-
-                <div class="team-panel">
-                    <h2>Opposition Players</h2>
-                    <div id="oppGridPostMatch"></div>
-                </div>
+                <div id="oppGridPostMatch"></div>
+                <div id="descGridOpp" style="margin-top:10px; padding-top:8px; border-top:1px solid #333;"></div>
             </div>
+        </div><!-- end #videoWithPanels -->
+
+        <!-- Direction of Play holder (post-match) -->
+        <div id="videoPlayerButtons" style="display: none; margin-top: 10px; text-align:center;">
+            <!-- Direction of Play control moved here by JS -->
         </div>
     </div>
 
@@ -1960,7 +1993,16 @@
         </div>
     </div>
 
-    <!-- Player Names Modal -->
+    <div class="section" id="matchEventsSection">
+        <h2>Match Events</h2>
+        <div id="descGrid"></div>
+    </div>
+
+    </div><!-- end #leftPanel -->
+    <div id="rightPanel"></div>
+    </div><!-- end #splitLayout -->
+
+    <!-- Player Names Modal (outside splitLayout so it works in all modes) -->
     <div id="playerNamesModal" class="modal">
         <div class="modal-content" style="max-width:320px; width:90%;">
             <div class="modal-header">
@@ -1974,15 +2016,6 @@
             </div>
         </div>
     </div>
-
-    <div class="section" id="matchEventsSection">
-        <h2>Match Events</h2>
-        <div id="descGrid"></div>
-    </div>
-
-    </div><!-- end #leftPanel -->
-    <div id="rightPanel"></div>
-    </div><!-- end #splitLayout -->
 
     <div class="recent-events">
         <h3>Logged Events</h3>
@@ -2253,6 +2286,20 @@
                 </div>
             </div>
 
+            <h3>Game Period</h3>
+            <div class="form-group">
+                <label for="settingsPeriod">Active Period:</label>
+                <select id="settingsPeriod" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px;">
+                    <option value="Not Started">Not Started</option>
+                    <option value="1st Half Started">1st Half Started</option>
+                    <option value="1st Half Ended">1st Half Ended</option>
+                    <option value="2nd Half Started">2nd Half Started</option>
+                    <option value="2nd Half Ended">2nd Half Ended</option>
+                </select>
+            </div>
+
+            <hr style="border: none; border-top: 2px solid #e0e0e0; margin: 20px 0;">
+
             <h3>Start New Game</h3>
             <div class="form-group">
                 <label for="team1Name">Team 1 Name:</label>
@@ -2269,7 +2316,7 @@
             <hr style="border: none; border-top: 2px solid #e0e0e0; margin: 20px 0;">
 
             <h3>Custom Event Descriptors</h3>
-            <p style="font-size: 13px; color: #666; margin: -10px 0 15px 0;">Changes will be applied when you click New Game</p>
+            <p style="font-size: 13px; color: #666; margin: -10px 0 15px 0;">Changes will be applied when you click New Game or Update Settings</p>
             <div class="form-group">
                 <div class="descriptors-manager">
                     <div class="descriptors-list" id="descriptorsList"></div>
@@ -2283,8 +2330,9 @@
 
             <hr style="border: none; border-top: 2px solid #e0e0e0; margin: 20px 0;">
 
-            <div style="text-align: center; margin-bottom: 20px;">
+            <div style="display: flex; gap: 12px; justify-content: center; margin-bottom: 20px;">
                 <button class="modal-btn primary" onclick="startNewGame()" style="width: auto; padding: 10px 30px;">New Game</button>
+                <button class="modal-btn" onclick="updateSettings()" style="width: auto; padding: 10px 30px; background: #607D8B; color: white;">Update Settings</button>
             </div>
 
             <hr style="border: none; border-top: 2px solid #e0e0e0; margin: 20px 0;">
@@ -2780,7 +2828,7 @@
                     descriptors = [...new Set(descriptors.map(d => d === 'Save/Shot' ? 'Save/Short' : d))];
 
                     // Check for removed descriptors (e.g., "No Score" and "Shot" were removed)
-                    const obsoleteDescriptors = ['No Score', 'Shot', 'Save/Short/45', '45', 'Our Throw-in', 'Opp Throw-in'];
+                    const obsoleteDescriptors = ['No Score', 'Shot', 'Save/Short/45', '45', 'Our Throw-in', 'Opp Throw-in', 'Point'];
                     obsoleteDescriptors.forEach(desc => {
                         if (descriptors.includes(desc)) {
                             removedDescriptors.push(desc);
@@ -2829,6 +2877,11 @@
                 console.error('Error loading descriptors, using defaults:', e);
                 descriptors = [...defaultDescriptors];
             }
+            // Always reorder built-in descriptors to canonical order; keep custom ones at the end
+            const builtIn = defaultDescriptors.filter(d => descriptors.includes(d));
+            const custom = descriptors.filter(d => !defaultDescriptors.includes(d));
+            descriptors = [...builtIn, ...custom];
+
             allDescriptors = ['Touch', ...descriptors];
         }
 
@@ -2949,6 +3002,44 @@
             descGrid.innerHTML = '';
             descGridPostMatch.innerHTML = '';
 
+            // Post-match: populate side panel descriptor grids
+            if (gameMode === 'post-match') {
+                const descGridOur = document.getElementById('descGridOur');
+                const descGridOpp = document.getElementById('descGridOpp');
+                if (!descGridOur || !descGridOpp) return;
+                descGridOur.innerHTML = '';
+                descGridOpp.innerHTML = '';
+
+                // Our side excludes Opp-specific KO/TO; Opp side excludes Our-specific KO/TO
+                const oppOnlyDescriptors = ['Opp KO Won', 'Opp KO Lost', 'Opp T/O Lost'];
+                const ourOnlyDescriptors = ['Own KO Won', 'Own KO Lost', 'Our T/O Lost'];
+
+                function buildSideDescriptors(grid, excludeList) {
+                    descriptors.forEach(desc => {
+                        if (excludeList.includes(desc)) return;
+                        const btn = document.createElement('button');
+                        btn.className = 'descriptor-btn';
+                        let displayText = desc;
+                        if (desc === 'Own KO Won') displayText = 'Our KO Won';
+                        else if (desc === 'Own KO Lost') displayText = 'Our KO Lost';
+                        btn.textContent = displayText;
+                        btn.setAttribute('data-descriptor', desc);
+                        const isFreeButton = desc.includes('KO Won') || desc.includes('KO Lost') || desc.includes('T/O Lost');
+                        btn.disabled = (currentType && currentCategory) ? false : !isFreeButton;
+                        btn.onclick = () => toggleDesc(btn, desc);
+                        btn.style.cssText = 'width:100%;font-size:11px;padding:6px 4px;margin-bottom:3px;display:block;';
+                        if (currentType && currentCategory && selectedDescriptors.includes(desc)) {
+                            btn.classList.add('selected');
+                        }
+                        grid.appendChild(btn);
+                    });
+                }
+
+                buildSideDescriptors(descGridOur, oppOnlyDescriptors);
+                buildSideDescriptors(descGridOpp, ourOnlyDescriptors);
+                return;
+            }
+
             // Always populate the main descGrid (left panel); descGridPostMatch no longer used
             const targetGrid = descGrid;
 
@@ -2958,6 +3049,7 @@
                 const row1 = document.createElement('div');
                 row1.className = 'button-grid';
                 row1.style.marginBottom = '8px';
+                row1.style.flexWrap = 'nowrap';
 
                 const row2 = document.createElement('div');
                 row2.className = 'button-grid';
@@ -2985,6 +3077,7 @@
                 const ourButtonsContainer = document.createElement('div');
                 ourButtonsContainer.className = 'button-grid';
                 ourButtonsContainer.style.margin = '0';
+                ourButtonsContainer.style.flexWrap = 'nowrap';
 
                 ourTeamSection.appendChild(ourTeamNameLabel);
                 ourTeamSection.appendChild(ourButtonsContainer);
@@ -3006,6 +3099,7 @@
                 const oppButtonsContainer = document.createElement('div');
                 oppButtonsContainer.className = 'button-grid';
                 oppButtonsContainer.style.margin = '0';
+                oppButtonsContainer.style.flexWrap = 'nowrap';
 
                 oppTeamSection.appendChild(oppTeamNameLabel);
                 oppTeamSection.appendChild(oppButtonsContainer);
@@ -3031,10 +3125,18 @@
                         const isOurTeam = desc.includes('Own KO') || desc.includes('Our T/O');
                         const targetContainer = isOurTeam ? ourButtonsContainer : oppButtonsContainer;
 
-                        // Add button directly (no wrapper needed now that team name is above)
+                        // Stretch to fill team section equally
+                        btn.style.flex = '1';
+                        btn.style.minWidth = '0';
+                        btn.style.padding = '10px 4px';
+                        btn.style.fontSize = '12px';
                         targetContainer.appendChild(btn);
                     } else {
-                        // Scoring buttons go to row 1
+                        // Scoring buttons go to row 1 — flex to fill, no wrap
+                        btn.style.flex = '1';
+                        btn.style.minWidth = '0';
+                        btn.style.padding = '10px 4px';
+                        btn.style.fontSize = '12px';
                         row1.appendChild(btn);
                     }
                 });
@@ -3095,6 +3197,7 @@
             document.getElementById('newGameModal').classList.add('active');
             document.getElementById('team1Name').value = team1Name;
             document.getElementById('team2Name').value = team2Name;
+            document.getElementById('settingsPeriod').value = currentPeriod;
 
             // Copy current descriptors to temp for editing
             tempDescriptors = [...descriptors];
@@ -3170,46 +3273,47 @@
             const inMatchPlayerButtons = document.getElementById('inMatchPlayerButtons');
             const postMatchEventControls = document.getElementById('postMatchEventControls');
             const splitLayout = document.getElementById('splitLayout');
-            const rightPanel = document.getElementById('rightPanel');
             const recentEvents = document.querySelector('.recent-events');
-            const videoLoadControls = document.getElementById('videoLoadControls');
 
             if (gameMode === 'post-match') {
-                // Move video load controls, video and event log into right panel
-                rightPanel.insertBefore(videoLoadControls, rightPanel.firstChild);
-                rightPanel.insertBefore(videoSection, rightPanel.children[1] || null);
-                rightPanel.appendChild(recentEvents);
+                // Place video section before splitLayout (full page width)
+                splitLayout.parentNode.insertBefore(videoSection, splitLayout);
+
+                // Hide the split layout — not needed in post-match
+                splitLayout.style.display = 'none';
 
                 postMatchEventControls.style.display = 'block';
                 videoSection.style.display = 'block';
-                videoLoadControls.style.display = 'flex';
                 const halfStarted = currentPeriod === '1st Half Started' || currentPeriod === '2nd Half Started';
                 logAttackControl.style.display = (halfStarted && currentPossessionTeam) ? 'block' : 'none';
 
-                // Keep left-panel sections visible; hide the video-section duplicates
-                matchEventsSection.style.display = 'block';
+                // Match events section not shown in post-match (buttons are in the side panels)
+                matchEventsSection.style.display = 'none';
                 matchEventsSidebar.style.display = 'none';
-                inMatchPlayerButtons.style.display = 'flex';
-                videoPlayerButtons.style.display = 'none';
 
-                splitLayout.classList.add('split-active');
+                document.getElementById('ourPlayersPanel').style.display = 'block';
+                document.getElementById('oppPlayersPanel').style.display = 'block';
             } else {
-                // Move video load controls, video and event log back to original positions
-                splitLayout.parentNode.insertBefore(videoLoadControls, splitLayout);
+                // Restore split layout
+                splitLayout.style.display = '';
+
+                // Move video section back before splitLayout (hidden)
                 splitLayout.parentNode.insertBefore(videoSection, splitLayout);
                 splitLayout.parentNode.insertBefore(recentEvents, splitLayout.nextSibling);
 
+                const leftPanel = document.getElementById('leftPanel');
+                leftPanel.style.display = '';
+
                 videoSection.style.display = 'none';
-                videoLoadControls.style.display = 'none';
                 logAttackControl.style.display = 'none';
                 postMatchEventControls.style.display = 'none';
 
                 matchEventsSection.style.display = 'block';
                 matchEventsSidebar.style.display = 'none';
+                document.getElementById('ourPlayersPanel').style.display = 'none';
+                document.getElementById('oppPlayersPanel').style.display = 'none';
                 videoPlayerButtons.style.display = 'none';
                 inMatchPlayerButtons.style.display = 'flex';
-
-                splitLayout.classList.remove('split-active');
             }
         }
 
@@ -3631,7 +3735,10 @@
 
             const eventDescriptors = event.descriptors.split(', ').map(d => d.trim());
 
-            allDescriptors.forEach(desc => {
+            // allDescriptors plus any extra descriptors available only in the edit modal
+            const editDescriptors = allDescriptors.includes('Shot') ? allDescriptors : [...allDescriptors, 'Shot'];
+
+            editDescriptors.forEach(desc => {
                 const btn = document.createElement('button');
                 btn.className = 'descriptor-btn';
 
@@ -5751,6 +5858,47 @@
             closeNewGameModal();
         }
 
+        function updateSettings() {
+            team1Name = document.getElementById('team1Name').value || 'Team 1';
+            team2Name = document.getElementById('team2Name').value || 'Team 2';
+
+            // Apply descriptor changes
+            descriptors = [...tempDescriptors];
+            allDescriptors = ['Touch', ...descriptors];
+            saveCustomDescriptors();
+
+            // Apply period change if it changed
+            const selectedPeriod = document.getElementById('settingsPeriod').value;
+            if (selectedPeriod !== currentPeriod) {
+                currentPeriod = selectedPeriod;
+                document.getElementById('currentPeriod').textContent = selectedPeriod;
+                updatePeriodButtons();
+                updatePeriodStatus();
+                rebuildDescriptorButtons();
+
+                // Sync timer to match the new period
+                if (selectedPeriod === '1st Half Started') {
+                    startTimer(0);
+                } else if (selectedPeriod === '2nd Half Started') {
+                    startTimer(1800);
+                } else {
+                    stopTimer();
+                }
+            }
+
+            // Rebuild UI without clearing game data
+            createButtons();
+            rebuildDescriptorButtons();
+            rebuildMatrices();
+
+            // Update team name labels
+            document.querySelectorAll('.stat-label')[0].textContent = team1Name;
+            document.querySelectorAll('.stat-label')[2].textContent = team2Name;
+
+            updateGameName();
+            closeNewGameModal();
+        }
+
         function loadTestData() {
             if (!confirm('This will clear current data and load test data. Continue?')) {
                 return;
@@ -6070,59 +6218,54 @@
         }
 
         function createCompactButtons(ckGrid, oppGrid) {
-            // Compact layout for Post-Match mode: Two rows (1-15 and 16-26)
+            // GAA formation layout for Post-Match side panels
+            const formation = [
+                [1],           // Goalkeeper — centred alone
+                [2, 3, 4],     // Full backs
+                [5, 6, 7],     // Half backs
+                [8, 9],        // Midfield — centred pair
+                [10, 11, 12],  // Half forwards
+                [13, 14, 15],  // Full forwards
+            ];
 
-            // OUR buttons - Row 1 (1-15)
-            const ckRow1 = document.createElement('div');
-            ckRow1.className = 'compact-row-single';
-            for (let num = 1; num <= 15; num++) {
-                const cat = 'OUR ' + num;
+            function makeBtn(num, type) {
+                const cat = type + ' ' + num;
                 const btn = document.createElement('button');
                 btn.className = 'category-btn compact-btn-single';
-                btn.textContent = num;
-                btn.onclick = () => selectCat(btn, 'OUR', cat);
-                ckRow1.appendChild(btn);
+                const names = type === 'OUR' ? ourPlayerNames : oppPlayerNames;
+                if (names[num]) {
+                    const surname = names[num].trim().split(' ').pop();
+                    btn.innerHTML = `<span style="display:block;line-height:1.2;">${num}</span><span style="display:block;font-size:9px;font-weight:normal;overflow:hidden;max-width:100%;white-space:nowrap;text-overflow:ellipsis;">${surname}</span>`;
+                } else {
+                    btn.textContent = num;
+                }
+                btn.onclick = () => selectCat(btn, type, cat);
+                return btn;
             }
-            ckGrid.appendChild(ckRow1);
 
-            // OUR buttons - Row 2 (16-26)
-            const ckRow2 = document.createElement('div');
-            ckRow2.className = 'compact-row-single';
-            for (let num = 16; num <= 26; num++) {
-                const cat = 'OUR ' + num;
-                const btn = document.createElement('button');
-                btn.className = 'category-btn compact-btn-single';
-                btn.textContent = num;
-                btn.onclick = () => selectCat(btn, 'OUR', cat);
-                ckRow2.appendChild(btn);
-            }
-            ckGrid.appendChild(ckRow2);
+            function buildGrid(grid, type) {
+                // Formation rows (1–15)
+                formation.forEach(row => {
+                    const rowDiv = document.createElement('div');
+                    rowDiv.style.cssText = 'display:flex;justify-content:center;gap:4px;margin-bottom:4px;';
+                    row.forEach(num => rowDiv.appendChild(makeBtn(num, type)));
+                    grid.appendChild(rowDiv);
+                });
 
-            // OPP buttons - Row 1 (1-15)
-            const oppRow1 = document.createElement('div');
-            oppRow1.className = 'compact-row-single';
-            for (let num = 1; num <= 15; num++) {
-                const opp = 'OPP ' + num;
-                const btn = document.createElement('button');
-                btn.className = 'category-btn compact-btn-single';
-                btn.textContent = num;
-                btn.onclick = () => selectCat(btn, 'OPP', opp);
-                oppRow1.appendChild(btn);
-            }
-            oppGrid.appendChild(oppRow1);
+                // Subs (16–26)
+                const subsLabel = document.createElement('div');
+                subsLabel.style.cssText = 'font-size:10px;color:#888;text-align:center;margin:6px 0 3px;';
+                subsLabel.textContent = 'Subs';
+                grid.appendChild(subsLabel);
 
-            // OPP buttons - Row 2 (16-26)
-            const oppRow2 = document.createElement('div');
-            oppRow2.className = 'compact-row-single';
-            for (let num = 16; num <= 26; num++) {
-                const opp = 'OPP ' + num;
-                const btn = document.createElement('button');
-                btn.className = 'category-btn compact-btn-single';
-                btn.textContent = num;
-                btn.onclick = () => selectCat(btn, 'OPP', opp);
-                oppRow2.appendChild(btn);
+                const subsRow = document.createElement('div');
+                subsRow.style.cssText = 'display:flex;flex-wrap:wrap;justify-content:center;gap:4px;';
+                for (let num = 16; num <= 26; num++) subsRow.appendChild(makeBtn(num, type));
+                grid.appendChild(subsRow);
             }
-            oppGrid.appendChild(oppRow2);
+
+            buildGrid(ckGrid, 'OUR');
+            buildGrid(oppGrid, 'OPP');
         }
 
         function createButtons() {
@@ -7450,7 +7593,7 @@
 
                     // Calculate videoTime from gameTime if not stored
                     if (videoTime === undefined || videoTime === null || !isFinite(videoTime)) {
-                        const gameTimeMatch = event.time.match(/(\d+):(\d+)/);
+                        const gameTimeMatch = event.time ? event.time.match(/(\d+):(\d+)/) : null;
                         if (gameTimeMatch) {
                             const gameTimeSeconds = parseInt(gameTimeMatch[1]) * 60 + parseInt(gameTimeMatch[2]);
 
@@ -7464,12 +7607,16 @@
                         }
                     }
 
-                    if (videoTime !== undefined && isFinite(videoTime)) {
+                    // Always show view/edit buttons in post-match mode
+                    const hasVideoTime = videoTime !== undefined && isFinite(videoTime);
+                    if (hasVideoTime) {
                         const videoTimeDisplay = formatVideoTime(videoTime);
                         videoTimeStr = ` <span style="color: #2196F3; font-size: 0.9em;">(${videoTimeDisplay})</span>`;
                         viewButton = `<button class="view-event-btn" onclick="seekToEventTime(${videoTime})" title="View at ${videoTimeDisplay}">👁️</button>`;
-                        editButton = `<button class="edit-event-btn" onclick="startEditingEvent(${actualIndex})" title="Edit timestamp">✏️</button>`;
+                    } else {
+                        viewButton = `<button class="view-event-btn" onclick="seekToEventTime(0)" title="Seek to video">👁️</button>`;
                     }
+                    editButton = `<button class="edit-event-btn" onclick="startEditingEvent(${actualIndex})" title="Edit timestamp">✏️</button>`;
                 }
 
                 // Check if this event is being edited
