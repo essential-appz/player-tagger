@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Match Tagger — New Odyssey</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --navy: #0a1f44;
+    --sky: #4aa8d8;
+    --sky-light: #e8f5fc;
+    --white: #ffffff;
+    --grey: #f4f6f8;
+    --text: #1a1a2e;
+    --muted: #6b7280;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #fff;
+    color: var(--text);
+    width: 210mm;
+    min-height: 297mm;
+    margin: 0 auto;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: var(--navy);
+    padding: 40px 48px 32px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .header::after {
+    content: '';
+    position: absolute;
+    bottom: -30px;
+    right: -30px;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    border: 40px solid var(--sky);
+    opacity: 0.15;
+  }
+
+  .brand {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--sky);
+    margin-bottom: 10px;
+  }
+
+  .header h1 {
+    font-size: 42px;
+    font-weight: 900;
+    color: var(--white);
+    line-height: 1.1;
+    margin-bottom: 12px;
+  }
+
+  .header h1 span {
+    color: var(--sky);
+  }
+
+  .header .tagline {
+    font-size: 16px;
+    color: rgba(255,255,255,0.75);
+    font-weight: 300;
+    max-width: 420px;
+    line-height: 1.5;
+  }
+
+  /* ── INTRO STRIP ── */
+  .intro-strip {
+    background: var(--sky);
+    padding: 18px 48px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .intro-strip p {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--white);
+    line-height: 1.5;
+  }
+
+  .intro-strip .globe {
+    font-size: 26px;
+    flex-shrink: 0;
+  }
+
+  /* ── BODY ── */
+  .body {
+    padding: 40px 48px;
+  }
+
+  /* ── SECTION HEADING ── */
+  .section-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--sky);
+    margin-bottom: 8px;
+  }
+
+  h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 20px;
+  }
+
+  /* ── PIPELINE ── */
+  .pipeline {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    margin-bottom: 40px;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #dde4ed;
+  }
+
+  .pipeline-step {
+    flex: 1;
+    padding: 20px 16px;
+    text-align: center;
+    background: var(--white);
+    position: relative;
+  }
+
+  .pipeline-step:not(:last-child)::after {
+    content: '›';
+    position: absolute;
+    right: -10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 22px;
+    color: var(--sky);
+    font-weight: 700;
+    z-index: 2;
+    background: white;
+    padding: 0 2px;
+  }
+
+  .pipeline-step:not(:last-child) {
+    border-right: 1px solid #dde4ed;
+  }
+
+  .step-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--navy);
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 10px;
+  }
+
+  .pipeline-step h3 {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 6px;
+    line-height: 1.3;
+  }
+
+  .pipeline-step p {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+
+  /* ── TIERS ── */
+  .tiers {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+
+  .tier {
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #dde4ed;
+  }
+
+  .tier-header {
+    padding: 14px 16px;
+    background: var(--navy);
+  }
+
+  .tier.featured .tier-header {
+    background: var(--sky);
+  }
+
+  .tier-header h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 2px;
+  }
+
+  .tier-header .tier-sub {
+    font-size: 10px;
+    color: rgba(255,255,255,0.7);
+    font-weight: 400;
+  }
+
+  .tier-body {
+    padding: 16px;
+    background: var(--grey);
+  }
+
+  .tier-body ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .tier-body ul li {
+    font-size: 12px;
+    color: var(--text);
+    padding-left: 16px;
+    position: relative;
+    line-height: 1.4;
+  }
+
+  .tier-body ul li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--sky);
+    font-weight: 700;
+    font-size: 11px;
+  }
+
+  .tier.featured .tier-body ul li::before {
+    color: var(--navy);
+  }
+
+  /* ── WHY SECTION ── */
+  .why-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+
+  .why-card {
+    background: var(--sky-light);
+    border-left: 4px solid var(--sky);
+    border-radius: 0 8px 8px 0;
+    padding: 16px 18px;
+  }
+
+  .why-card h4 {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 6px;
+  }
+
+  .why-card p {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* ── HOW IT WORKS ── */
+  .how-it-works {
+    background: var(--navy);
+    border-radius: 10px;
+    padding: 24px 28px;
+    margin-bottom: 40px;
+  }
+
+  .how-it-works .section-label {
+    color: var(--sky);
+    margin-bottom: 6px;
+  }
+
+  .how-it-works h2 {
+    color: white;
+    margin-bottom: 16px;
+    font-size: 18px;
+  }
+
+  .steps-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .step-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .step-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    background: rgba(74, 168, 216, 0.2);
+    border: 1px solid rgba(74, 168, 216, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .step-text h4 {
+    font-size: 13px;
+    font-weight: 600;
+    color: white;
+    margin-bottom: 2px;
+  }
+
+  .step-text p {
+    font-size: 11px;
+    color: rgba(255,255,255,0.6);
+    line-height: 1.4;
+  }
+
+  /* ── CTA ── */
+  .cta {
+    background: var(--sky-light);
+    border-radius: 10px;
+    padding: 28px;
+    text-align: center;
+    border: 1px solid #c5e4f5;
+  }
+
+  .cta h2 {
+    font-size: 20px;
+    color: var(--navy);
+    margin-bottom: 8px;
+  }
+
+  .cta p {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+
+  .cta-requirements {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-bottom: 20px;
+  }
+
+  .req {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .req-icon {
+    font-size: 22px;
+  }
+
+  .req-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--navy);
+  }
+
+  .req-sub {
+    font-size: 10px;
+    color: var(--muted);
+  }
+
+  .cta-contact {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--sky);
+  }
+
+  /* ── FOOTER ── */
+  .footer {
+    background: var(--navy);
+    padding: 16px 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer p {
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+  }
+
+  .footer .brand-footer {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--sky);
+    letter-spacing: 1px;
+  }
+
+  /* ── PAGE 2 — ELEVATOR PITCH ── */
+  .page-break {
+    page-break-before: always;
+    border-top: 3px solid var(--sky);
+    padding-top: 48px;
+    padding-left: 48px;
+    padding-right: 48px;
+    padding-bottom: 48px;
+  }
+
+  .pitch-header {
+    margin-bottom: 32px;
+  }
+
+  .pitch-header .section-label {
+    margin-bottom: 6px;
+  }
+
+  .pitch-header h2 {
+    font-size: 28px;
+    margin-bottom: 8px;
+  }
+
+  .pitch-header p {
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .pitch-script {
+    background: var(--navy);
+    border-radius: 12px;
+    padding: 36px 40px;
+    margin-bottom: 28px;
+    position: relative;
+  }
+
+  .pitch-script::before {
+    content: '"';
+    position: absolute;
+    top: 16px;
+    left: 24px;
+    font-size: 80px;
+    color: var(--sky);
+    opacity: 0.3;
+    line-height: 1;
+    font-family: Georgia, serif;
+  }
+
+  .pitch-line {
+    font-size: 16px;
+    color: white;
+    line-height: 1.8;
+    font-weight: 300;
+  }
+
+  .pitch-line strong {
+    color: var(--sky);
+    font-weight: 700;
+  }
+
+  .pitch-line .beat {
+    display: block;
+    margin-top: 12px;
+  }
+
+  .pitch-notes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .pitch-note {
+    border: 1px solid #dde4ed;
+    border-radius: 8px;
+    padding: 16px 18px;
+  }
+
+  .pitch-note h4 {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--sky);
+    margin-bottom: 8px;
+  }
+
+  .pitch-note p {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .pitch-note ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .pitch-note ul li {
+    font-size: 12px;
+    color: var(--muted);
+    padding-left: 14px;
+    position: relative;
+  }
+
+  .pitch-note ul li::before {
+    content: '–';
+    position: absolute;
+    left: 0;
+    color: var(--sky);
+  }
+
+  @media print {
+    body { width: 210mm; }
+    .page-break { page-break-before: always; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- PAGE 1 — MARKETING ONE-PAGER                       -->
+<!-- ═══════════════════════════════════════════════════ -->
+
+<div class="header">
+  <div class="brand">New Odyssey</div>
+  <h1>Match <span>Tagger</span></h1>
+  <p class="tagline">Professional GAA match analysis delivered to your club — anywhere in the world.</p>
+</div>
+
+<div class="intro-strip">
+  <div class="globe">&#127758;</div>
+  <p>Send us your match video. We do the rest. Available to GAA clubs worldwide — all we need is your footage.</p>
+</div>
+
+<div class="body">
+
+  <!-- WHY -->
+  <div class="section-label">The Problem</div>
+  <h2>Your club deserves professional analysis.</h2>
+
+  <div class="why-grid">
+    <div class="why-card">
+      <h4>No dedicated analyst</h4>
+      <p>Most clubs rely on a manager's memory and post-match notes. Key moments go untracked and tactical patterns stay invisible.</p>
+    </div>
+    <div class="why-card">
+      <h4>Video exists — insight doesn't</h4>
+      <p>Your games are being filmed. But raw footage without analysis is just storage. The moments that matter get lost in 70 minutes of video.</p>
+    </div>
+    <div class="why-card">
+      <h4>Opposition blind spots</h4>
+      <p>Preparing for a specific opponent without data is guesswork. Match Tagger gives you the evidence to plan with confidence.</p>
+    </div>
+    <div class="why-card">
+      <h4>Player development stalls</h4>
+      <p>Telling a player what they did wrong is less effective than showing them. Clipped video evidence changes conversations.</p>
+    </div>
+  </div>
+
+  <!-- PIPELINE -->
+  <div class="section-label">The Service</div>
+  <h2>Four steps. Zero hassle for your club.</h2>
+
+  <div class="pipeline">
+    <div class="pipeline-step">
+      <div class="step-num">1</div>
+      <h3>Send your video</h3>
+      <p>Upload your match footage from anywhere in the world</p>
+    </div>
+    <div class="pipeline-step">
+      <div class="step-num">2</div>
+      <h3>Share match details</h3>
+      <p>Player names, scorers, timeline — as much as you have</p>
+    </div>
+    <div class="pipeline-step">
+      <div class="step-num">3</div>
+      <h3>We analyse</h3>
+      <p>Every event tagged, synced to the exact video timestamp</p>
+    </div>
+    <div class="pipeline-step">
+      <div class="step-num">4</div>
+      <h3>Receive your report</h3>
+      <p>Stats, insights, and a curated video reel of key moments</p>
+    </div>
+  </div>
+
+  <!-- TIERS -->
+  <div class="section-label">Packages</div>
+  <h2>Choose the level of insight you need.</h2>
+
+  <div class="tiers">
+    <div class="tier">
+      <div class="tier-header">
+        <h3>Basic</h3>
+        <div class="tier-sub">Essential match data</div>
+      </div>
+      <div class="tier-body">
+        <ul>
+          <li>Full scoreline breakdown</li>
+          <li>Possession statistics</li>
+          <li>Key scores clipped</li>
+          <li>Player score summary</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="tier featured">
+      <div class="tier-header">
+        <h3>Standard</h3>
+        <div class="tier-sub">Full event analysis</div>
+      </div>
+      <div class="tier-body">
+        <ul>
+          <li>Everything in Basic</li>
+          <li>Full player event breakdown</li>
+          <li>Attacking phase clips</li>
+          <li>Defensive phase clips</li>
+          <li>Turnover analysis</li>
+          <li>Kickout breakdown</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="tier">
+      <div class="tier-header">
+        <h3>Premium</h3>
+        <div class="tier-sub">Full opposition analysis</div>
+      </div>
+      <div class="tier-body">
+        <ul>
+          <li>Everything in Standard</li>
+          <li>Opposition player profiling</li>
+          <li>Opposition tactical patterns</li>
+          <li>Presented video report</li>
+          <li>Match preparation pack</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <div class="how-it-works">
+    <div class="section-label">Your deliverable</div>
+    <h2>Not just data — a video reel ready to show your players.</h2>
+    <div class="steps-list">
+      <div class="step-row">
+        <div class="step-icon">&#127916;</div>
+        <div class="step-text">
+          <h4>Curated video clips</h4>
+          <p>Every tagged event links to the exact moment in your match footage. We select and export the clips that matter.</p>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-icon">&#128202;</div>
+        <div class="step-text">
+          <h4>Player-level statistics</h4>
+          <p>Possession, scoring, turnovers and kickout data broken down by individual player — not just totals.</p>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-icon">&#127919;</div>
+        <div class="step-text">
+          <h4>Actionable insight</h4>
+          <p>Every report is framed around decisions — what worked, what didn't, and where the next opponent can be targeted.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta">
+    <h2>Ready to see your game differently?</h2>
+    <p>All we need is your video. No software. No setup. No analyst on your payroll.</p>
+    <div class="cta-requirements">
+      <div class="req">
+        <div class="req-icon">&#127916;</div>
+        <div class="req-label">Match Video</div>
+        <div class="req-sub">Any format</div>
+      </div>
+      <div class="req">
+        <div class="req-icon">&#128203;</div>
+        <div class="req-label">Match Timeline</div>
+        <div class="req-sub">If available</div>
+      </div>
+      <div class="req">
+        <div class="req-icon">&#128101;</div>
+        <div class="req-label">Player List</div>
+        <div class="req-sub">Names & numbers</div>
+      </div>
+    </div>
+    <div class="cta-contact">Contact New Odyssey to discuss your club's needs</div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <p>Professional GAA Match Analysis &mdash; Worldwide</p>
+  <div class="brand-footer">NEW ODYSSEY &mdash; MATCH TAGGER</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- PAGE 2 — ELEVATOR PITCH                            -->
+<!-- ═══════════════════════════════════════════════════ -->
+
+<div class="page-break">
+
+  <div class="pitch-header">
+    <div class="section-label">New Odyssey &mdash; Match Tagger</div>
+    <h2>30-Second Elevator Pitch</h2>
+    <p>Use this script for conversations with club managers, chairpersons, county board reps, or anyone making the decision.</p>
+  </div>
+
+  <div class="pitch-script">
+    <p class="pitch-line">
+      Most GAA clubs are filming their matches — but the footage just sits there.
+      <span class="beat">
+        <strong>Match Tagger</strong> is a professional analysis service from New Odyssey.
+        You send us your match video, and we tag every key event — every score, every turnover,
+        every kickout — synced to the exact timestamp.
+      </span>
+      <span class="beat">
+        Then we deliver you a <strong>curated video reel of the moments that matter</strong>,
+        plus full player statistics — ready to show your squad before the next game.
+      </span>
+      <span class="beat">
+        No software. No analyst on your books. Just send the video —
+        <strong>we do the rest, wherever your club is in the world.</strong>
+      </span>
+    </p>
+  </div>
+
+  <div class="pitch-notes">
+    <div class="pitch-note">
+      <h4>Delivery tips</h4>
+      <ul>
+        <li>Pause after "the footage just sits there" — let it land</li>
+        <li>Slow down on "curated video reel" — that's the headline</li>
+        <li>End with energy on "wherever your club is"</li>
+        <li>Target: 28–32 seconds at a natural pace</li>
+      </ul>
+    </div>
+    <div class="pitch-note">
+      <h4>Common follow-up questions</h4>
+      <ul>
+        <li>"How long does it take?" — Turnaround within 48 hours</li>
+        <li>"What format does the video need to be?" — Any format works</li>
+        <li>"How much does it cost?" — Packages to suit every club, contact us</li>
+        <li>"Can you do opposition analysis?" — Yes, that's our Premium package</li>
+      </ul>
+    </div>
+    <div class="pitch-note">
+      <h4>Who to target</h4>
+      <ul>
+        <li>Senior football managers and coaches</li>
+        <li>Club chairpersons and committee members</li>
+        <li>County board performance officers</li>
+        <li>College GAA clubs with budget</li>
+      </ul>
+    </div>
+    <div class="pitch-note">
+      <h4>Key differentiators to emphasise</h4>
+      <ul>
+        <li>Video clips — not just spreadsheets</li>
+        <li>Player-level data, not just team totals</li>
+        <li>No commitment — pay per match</li>
+        <li>Works for clubs worldwide — just send video</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
