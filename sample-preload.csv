@@ -1,0 +1,17 @@
+Team1,Cuala
+Team2,Ballymun
+Row Type,Team,Player,Score Type / KO Result,Time
+score,OUR,14,"Point from Play",05:00
+KO,OPP,,Won,05:00
+score,OPP,11,"Point from Play",08:00
+KO,OUR,,Lost,08:00
+score,OUR,13,"Goal",11:00
+KO,OPP,,Won,11:00
+score,OPP,14,"Point from Free",14:00
+KO,OUR,,Won,14:00
+score,OUR,11,"Point from Free",17:00
+KO,OPP,,Lost,17:00
+score,OUR,12,"2 Pointer",20:00
+KO,OPP,,Won,20:00
+score,OPP,13,"Goal",23:00
+KO,OUR,,Lost,23:00

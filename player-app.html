@@ -1779,6 +1779,7 @@
             <button onclick="openNewGameModal()" class="header-btn">⚙️ Settings</button>
             <button id="headerInMatchBtn" onclick="setGameMode('in-match')" class="header-btn mode-btn active-mode">In-Match</button>
             <button id="headerPostMatchBtn" onclick="setGameMode('post-match')" class="header-btn mode-btn">Post-Match</button>
+            <button id="headerPreloadBtn" onclick="openPreloadModal()" class="header-btn" style="display:none;">Pre-load Data</button>
         </div>
         <h1>Player Tagger <span class="version">v3.0</span></h1>
         <div class="header-right">
@@ -2040,6 +2041,12 @@
             <div>
                 <label style="font-size: 12px; font-weight: bold; color: #666; display: block; margin-bottom: 5px;">Event Type:</label>
                 <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <label style="display: flex; align-items: center; gap: 4px; font-size: 12px; font-weight: bold;">
+                        <input type="checkbox" id="filterAllTypes" checked onchange="toggleAllEventFilters(this.checked)"> All
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 4px; font-size: 12px;">
+                        <input type="checkbox" id="filterTouch" onchange="updateEventFilters()"> Touch
+                    </label>
                     <label style="display: flex; align-items: center; gap: 4px; font-size: 12px;">
                         <input type="checkbox" id="filterGoal" checked onchange="updateEventFilters()"> Goal
                     </label>
@@ -2542,6 +2549,97 @@
         </div>
     </div>
 
+    <!-- Pre-load Match Data Modal -->
+    <div id="preloadModal" class="modal">
+        <div class="modal-content" style="max-width:680px; width:95%; max-height:90vh; overflow-y:auto;">
+            <div class="modal-header">
+                <h2>Pre-load Match Data</h2>
+                <button class="modal-close" onclick="closePreloadModal()">&times;</button>
+            </div>
+
+            <!-- Team names -->
+            <div style="display:flex; gap:16px; align-items:center; margin-bottom:20px;">
+                <div style="flex:1;">
+                    <label style="font-size:12px; color:#666; display:block; margin-bottom:4px;">Our Team Name</label>
+                    <input type="text" id="preloadTeam1Input" placeholder="Our Team" oninput="applyPreloadTeamNames()"
+                        style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px; font-size:14px; font-weight:bold;">
+                </div>
+                <div style="font-size:18px; font-weight:bold; color:#999; padding-top:18px;">vs</div>
+                <div style="flex:1;">
+                    <label style="font-size:12px; color:#666; display:block; margin-bottom:4px;">Opposition Name</label>
+                    <input type="text" id="preloadTeam2Input" placeholder="Opposition" oninput="applyPreloadTeamNames()"
+                        style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px; font-size:14px; font-weight:bold;">
+                </div>
+            </div>
+
+            <!-- Final scoreline entry -->
+            <h3 style="margin-bottom:10px;">Final Scoreline <span style="font-size:12px; font-weight:normal; color:#666;">(Goals - Points)</span></h3>
+            <div style="display:flex; gap:20px; margin-bottom:16px;">
+                <div style="flex:1;">
+                    <label style="font-size:12px; color:#666; display:block; margin-bottom:6px;" id="preloadOurScoreLabel"></label>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <input type="number" id="preloadOurGoals" min="0" value="0" style="width:60px; padding:8px; border:1px solid #ccc; border-radius:4px; font-size:18px; text-align:center;" oninput="updatePreloadRemaining()">
+                        <span style="font-size:20px; font-weight:bold; color:#555;">-</span>
+                        <input type="number" id="preloadOurPoints" min="0" value="0" style="width:60px; padding:8px; border:1px solid #ccc; border-radius:4px; font-size:18px; text-align:center;" oninput="updatePreloadRemaining()">
+                    </div>
+                </div>
+                <div style="flex:1;">
+                    <label style="font-size:12px; color:#666; display:block; margin-bottom:6px;" id="preloadOppScoreLabel"></label>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <input type="number" id="preloadOppGoals" min="0" value="0" style="width:60px; padding:8px; border:1px solid #ccc; border-radius:4px; font-size:18px; text-align:center;" oninput="updatePreloadRemaining()">
+                        <span style="font-size:20px; font-weight:bold; color:#555;">-</span>
+                        <input type="number" id="preloadOppPoints" min="0" value="0" style="width:60px; padding:8px; border:1px solid #ccc; border-radius:4px; font-size:18px; text-align:center;" oninput="updatePreloadRemaining()">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Remaining to allocate -->
+            <div style="background:#f0f4ff; border-radius:6px; padding:10px 14px; margin-bottom:20px; display:flex; gap:32px; font-size:13px;">
+                <div>
+                    <span id="preloadOurRemainingLabel" style="font-weight:bold;"></span>
+                    <span id="preloadOurRemainingVal" style="margin-left:6px; color:#555;"></span>
+                </div>
+                <div>
+                    <span id="preloadOppRemainingLabel" style="font-weight:bold;"></span>
+                    <span id="preloadOppRemainingVal" style="margin-left:6px; color:#555;"></span>
+                </div>
+            </div>
+
+            <!-- Score details table -->
+            <h3 style="margin-bottom:10px;">Score Details</h3>
+            <div style="overflow-x:auto;">
+                <table id="preloadTable" style="width:100%; border-collapse:collapse; font-size:13px;">
+                    <thead>
+                        <tr style="background:#f5f5f5;">
+                            <th style="padding:8px 6px; text-align:left; border-bottom:2px solid #ddd;">Team</th>
+                            <th style="padding:8px 6px; text-align:left; border-bottom:2px solid #ddd;">Player #</th>
+                            <th style="padding:8px 6px; text-align:left; border-bottom:2px solid #ddd;">Score / KO</th>
+                            <th style="padding:8px 6px; text-align:left; border-bottom:2px solid #ddd;">Time (MM:SS)</th>
+                            <th style="padding:8px 6px; border-bottom:2px solid #ddd;"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="preloadTableBody">
+                        <tr id="preloadEmptyRow">
+                            <td colspan="5" style="padding:16px; text-align:center; color:#999; font-style:italic;">No scores added. Click "+ Add Score" to begin.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div style="display:flex; gap:8px; margin-top:10px; flex-wrap:wrap;">
+                <button onclick="addPreloadRow()" style="padding:7px 14px; background:#e3f2fd; border:1px solid #90caf9; border-radius:4px; cursor:pointer; font-size:13px;">+ Add Score</button>
+                <button onclick="exportPreloadCSV()" style="padding:7px 14px; background:#f3e5f5; border:1px solid #ce93d8; border-radius:4px; cursor:pointer; font-size:13px;">Export CSV</button>
+                <button onclick="document.getElementById('preloadCSVImport').click()" style="padding:7px 14px; background:#e8f5e9; border:1px solid #a5d6a7; border-radius:4px; cursor:pointer; font-size:13px;">Import CSV</button>
+                <input type="file" id="preloadCSVImport" accept=".csv" style="display:none;" onchange="importPreloadCSV(event)">
+            </div>
+
+            <!-- Actions -->
+            <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:20px; padding-top:16px; border-top:1px solid #eee;">
+                <button class="control-btn secondary" onclick="closePreloadModal()">Cancel</button>
+                <button class="control-btn primary" onclick="generatePreloadEvents()">Update Events</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Configuration
         const categories = ['OUR 1', 'OUR 2', 'OUR 3', 'OUR 4', 'OUR 5', 'OUR 6', 'OUR 7', 'OUR 8', 'OUR 9', 'OUR 10', 'OUR 11', 'OUR 12', 'OUR 13', 'OUR 14', 'OUR 15', 'OUR 16', 'OUR 17', 'OUR 18', 'OUR 19', 'OUR 20', 'OUR 21', 'OUR 22', 'OUR 23', 'OUR 24', 'OUR 25', 'OUR 26'];
@@ -2583,9 +2681,18 @@
         // Shot pitch map state
         let pendingShotEvent = null;
         let trialDaysRemaining = 0;
+        // Pre-load modal state
+        let preloadRows = [];
+        let preloadOriginalIndices = [];
+        let preloadFinalOurGoals = 0;
+        let preloadFinalOurPoints = 0;
+        let preloadFinalOppGoals = 0;
+        let preloadFinalOppPoints = 0;
+
         // Event filter state
         let eventTeamFilter = 'ALL'; // 'ALL', 'OUR', 'OPP'
         let eventTypeFilters = {
+            touch: false,
             shot: true,
             goal: true,
             twoPointer: true,
@@ -3258,9 +3365,13 @@
             // Header buttons
             const headerIn = document.getElementById('headerInMatchBtn');
             const headerPost = document.getElementById('headerPostMatchBtn');
+            const headerPreload = document.getElementById('headerPreloadBtn');
             if (headerIn && headerPost) {
                 headerIn.classList.toggle('active-mode', gameMode === 'in-match');
                 headerPost.classList.toggle('active-mode', gameMode === 'post-match');
+            }
+            if (headerPreload) {
+                headerPreload.style.display = gameMode === 'post-match' ? 'inline-block' : 'none';
             }
         }
 
@@ -4215,6 +4326,12 @@
                 bars += `<rect x="${x}" y="${y}" width="${barW}" height="${barH.toFixed(1)}" fill="${color}" opacity="0.85" rx="2"/>`;
             });
 
+            // Sequence number labels below x-axis
+            const seqLabels = kickouts.map((ko, i) => {
+                const cx = (yAxisX + (i + 0.5) * slotW).toFixed(1);
+                return `<text x="${cx}" y="${(xAxisY + 11).toFixed(1)}" text-anchor="middle" font-size="9" fill="#666">${i + 1}</text>`;
+            }).join('');
+
             // Y-axis label Y positions centred in each zone
             const longLabelY  = (pad.top + chartH * (1/6) + 4).toFixed(1);
             const medLabelY   = (pad.top + chartH * (3/6) + 4).toFixed(1);
@@ -4235,6 +4352,8 @@
                     <line x1="${yAxisX}" y1="${xAxisY}" x2="${yAxisX + chartW}" y2="${xAxisY}" stroke="#ccc" stroke-width="1"/>
                     <!-- Bars -->
                     ${bars}
+                    <!-- Sequence numbers -->
+                    ${seqLabels}
                     <!-- X axis label -->
                     <text x="${yAxisX + chartW / 2}" y="${svgH - 3}" text-anchor="middle" font-size="10" fill="#999">Kickout sequence →</text>
                 </svg>
@@ -4357,17 +4476,23 @@
 
         function generateKickoutPitchSVG(kickouts) {
             // Generate individual markers for each kickout
+            let seq = 0;
             const markers = kickouts.map((event) => {
                 const x = event.kickoutX;
                 const y = event.kickoutY;
 
                 if (!x || !y) return '';
 
+                seq++;
                 // Determine color based on Won/Lost
                 const isWon = event.descriptors.includes('KO Won');
                 const color = isWon ? '#2196F3' : '#f44336';
+                const fontSize = seq >= 10 ? 7 : 8;
 
-                return `<circle cx="${x}" cy="${y}" r="8" fill="${color}" stroke="white" stroke-width="2" opacity="0.8"/>`;
+                return `<g>
+                    <circle cx="${x}" cy="${y}" r="10" fill="${color}" stroke="white" stroke-width="2" opacity="0.85"/>
+                    <text x="${x}" y="${y + 1}" text-anchor="middle" dominant-baseline="middle" fill="white" font-size="${fontSize}" font-weight="bold" opacity="0.95">${seq}</text>
+                </g>`;
             }).join('\n');
 
             return `
@@ -4420,9 +4545,9 @@
 
                     <!-- Legend -->
                     <g transform="translate(20, 560)">
-                        <circle cx="0" cy="0" r="8" fill="#2196F3" opacity="0.8"/>
+                        <circle cx="0" cy="0" r="10" fill="#2196F3" opacity="0.85"/>
                         <text x="15" y="5" fill="white" font-size="12" font-weight="bold">Won</text>
-                        <circle cx="70" cy="0" r="8" fill="#f44336" opacity="0.8"/>
+                        <circle cx="70" cy="0" r="10" fill="#f44336" opacity="0.85"/>
                         <text x="85" y="5" fill="white" font-size="12" font-weight="bold">Lost</text>
                     </g>
                 </svg>
@@ -7197,7 +7322,7 @@
         }
 
         function updateEventFilters() {
-            // Update filter state from checkboxes
+            eventTypeFilters.touch = document.getElementById('filterTouch').checked;
             eventTypeFilters.goal = document.getElementById('filterGoal').checked;
             eventTypeFilters.twoPointer = document.getElementById('filter2Pointer').checked;
             eventTypeFilters.pointFromPlay = document.getElementById('filterPointFromPlay').checked;
@@ -7207,8 +7332,19 @@
             eventTypeFilters.shot = document.getElementById('filterShot').checked;
             eventTypeFilters.toLost = document.getElementById('filterTOLost').checked;
 
-            // Refresh event list
+            // Sync the All checkbox
+            const individualIds = ['filterTouch','filterGoal','filter2Pointer','filterPointFromPlay','filterPointFromFree','filterKOWon','filterKOLost','filterShot','filterTOLost'];
+            const allChecked = individualIds.every(id => document.getElementById(id).checked);
+            document.getElementById('filterAllTypes').checked = allChecked;
+
             updateRecentEvents();
+        }
+
+        function toggleAllEventFilters(checked) {
+            ['filterTouch','filterGoal','filter2Pointer','filterPointFromPlay','filterPointFromFree','filterKOWon','filterKOLost','filterShot','filterTOLost'].forEach(id => {
+                document.getElementById(id).checked = checked;
+            });
+            updateEventFilters();
         }
 
         function applyPlayerNumberFilter() {
@@ -7510,8 +7646,8 @@
                 return;
             }
 
-            // Filter out Touch-only events and apply filters
-            let filteredEvents = events.filter(e => e.descriptors !== 'Touch');
+            // Filter out Touch-only events unless Touch filter is enabled
+            let filteredEvents = events.filter(e => e.descriptors !== 'Touch' || eventTypeFilters.touch);
 
             // Apply team filter
             if (eventTeamFilter !== 'ALL') {
@@ -7525,6 +7661,9 @@
                 // Check if event matches any selected filter
                 let matchesFilter = false;
 
+                if (eventTypeFilters.touch && descriptors === 'touch') {
+                    matchesFilter = true;
+                }
                 if (eventTypeFilters.goal && descriptors.includes('goal')) {
                     matchesFilter = true;
                 }
@@ -8185,6 +8324,374 @@
         window.addEventListener('load', () => {
             showSplash();
         });
+
+        // ============================================
+        // ============================================
+        // PRE-LOAD MATCH DATA
+        // ============================================
+
+        function openPreloadModal() {
+            preloadRows = [];
+            preloadOriginalIndices = [];
+
+            const scoringDescriptors = ['Goal', 'Point from Play', 'Point from Free', '2 Pointer'];
+            const koDescriptors = ['Own KO Won', 'Own KO Lost', 'Opp KO Won', 'Opp KO Lost'];
+            const skipped = new Set();
+
+            events.forEach((event, i) => {
+                if (skipped.has(i)) return;
+                const descList = event.descriptors.split(', ').map(d => d.trim());
+                const scoreDesc = scoringDescriptors.find(sd => descList.includes(sd));
+                if (scoreDesc) {
+                    preloadRows.push({ rowType: 'score', team: event.type, player: event.category.split(' ')[1], scoreType: scoreDesc, time: event.time });
+                    preloadOriginalIndices.push(i);
+                    // Check if the immediately following event is a KO event
+                    if (i + 1 < events.length) {
+                        const next = events[i + 1];
+                        const nextDesc = next.descriptors.split(', ').map(d => d.trim());
+                        const koDesc = koDescriptors.find(kd => nextDesc.includes(kd));
+                        if (koDesc) {
+                            preloadRows.push({ rowType: 'ko', kickingTeam: next.type, koResult: koDesc.includes('Won') ? 'Won' : 'Lost', time: next.time });
+                            preloadOriginalIndices.push(i + 1);
+                            skipped.add(i + 1);
+                        }
+                    }
+                }
+            });
+
+            document.getElementById('preloadOurGoals').value = preloadFinalOurGoals;
+            document.getElementById('preloadOurPoints').value = preloadFinalOurPoints;
+            document.getElementById('preloadOppGoals').value = preloadFinalOppGoals;
+            document.getElementById('preloadOppPoints').value = preloadFinalOppPoints;
+
+            document.getElementById('preloadTeam1Input').value = team1Name !== 'Us' ? team1Name : '';
+            document.getElementById('preloadTeam2Input').value = team2Name !== 'Opposition' ? team2Name : '';
+            updatePreloadLabels();
+            renderPreloadTable();
+            updatePreloadRemaining();
+            document.getElementById('preloadModal').classList.add('active');
+        }
+
+        function applyPreloadTeamNames() {
+            const t1 = document.getElementById('preloadTeam1Input').value.trim();
+            const t2 = document.getElementById('preloadTeam2Input').value.trim();
+            if (t1) {
+                team1Name = t1;
+                document.getElementById('team1Name').value = t1;
+            }
+            if (t2) {
+                team2Name = t2;
+                document.getElementById('team2Name').value = t2;
+            }
+            updateGameName();
+            updatePreloadLabels();
+            renderPreloadTable(); // refresh team name dropdowns
+        }
+
+        function updatePreloadLabels() {
+            document.getElementById('preloadOurScoreLabel').textContent = (team1Name || 'Our Team') + ' (Goals - Points)';
+            document.getElementById('preloadOppScoreLabel').textContent = (team2Name || 'Opposition') + ' (Goals - Points)';
+            document.getElementById('preloadOurRemainingLabel').textContent = (team1Name || 'Our Team') + ':';
+            document.getElementById('preloadOppRemainingLabel').textContent = (team2Name || 'Opposition') + ':';
+        }
+
+        function closePreloadModal() {
+            document.getElementById('preloadModal').classList.remove('active');
+        }
+
+        function updatePreloadRemaining() {
+            const ourGoalsTotal = parseInt(document.getElementById('preloadOurGoals').value) || 0;
+            const ourPointsTotal = parseInt(document.getElementById('preloadOurPoints').value) || 0;
+            const oppGoalsTotal = parseInt(document.getElementById('preloadOppGoals').value) || 0;
+            const oppPointsTotal = parseInt(document.getElementById('preloadOppPoints').value) || 0;
+
+            // Persist the entered values
+            preloadFinalOurGoals = ourGoalsTotal;
+            preloadFinalOurPoints = ourPointsTotal;
+            preloadFinalOppGoals = oppGoalsTotal;
+            preloadFinalOppPoints = oppPointsTotal;
+
+            let ourGoalsUsed = 0, ourPointsUsed = 0, oppGoalsUsed = 0, oppPointsUsed = 0;
+            preloadRows.filter(r => r.rowType === 'score').forEach(row => {
+                if (row.team === 'OUR') {
+                    if (row.scoreType === 'Goal') ourGoalsUsed++;
+                    else if (row.scoreType === '2 Pointer') ourPointsUsed += 2;
+                    else ourPointsUsed += 1;
+                } else {
+                    if (row.scoreType === 'Goal') oppGoalsUsed++;
+                    else if (row.scoreType === '2 Pointer') oppPointsUsed += 2;
+                    else oppPointsUsed += 1;
+                }
+            });
+
+            const ourGR = ourGoalsTotal - ourGoalsUsed;
+            const ourPR = ourPointsTotal - ourPointsUsed;
+            const oppGR = oppGoalsTotal - oppGoalsUsed;
+            const oppPR = oppPointsTotal - oppPointsUsed;
+
+            const ourEl = document.getElementById('preloadOurRemainingVal');
+            const oppEl = document.getElementById('preloadOppRemainingVal');
+
+            ourEl.textContent = ourGR + '-' + ourPR + ' to allocate';
+            ourEl.style.color = (ourGR < 0 || ourPR < 0) ? '#c62828' : '#555';
+
+            oppEl.textContent = oppGR + '-' + oppPR + ' to allocate';
+            oppEl.style.color = (oppGR < 0 || oppPR < 0) ? '#c62828' : '#555';
+        }
+
+        function addPreloadRow() {
+            preloadRows.push({ rowType: 'score', team: 'OUR', player: '', scoreType: 'Goal', time: '' });
+            preloadRows.push({ rowType: 'ko', kickingTeam: 'OPP', koResult: 'Won', time: '' });
+            renderPreloadTable();
+            updatePreloadRemaining();
+        }
+
+        function removePreloadRow(idx) {
+            preloadRows.splice(idx, 1);
+            renderPreloadTable();
+            updatePreloadRemaining();
+        }
+
+        function onPreloadRowChange(idx, field, value) {
+            preloadRows[idx][field] = value;
+            // When a score row's team changes, update the immediately following KO row
+            if (field === 'team' && preloadRows[idx].rowType === 'score') {
+                if (idx + 1 < preloadRows.length && preloadRows[idx + 1].rowType === 'ko') {
+                    preloadRows[idx + 1].kickingTeam = value === 'OUR' ? 'OPP' : 'OUR';
+                    renderPreloadTable();
+                }
+            }
+            updatePreloadRemaining();
+        }
+
+        function renderPreloadTable() {
+            const tbody = document.getElementById('preloadTableBody');
+            if (preloadRows.length === 0) {
+                tbody.innerHTML = '<tr id="preloadEmptyRow"><td colspan="5" style="padding:16px; text-align:center; color:#999; font-style:italic;">No scores added. Click "+ Add Score" to begin.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = preloadRows.map((row, i) => {
+                if (row.rowType === 'ko') {
+                    const kickingName = row.kickingTeam === 'OUR' ? team1Name : team2Name;
+                    return `
+                    <tr style="background:#f5f8ff; border-bottom:1px solid #e0e8ff;">
+                        <td style="padding:5px 4px 5px 16px; color:#555; font-size:12px;">
+                            <span style="color:#90a4ae; margin-right:4px;">&#8627;</span>${kickingName} KO
+                        </td>
+                        <td style="padding:5px 4px; color:#999; font-size:12px; font-style:italic;">Team Event</td>
+                        <td style="padding:5px 4px;">
+                            <select onchange="onPreloadRowChange(${i}, 'koResult', this.value)" style="padding:4px; border:1px solid #b0bec5; border-radius:4px; font-size:13px;">
+                                <option value="Won" ${row.koResult === 'Won' ? 'selected' : ''}>KO Won</option>
+                                <option value="Lost" ${row.koResult === 'Lost' ? 'selected' : ''}>KO Lost</option>
+                            </select>
+                        </td>
+                        <td style="padding:5px 4px;">
+                            <input type="text" value="${row.time}" placeholder="00:00"
+                                onchange="onPreloadRowChange(${i}, 'time', this.value)"
+                                style="width:70px; padding:4px; border:1px solid #b0bec5; border-radius:4px; font-size:13px; font-family:monospace;">
+                        </td>
+                        <td style="padding:5px 4px; text-align:center;">
+                            <button onclick="removePreloadRow(${i})" style="background:none; border:none; color:#c62828; cursor:pointer; font-size:16px; padding:2px 6px;" title="Remove">&times;</button>
+                        </td>
+                    </tr>`;
+                } else {
+                    return `
+                    <tr style="border-bottom:1px solid #eee;">
+                        <td style="padding:6px 4px;">
+                            <select onchange="onPreloadRowChange(${i}, 'team', this.value)" style="padding:5px; border:1px solid #ccc; border-radius:4px; font-size:13px;">
+                                <option value="OUR" ${row.team === 'OUR' ? 'selected' : ''}>${team1Name}</option>
+                                <option value="OPP" ${row.team === 'OPP' ? 'selected' : ''}>${team2Name}</option>
+                            </select>
+                        </td>
+                        <td style="padding:6px 4px;">
+                            <input type="number" min="1" max="26" value="${row.player}" placeholder="1–26"
+                                onchange="onPreloadRowChange(${i}, 'player', this.value)"
+                                style="width:55px; padding:5px; border:1px solid #ccc; border-radius:4px; font-size:13px;">
+                        </td>
+                        <td style="padding:6px 4px;">
+                            <select onchange="onPreloadRowChange(${i}, 'scoreType', this.value); updatePreloadRemaining();" style="padding:5px; border:1px solid #ccc; border-radius:4px; font-size:13px;">
+                                <option value="Goal" ${row.scoreType === 'Goal' ? 'selected' : ''}>Goal</option>
+                                <option value="Point from Play" ${row.scoreType === 'Point from Play' ? 'selected' : ''}>Point from Play</option>
+                                <option value="Point from Free" ${row.scoreType === 'Point from Free' ? 'selected' : ''}>Point from Free</option>
+                                <option value="2 Pointer" ${row.scoreType === '2 Pointer' ? 'selected' : ''}>2 Pointer</option>
+                            </select>
+                        </td>
+                        <td style="padding:6px 4px;">
+                            <input type="text" value="${row.time}" placeholder="00:00"
+                                onchange="onPreloadRowChange(${i}, 'time', this.value)"
+                                style="width:70px; padding:5px; border:1px solid #ccc; border-radius:4px; font-size:13px; font-family:monospace;">
+                        </td>
+                        <td style="padding:6px 4px; text-align:center;">
+                            <button onclick="removePreloadRow(${i})" style="background:none; border:none; color:#c62828; cursor:pointer; font-size:16px; padding:2px 6px;" title="Remove">&times;</button>
+                        </td>
+                    </tr>`;
+                }
+            }).join('');
+        }
+
+        function exportPreloadCSV() {
+            let csv = 'Team1,' + team1Name + '\n';
+            csv += 'Team2,' + team2Name + '\n';
+            csv += 'Row Type,Team,Player,Score Type / KO Result,Time\n';
+            preloadRows.forEach(row => {
+                if (row.rowType === 'ko') {
+                    csv += 'KO,' + row.kickingTeam + ',,' + row.koResult + ',' + (row.time || '') + '\n';
+                } else {
+                    csv += 'score,' + row.team + ',' + (row.player || '') + ',"' + row.scoreType + '",' + (row.time || '') + '\n';
+                }
+            });
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'preload-scores.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function importPreloadCSV(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const lines = e.target.result.split('\n');
+                    const newRows = [];
+                    let foundHeader = false;
+
+                    for (let i = 0; i < lines.length; i++) {
+                        const line = lines[i].trim();
+                        if (!line) continue;
+
+                        if (line.startsWith('Team1,')) {
+                            const name = line.slice(6).trim();
+                            if (name) { document.getElementById('preloadTeam1Input').value = name; }
+                            continue;
+                        }
+                        if (line.startsWith('Team2,')) {
+                            const name = line.slice(6).trim();
+                            if (name) { document.getElementById('preloadTeam2Input').value = name; }
+                            continue;
+                        }
+                        if (line.startsWith('Row Type,') || line.startsWith('Team,Player')) { foundHeader = true; continue; }
+                        if (!foundHeader) continue;
+
+                        // Parse quoted CSV
+                        const parts = [];
+                        let cur = '', inQ = false;
+                        for (const ch of line) {
+                            if (ch === '"') { inQ = !inQ; }
+                            else if (ch === ',' && !inQ) { parts.push(cur); cur = ''; }
+                            else cur += ch;
+                        }
+                        parts.push(cur);
+
+                        if (parts.length < 3) continue;
+                        const rowType = parts[0].trim();
+
+                        if (rowType === 'KO') {
+                            newRows.push({ rowType: 'ko', kickingTeam: parts[1].trim(), koResult: parts[3].trim(), time: (parts[4] || '').trim() });
+                        } else if (rowType === 'score') {
+                            newRows.push({ rowType: 'score', team: parts[1].trim(), player: parts[2].trim(), scoreType: parts[3].trim(), time: (parts[4] || '').trim() });
+                        } else if (rowType === 'OUR' || rowType === 'OPP') {
+                            // Legacy format (no Row Type column)
+                            newRows.push({ rowType: 'score', team: rowType, player: parts[1].trim(), scoreType: parts[2].trim(), time: (parts[3] || '').trim() });
+                        }
+                    }
+
+                    if (newRows.length === 0) { alert('No valid rows found in CSV.'); return; }
+
+                    preloadRows = newRows;
+                    applyPreloadTeamNames();
+                    renderPreloadTable();
+                    updatePreloadRemaining();
+                } catch(err) {
+                    alert('Error reading CSV: ' + err.message);
+                }
+                event.target.value = '';
+            };
+            reader.readAsText(file);
+        }
+
+        function generatePreloadEvents() {
+            if (preloadRows.length === 0) {
+                alert('No score entries to generate. Add scores first.');
+                return;
+            }
+
+            // Validate score rows only
+            const invalid = preloadRows.filter(r => r.rowType === 'score' && (!r.player || parseInt(r.player) < 1 || parseInt(r.player) > 26));
+            if (invalid.length > 0) {
+                alert('Please enter a valid player number (1–26) for all score rows.');
+                return;
+            }
+
+            // Apply team names before generating
+            applyPreloadTeamNames();
+
+            const toSecs = t => {
+                const parts = (t || '00:00').split(':');
+                return parseInt(parts[0] || 0) * 60 + parseInt(parts[1] || 0);
+            };
+
+            // Remove original score events (highest index first to preserve positions)
+            [...preloadOriginalIndices].sort((a, b) => b - a).forEach(idx => {
+                events.splice(idx, 1);
+            });
+
+            // Emit events in table order (score rows followed by their KO rows)
+            preloadRows.forEach(row => {
+                const timeStr = row.time && /^\d{1,2}:\d{2}$/.test(row.time)
+                    ? String(parseInt(row.time.split(':')[0])).padStart(2,'0') + ':' + row.time.split(':')[1]
+                    : '00:00';
+                const period = toSecs(timeStr) > 1800 ? '2nd Half Started' : '1st Half Started';
+
+                if (row.rowType === 'score') {
+                    const base = { timestamp: new Date().toISOString(), time: timeStr, period, type: row.team, category: row.team + ' ' + parseInt(row.player) };
+                    // 1. Touch event
+                    events.push({ ...base, descriptors: 'Touch' });
+                    // 2. Shot event
+                    events.push({ ...base, descriptors: 'Shot' });
+                    // 3. Score event (no Touch)
+                    events.push({ ...base, descriptors: row.scoreType });
+                } else if (row.rowType === 'ko') {
+                    const koDesc = row.kickingTeam === 'OPP'
+                        ? (row.koResult === 'Won' ? 'Opp KO Won' : 'Opp KO Lost')
+                        : (row.koResult === 'Won' ? 'Own KO Won' : 'Own KO Lost');
+                    events.push({
+                        timestamp: new Date().toISOString(),
+                        time: timeStr,
+                        period,
+                        type: row.kickingTeam,
+                        category: 'Team Event',
+                        descriptors: koDesc
+                    });
+                }
+            });
+
+            saveToStorage();
+            updateMatrix();
+            // Reset team filter to ALL so KO (Team Event) and all generated events are visible
+            eventTeamFilter = 'ALL';
+            ['filterAll','filterOUR','filterOPP'].forEach(id => {
+                const btn = document.getElementById(id);
+                if (btn) { btn.style.background = id === 'filterAll' ? '#4CAF50' : 'white'; btn.style.color = id === 'filterAll' ? 'white' : '#333'; }
+            });
+            updateRecentEvents();
+            updateScoreboard();
+            document.getElementById('eventCount').textContent = events.length;
+            updatePeriodStatus();
+
+            const scoreCount = preloadRows.filter(r => r.rowType === 'score').length;
+            const koCount = preloadRows.filter(r => r.rowType === 'ko').length;
+            console.log('[Preload] Generated events:', events.slice(-scoreCount * 4));
+            closePreloadModal();
+            // Scroll logged events list to show newly generated events
+            const recentList = document.getElementById('recentEventsList');
+            if (recentList) recentList.scrollTop = recentList.scrollHeight;
+            alert(scoreCount + ' score event' + (scoreCount !== 1 ? 's' : '') + ' and ' + koCount + ' KO event' + (koCount !== 1 ? 's' : '') + ' saved. Review and refine using the match video.');
+        }
 
         // ============================================
         // PWA: ONLINE/OFFLINE DETECTION
