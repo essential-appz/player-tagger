@@ -282,6 +282,40 @@
     line-height: 1.5;
   }
 
+  /* ── REPORTS ── */
+  .reports-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+
+  .report-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--grey);
+  }
+
+  .report-card img {
+    width: 100%;
+    display: block;
+    object-fit: contain;
+    background: #dde5ed;
+  }
+
+  .report-card--full {
+  grid-column: 1 / -1;
+}
+.report-card-label {
+    padding: 8px 12px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--navy);
+    letter-spacing: 0.5px;
+    border-top: 1px solid #e2e8f0;
+  }
+
   /* ── HOW IT WORKS ── */
   .how-it-works {
     background: var(--navy);
@@ -602,6 +636,32 @@
       <div class="step-num">4</div>
       <h3>Receive your report</h3>
       <p>Stats, insights, and a curated video reel of key moments</p>
+    </div>
+  </div>
+
+  <!-- REPORTS -->
+  <div class="section-label">The Reports</div>
+  <h2>Insight at a glance.</h2>
+  <div class="reports-grid">
+    <div class="report-card report-card--full">
+      <img src="screenshots/game-reports.png" alt="Game Reports">
+      <div class="report-card-label">Game Reports</div>
+    </div>
+    <div class="report-card">
+      <img src="screenshots/shot-map.png" alt="Shot Map">
+      <div class="report-card-label">Shot Map</div>
+    </div>
+    <div class="report-card">
+      <img src="screenshots/kickout-map.png" alt="Kickout Map">
+      <div class="report-card-label">Kickout Map</div>
+    </div>
+    <div class="report-card">
+      <img src="screenshots/turnover-map.png" alt="Turnover Map">
+      <div class="report-card-label">Turnover Map</div>
+    </div>
+    <div class="report-card">
+      <img src="screenshots/timeline.png" alt="Timeline">
+      <div class="report-card-label">Timeline</div>
     </div>
   </div>
 
